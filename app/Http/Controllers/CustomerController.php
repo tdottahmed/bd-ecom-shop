@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -105,6 +106,11 @@ class CustomerController extends Controller
             $query->where('category_id', $categoryId);
         }
 
+        // Filter by brand if provided
+        if ($brandId = $request->input('brand_id')) {
+            $query->where('brand_id', $brandId);
+        }
+
         // Search
         if ($search = $request->input('search')) {
             $query->where('name', 'like', '%' . $search . '%');
@@ -206,5 +212,25 @@ class CustomerController extends Controller
             });
 
         return response()->json($products);
+    }
+
+    public function brands()
+    {
+        $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
+
+        return Inertia::render('Customer/Brands', [
+            'brands' => $brands,
+        ]);
+    }
+
+    public function brand(Brand $brand, Request $request)
+    {
+        $request->merge(['brand_id' => $brand->id]);
+        $products = $this->filterProducts($request, null, 12);
+
+        return Inertia::render('Customer/Brand', [
+            'brand' => $brand->only(['id', 'title', 'slug', 'image']),
+            'products' => $products,
+        ]);
     }
 }

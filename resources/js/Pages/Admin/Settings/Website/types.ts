@@ -6,10 +6,14 @@ export interface DeliveryCharge {
 }
 
 export interface WebsiteSetting {
-    id: number;
     banner_active: boolean;
-    banner_images: string[] | null;
-    logo?: string | null;
-    favicon?: string | null;
+    banner_images: string[];
+    site_logo: string | null;
+    site_favicon: string | null;
+    footer_description: string | null;
+    social_facebook: string | null;
+    social_instagram: string | null;
+    social_youtube: string | null;
+    social_tiktok: string | null;
 }
 

@@ -16,7 +16,17 @@ class WebsiteController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Settings/Website/Index', [
-            'setting' => WebsiteSetting::first() ?? ['banner_active' => true, 'banner_images' => []],
+            'settings' => [
+                'banner_active' => get_setting('banner_active', '1') === '1',
+                'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
+                'site_logo' => get_setting('site_logo'),
+                'site_favicon' => get_setting('site_favicon'),
+                'footer_description' => get_setting('footer_description'),
+                'social_facebook' => get_setting('social_facebook'),
+                'social_instagram' => get_setting('social_instagram'),
+                'social_youtube' => get_setting('social_youtube'),
+                'social_tiktok' => get_setting('social_tiktok'),
+            ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
         ]);
@@ -35,12 +45,16 @@ class WebsiteController extends Controller
                 'existing_banner_images.*' => 'string',
                 'deleted_images' => 'nullable|array',
             ]);
-            $bannerImages =  $this->handleImages($setting->banner_images ?? [], $request, 'banner_images', 'banners');
-            $setting = WebsiteSetting::firstOrNew();
-            $setting->banner_active = $request->banner_active;
 
-            $setting->banner_images = $bannerImages;
-            $setting->save();
+            $currentImages = json_decode(get_setting('banner_images', '[]'), true);
+            $bannerImages = $this->handleImages($currentImages, $request, 'banner_images', 'banners');
+
+            Setting::updateOrCreate(['key' => 'banner_active'], ['value' => $request->banner_active ? '1' : '0']);
+            Setting::updateOrCreate(['key' => 'banner_images'], ['value' => json_encode($bannerImages)]);
+
+            Cache::forget('setting_banner_active');
+            Cache::forget('setting_banner_images');
+
             return back()->with('success', 'Banner settings updated successfully.');
         }
 
@@ -58,7 +72,6 @@ class WebsiteController extends Controller
 
             DeliveryCharge::whereNotIn('id', $existingChargeIds)->delete();
 
-            // Update or Create charges
             foreach ($inputCharges as $chargeData) {
                 if (isset($chargeData['id'])) {
                     DeliveryCharge::where('id', $chargeData['id'])->update([
@@ -97,39 +110,70 @@ class WebsiteController extends Controller
                 'favicon' => 'nullable|image|max:1024',
             ]);
 
-            $setting = WebsiteSetting::firstOrNew();
-
             if ($request->has('deleted_logo') && $request->deleted_logo) {
-                if ($setting->logo) {
-                    FileUpload::deleteImage($setting->logo);
-                    $setting->logo = null;
+                $existing = get_setting('site_logo');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
+                    Setting::updateOrCreate(['key' => 'site_logo'], ['value' => '']);
+                    Cache::forget('setting_site_logo');
                 }
             }
 
             if ($request->hasFile('logo')) {
-                if ($setting->logo) {
-                    FileUpload::deleteImage($setting->logo);
+                $existing = get_setting('site_logo');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
                 }
-                $setting->logo = FileUpload::uploadImage($request->file('logo'), 'branding');
+                $path = FileUpload::uploadImage($request->file('logo'), 'branding');
+                Setting::updateOrCreate(['key' => 'site_logo'], ['value' => $path]);
+                Cache::forget('setting_site_logo');
             }
 
             if ($request->has('deleted_favicon') && $request->deleted_favicon) {
-                if ($setting->favicon) {
-                    FileUpload::deleteImage($setting->favicon);
-                    $setting->favicon = null;
+                $existing = get_setting('site_favicon');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
+                    Setting::updateOrCreate(['key' => 'site_favicon'], ['value' => '']);
+                    Cache::forget('setting_site_favicon');
                 }
             }
 
             if ($request->hasFile('favicon')) {
-                if ($setting->favicon) {
-                    FileUpload::deleteImage($setting->favicon);
+                $existing = get_setting('site_favicon');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
                 }
-                $setting->favicon = FileUpload::uploadImage($request->file('favicon'), 'branding');
+                $path = FileUpload::uploadImage($request->file('favicon'), 'branding');
+                Setting::updateOrCreate(['key' => 'site_favicon'], ['value' => $path]);
+                Cache::forget('setting_site_favicon');
             }
 
-            $setting->save();
-
             return back()->with('success', 'Branding updated successfully.');
+        }
+
+        if ($type === 'footer') {
+            $request->validate([
+                'footer_description' => 'nullable|string|max:1000',
+                'social_facebook' => 'nullable|url|max:255',
+                'social_instagram' => 'nullable|url|max:255',
+                'social_youtube' => 'nullable|url|max:255',
+                'social_tiktok' => 'nullable|url|max:255',
+            ]);
+
+            $footerSettings = $request->only([
+                'footer_description',
+                'social_facebook',
+                'social_instagram',
+                'social_youtube',
+                'social_tiktok',
+            ]);
+
+            foreach ($footerSettings as $key => $value) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
+                Cache::forget('setting_' . $key);
+            }
+
+            return back()->with('success', 'Footer settings updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');

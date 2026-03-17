@@ -11,16 +11,16 @@ import ImageUploader from "@/Components/Ui/ImageUploader";
 import { WebsiteSetting } from "../types";
 
 interface BrandingFormProps {
-    setting: WebsiteSetting;
+    settings: WebsiteSetting;
 }
 
-const BrandingForm: React.FC<BrandingFormProps> = ({ setting }) => {
+const BrandingForm: React.FC<BrandingFormProps> = ({ settings }) => {
     const { data, setData, post, processing, errors } = useForm({
         type: "branding",
         logo: null as File | null,
         favicon: null as File | null,
-        existing_logo: setting.logo || null,
-        existing_favicon: setting.favicon || null,
+        existing_logo: settings.site_logo || null,
+        existing_favicon: settings.site_favicon || null,
         deleted_logo: false,
         deleted_favicon: false,
     });

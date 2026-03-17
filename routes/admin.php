@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PriceCalculatorController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -49,6 +50,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
   Route::post('seo/update', [SeoController::class, 'update'])->name('seo.update');
   Route::post('seo/regenerate-sitemap', [SeoController::class, 'regenerateSitemap'])->name('seo.regenerate-sitemap');
   Route::post('seo/regenerate-rss', [SeoController::class, 'regenerateRss'])->name('seo.regenerate-rss');
+
+  Route::resource('pages', PageController::class)->except(['show']);
 
   // Order Management
   Route::get('orders/bulk-details', [OrderController::class, 'bulkDetails'])->name('orders.bulk-details');

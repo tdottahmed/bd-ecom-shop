@@ -11,19 +11,19 @@ import ImageUploader from "@/Components/Ui/ImageUploader";
 import { WebsiteSetting } from "../types";
 
 interface BannerFormProps {
-    setting: WebsiteSetting;
+    settings: WebsiteSetting;
 }
 
-const BannerForm: React.FC<BannerFormProps> = ({ setting }) => {
+const BannerForm: React.FC<BannerFormProps> = ({ settings }) => {
     const [existingImages, setExistingImages] = useState<string[]>(
-        setting.banner_images || [],
+        settings.banner_images || [],
     );
 
     const { data, setData, post, processing, errors } = useForm({
         type: "banner",
-        banner_active: setting.banner_active,
+        banner_active: settings.banner_active,
         banner_images: [] as File[],
-        existing_banner_images: setting.banner_images || [],
+        existing_banner_images: settings.banner_images || [],
         deleted_images: [] as string[],
     });
 

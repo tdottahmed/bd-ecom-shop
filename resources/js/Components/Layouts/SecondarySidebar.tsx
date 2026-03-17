@@ -1,6 +1,7 @@
 import React from "react";
 import {
     BadgePercent,
+    FileText,
     Globe,
     Users,
     Truck,
@@ -93,6 +94,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Search size={18} />,
         route: "admin.seo.index",
         urlPattern: "/admin/seo",
+    },
+    {
+        key: "pages",
+        label: "Pages",
+        icon: <FileText size={18} />,
+        route: "admin.pages.index",
+        urlPattern: "/admin/pages",
     },
 ];
 

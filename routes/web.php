@@ -10,11 +10,18 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RssController;
+use App\Http\Controllers\PageController;
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');
 Route::get('products', [CustomerController::class, 'products'])->name('products.index');
 Route::get('product/{product:slug}', [CustomerController::class, 'show'])->name('products.show');
+Route::get('brands', [CustomerController::class, 'brands'])->name('brands.index');
+Route::get('brand/{brand:slug}', [CustomerController::class, 'brand'])->name('brands.show');
+
+Route::get('about-us', [PageController::class, 'about'])->name('pages.about');
+Route::get('contact-us', [PageController::class, 'contact'])->name('pages.contact');
+Route::get('page/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 Route::get('api/search', [CustomerController::class, 'search'])->name('api.search');
 Route::get('api/categories/{category}/products', [CustomerController::class, 'categoryProducts'])->name('api.categories.products');

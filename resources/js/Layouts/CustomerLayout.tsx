@@ -3,7 +3,7 @@ import { Head, usePage } from "@inertiajs/react";
 import { ShoppingBag } from "lucide-react";
 import Header from "@/Components/Customer/Header";
 import CartSidebar from "@/Components/Customer/CartSidebar";
-import CategorySidebar from "@/Components/Customer/CategorySidebar";
+import NavigationSidebar from "@/Components/Customer/NavigationSidebar";
 import Preloader from "@/Components/Utility/Preloader";
 import Footer from "@/Components/Customer/Footer";
 
@@ -114,7 +114,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 
             <Header onMenuClick={() => setIsMenuOpen(true)} />
 
-            <CategorySidebar
+            <NavigationSidebar
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
             />

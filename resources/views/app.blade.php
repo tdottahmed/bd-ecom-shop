@@ -7,8 +7,7 @@
 
   <title inertia>{{ config('app.name', 'Laravel') }}</title>
   @php
-    $websiteSetting = \App\Models\WebsiteSetting::first();
-    $favicon = $websiteSetting?->favicon;
+    $favicon = get_setting('site_favicon');
   @endphp
   <link rel="icon" type="image/png" href="{{ $favicon ? asset('storage/' . $favicon) : asset('favicon.png') }}">
 

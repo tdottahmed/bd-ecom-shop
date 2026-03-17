@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Models\Category;
+use App\Models\Brand;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -40,6 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn() => $request->session()->get('error'),
             ],
             'categories' => fn() => Category::select('id', 'title', 'slug', 'image')->get(),
+            'brands' => fn() => Brand::select('id', 'title', 'slug', 'image')->orderBy('title')->get(),
             'cart' => fn() => $request->session()->get('cart', []),
             'messengerLink' => fn() => get_setting('messenger_link'),
             'additionalCost' => fn() => get_setting('additional_cost', 0),
@@ -53,8 +55,15 @@ class HandleInertiaRequests extends Middleware
                 'ogImage' => get_setting('seo_og_image', ''),
                 'googleSiteVerification' => get_setting('google_site_verification', ''),
             ],
-            'siteLogo' => fn() => \App\Models\WebsiteSetting::first()?->logo,
-            'siteDescription' => fn() => get_setting('seo_default_description', ''),
+            'siteLogo' => fn() => get_setting('site_logo'),
+            'siteDescription' => fn() => get_setting('footer_description'),
+            'footer' => fn() => [
+                'description' => get_setting('footer_description'),
+                'facebook' => get_setting('social_facebook'),
+                'instagram' => get_setting('social_instagram'),
+                'youtube' => get_setting('social_youtube'),
+                'tiktok' => get_setting('social_tiktok'),
+            ],
         ];
     }
 }
