@@ -1,4 +1,5 @@
 import PrimaryButton from '@/Components/Actions/PrimaryButton';
+import BrandLogo from '@/Components/Utility/BrandLogo';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -15,6 +16,15 @@ export default function VerifyEmail({ status }: { status?: string }) {
     return (
         <GuestLayout>
             <Head title="Email Verification" />
+
+            <div className="text-center mb-8">
+                <BrandLogo
+                    size="lg"
+                    withText={true}
+                    className="justify-center mb-4"
+                />
+                <p className="text-gray-400 text-sm">Verify your email</p>
+            </div>
 
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 Thanks for signing up! Before getting started, could you verify

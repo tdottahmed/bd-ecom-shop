@@ -29,8 +29,6 @@ class ProductFactory extends Factory
             'images' => [], // Empty array, frontend helper handles null/empty
             'purchase_price' => $purchasePrice,
             'sale_price' => $salePrice,
-            'moq_price' => $salePrice * 0.9, // 10% discount for MOQ
-            'uan_price' => $salePrice * 0.95, // 5% discount for UAN
             'stock' => $this->faker->numberBetween(0, 100),
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
         ];

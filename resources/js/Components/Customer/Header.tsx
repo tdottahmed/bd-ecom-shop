@@ -33,7 +33,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                         {/* Mobile Left: Menu & Messenger */}
                         <div className="flex items-center gap-2 md:hidden">
                             <MobileMenuButton onClick={onMenuClick} />
-                            <MessengerIcon />
+                            {messengerLink && <MessengerIcon />}
                         </div>
 
                         {/* Desktop Left: Menu & Logo */}

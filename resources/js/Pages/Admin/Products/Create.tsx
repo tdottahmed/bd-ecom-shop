@@ -45,7 +45,6 @@ export default function Create({
         sale_price: "",
 
         stock: "",
-        uan_price: "",
         is_preorder: false,
         has_discount: false,
         discount_type: "",

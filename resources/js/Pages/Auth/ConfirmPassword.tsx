@@ -2,6 +2,7 @@ import PrimaryButton from '@/Components/Actions/PrimaryButton';
 import InputError from '@/Components/Ui/InputError';
 import InputLabel from '@/Components/Ui/InputLabel';
 import TextInput from '@/Components/Ui/TextInput';
+import BrandLogo from '@/Components/Utility/BrandLogo';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -22,6 +23,15 @@ export default function ConfirmPassword() {
     return (
         <GuestLayout>
             <Head title="Confirm Password" />
+
+            <div className="text-center mb-8">
+                <BrandLogo
+                    size="lg"
+                    withText={true}
+                    className="justify-center mb-4"
+                />
+                <p className="text-gray-400 text-sm">Confirm your session</p>
+            </div>
 
             <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 This is a secure area of the application. Please confirm your

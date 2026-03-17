@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductImportController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\WebsiteController;
 use App\Http\Controllers\Admin\UserController;
@@ -18,6 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
   Route::get('products', [ProductController::class, 'index'])->name('products.index');
+  Route::get('products/import', [ProductImportController::class, 'index'])->name('products.import');
+  Route::get('products/import/template', [ProductImportController::class, 'template'])->name('products.import.template');
+  Route::post('products/import/preview', [ProductImportController::class, 'preview'])->name('products.import.preview');
+  Route::post('products/import/confirm', [ProductImportController::class, 'confirm'])->name('products.import.confirm');
   Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
   Route::post('product/store', [ProductController::class, 'store'])->name('product.store');
   Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');

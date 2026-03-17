@@ -91,6 +91,47 @@ class WebsiteController extends Controller
             return back()->with('success', 'Messenger link updated successfully.');
         }
 
+        if ($type === 'branding') {
+            $request->validate([
+                'logo' => 'nullable|image|max:2048',
+                'favicon' => 'nullable|image|max:1024',
+            ]);
+
+            $setting = WebsiteSetting::firstOrNew();
+
+            if ($request->has('deleted_logo') && $request->deleted_logo) {
+                if ($setting->logo) {
+                    FileUpload::deleteImage($setting->logo);
+                    $setting->logo = null;
+                }
+            }
+
+            if ($request->hasFile('logo')) {
+                if ($setting->logo) {
+                    FileUpload::deleteImage($setting->logo);
+                }
+                $setting->logo = FileUpload::uploadImage($request->file('logo'), 'branding');
+            }
+
+            if ($request->has('deleted_favicon') && $request->deleted_favicon) {
+                if ($setting->favicon) {
+                    FileUpload::deleteImage($setting->favicon);
+                    $setting->favicon = null;
+                }
+            }
+
+            if ($request->hasFile('favicon')) {
+                if ($setting->favicon) {
+                    FileUpload::deleteImage($setting->favicon);
+                }
+                $setting->favicon = FileUpload::uploadImage($request->file('favicon'), 'branding');
+            }
+
+            $setting->save();
+
+            return back()->with('success', 'Branding updated successfully.');
+        }
+
         return back()->with('error', 'Invalid update type.');
     }
 

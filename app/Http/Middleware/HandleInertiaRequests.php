@@ -53,6 +53,8 @@ class HandleInertiaRequests extends Middleware
                 'ogImage' => get_setting('seo_og_image', ''),
                 'googleSiteVerification' => get_setting('google_site_verification', ''),
             ],
+            'siteLogo' => fn() => \App\Models\WebsiteSetting::first()?->logo,
+            'siteDescription' => fn() => get_setting('seo_default_description', ''),
         ];
     }
 }

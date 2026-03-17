@@ -17,8 +17,6 @@ class Product extends Model implements Feedable
         'qty_price' => 'array',
         'purchase_price' => 'float',
         'sale_price' => 'float',
-        'moq_price' => 'float',
-        'uan_price' => 'float',
         'stock' => 'integer',
         'is_preorder' => 'boolean',
         'has_discount' => 'boolean',

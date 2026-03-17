@@ -86,8 +86,6 @@ class UpdateProducts extends Command
                         'description' => $item['description'],
                         'purchase_price' => $purchasePrice,
                         'sale_price' => $sellPrice,
-                        'moq_price' => $sellPrice,
-                        'uan_price' => $item['yuan'] ?? 0,
                         'stock' => $item['stock'] ?? 0,
                         'images' => $images,
                         'is_preorder' => isset($item['is_preorder']) ? (bool)$item['is_preorder'] : false,

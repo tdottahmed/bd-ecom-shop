@@ -6,7 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title inertia>{{ config('app.name', 'Laravel') }}</title>
-  <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+  @php
+    $websiteSetting = \App\Models\WebsiteSetting::first();
+    $favicon = $websiteSetting?->favicon;
+  @endphp
+  <link rel="icon" type="image/png" href="{{ $favicon ? asset('storage/' . $favicon) : asset('favicon.png') }}">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.bunny.net">

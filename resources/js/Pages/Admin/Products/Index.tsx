@@ -4,7 +4,7 @@ import Header from "@/Components/Layouts/Header";
 import { Link, router } from "@inertiajs/react";
 import ProductsGrid from "@/Components/Product/ProductsGrid";
 import ProductsList from "@/Components/Product/ProductsList";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 
 import { ProductsIndexProps } from "@/types";
 

@@ -116,8 +116,6 @@ export interface Product {
     images: string[];
     purchase_price: number;
     sale_price: number;
-    moq_price?: number;
-    uan_price?: number;
     stock: number;
     category_id?: number;
     brand_id?: number | null;
@@ -210,8 +208,6 @@ export interface ProductFormData {
     category_id: string;
     purchase_price: string;
     sale_price: string;
-    moq_price: string;
-    uan_price: string;
     stock: string;
     has_discount?: boolean;
     discount_type?: string;

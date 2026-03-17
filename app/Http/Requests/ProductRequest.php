@@ -21,7 +21,6 @@ class ProductRequest extends FormRequest
             'sale_price' => 'required|numeric|min:0',
 
             'stock' => 'nullable|integer|min:0',
-            'uan_price' => 'required|numeric|min:0',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'category_id' => 'required|exists:categories,id',

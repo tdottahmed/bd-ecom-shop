@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { router } from "@inertiajs/react";
-import { Filter, Grid3X3, List } from "lucide-react";
+import { Link, router } from "@inertiajs/react";
+import { Filter, Grid3X3, List, Upload } from "lucide-react";
 import Search from "@/Components/Ui/Search";
 import SelectInput from "@/Components/Ui/SelectInput";
 import { Brand, Category } from "@/types";
@@ -142,6 +142,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                         <List size={20} />
                     </button>
                 </div>
+
+                <Link
+                    href={route("admin.products.import")}
+                    className="bg-[#151F1D] border border-gray-700 text-white px-4 py-2 rounded-lg hover:bg-[#1A2624] hover:border-[#2DE3A7] transition-all flex items-center gap-2 text-sm flex-shrink-0"
+                >
+                    <Upload size={16} />
+                    Import
+                </Link>
             </div>
 
             <div

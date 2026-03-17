@@ -2,6 +2,7 @@ import PrimaryButton from '@/Components/Actions/PrimaryButton';
 import InputError from '@/Components/Ui/InputError';
 import InputLabel from '@/Components/Ui/InputLabel';
 import TextInput from '@/Components/Ui/TextInput';
+import BrandLogo from '@/Components/Utility/BrandLogo';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -31,6 +32,15 @@ export default function ResetPassword({
     return (
         <GuestLayout>
             <Head title="Reset Password" />
+
+            <div className="text-center mb-8">
+                <BrandLogo
+                    size="lg"
+                    withText={true}
+                    className="justify-center mb-4"
+                />
+                <p className="text-gray-400 text-sm">Create a new password</p>
+            </div>
 
             <form onSubmit={submit}>
                 <div>

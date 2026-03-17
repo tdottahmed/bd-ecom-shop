@@ -71,7 +71,6 @@ export default function Edit({
         purchase_price: product.purchase_price?.toString() || "",
         sale_price: product.sale_price?.toString() || "",
         stock: product.stock?.toString() || "",
-        uan_price: product.uan_price?.toString() || "",
         is_preorder: product.is_preorder || false,
         has_discount: !!(
             product.has_discount ||
