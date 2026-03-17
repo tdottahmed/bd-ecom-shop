@@ -21,9 +21,7 @@ const Edit: React.FC<EditProps> = ({ category }) => {
         title: category.title,
         slug: category.slug,
         image: null as File | null,
-        min_order_qty: category.min_order_qty || 3,
-        add_cart_qty: category.add_cart_qty || 1,
-        use_add_cart_qty_as_min: category.use_add_cart_qty_as_min || false,
+        is_featured: category.is_featured ?? true,
         _method: "PUT",
     });
 
@@ -164,52 +162,24 @@ const Edit: React.FC<EditProps> = ({ category }) => {
                                 />
                             </div>
 
-                            {/* Add Cart Qty */}
-                            <div className="mt-4">
-                                <InputLabel
-                                    htmlFor="add_cart_qty"
-                                    value="Add Cart Qty"
-                                />
-                                <TextInput
-                                    id="add_cart_qty"
-                                    name="add_cart_qty"
-                                    type="number"
-                                    value={String(data.add_cart_qty)}
+                            {/* Featured */}
+                            <div className="mt-4 flex items-center gap-2">
+                                <Checkbox
+                                    name="is_featured"
+                                    checked={data.is_featured ? true : false}
                                     onChange={(e) =>
-                                        setData(
-                                            "add_cart_qty",
-                                            parseInt(e.target.value),
-                                        )
+                                        setData("is_featured", e.target.checked)
                                     }
-                                    className="mt-1 block w-full"
-                                    placeholder="Qty to add on click"
-                                    min="1"
                                 />
-                                <InputError
-                                    message={errors.add_cart_qty}
-                                    className="mt-2"
+                                <InputLabel
+                                    htmlFor="is_featured"
+                                    value="Featured category"
+                                    className="!mb-0 cursor-pointer"
                                 />
-                                <div className="mt-3 flex items-center gap-2">
-                                    <Checkbox
-                                        name="use_add_cart_qty_as_min"
-                                        checked={data.use_add_cart_qty_as_min || false}
-                                        onChange={(e) =>
-                                            setData(
-                                                "use_add_cart_qty_as_min",
-                                                e.target.checked,
-                                            )
-                                        }
-                                    />
-                                    <InputLabel
-                                        htmlFor="use_add_cart_qty_as_min"
-                                        value="Use Add Cart Qty as Minimum Order Quantity"
-                                        className="!mb-0 cursor-pointer"
-                                    />
-                                </div>
-                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    When enabled, products in this category will require a minimum order quantity equal to the "Add Cart Qty" value.
-                                </p>
                             </div>
+                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                Show this category prominently (e.g. on homepage).
+                            </p>
 
                             {/* Actions */}
                             <div className="flex gap-3 pt-4">

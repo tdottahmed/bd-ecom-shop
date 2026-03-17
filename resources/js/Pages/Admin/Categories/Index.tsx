@@ -79,10 +79,17 @@ const Index: React.FC<CategoriesIndexProps> = ({ categories }) => {
 
                                 {/* Category Info */}
                                 <div className="p-4">
-                                    <h3 className="text-lg font-semibold text-white mb-1">
-                                        {category.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-lg font-semibold text-white">
+                                            {category.title}
+                                        </h3>
+                                        {category.is_featured != false && (
+                                            <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                                                Featured
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 mt-1">
                                         {category.slug}
                                     </p>
                                     <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">

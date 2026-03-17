@@ -41,9 +41,7 @@ class CategoryRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'unique:categories,slug,' . $categoryId],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            'min_order_qty' => ['required', 'integer', 'min:1'],
-            'add_cart_qty' => ['nullable', 'integer', 'min:1'],
-            'use_add_cart_qty_as_min' => ['nullable', 'boolean'],
+            'is_featured' => ['nullable', 'boolean'],
         ];
     }
 
