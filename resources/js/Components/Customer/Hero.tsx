@@ -35,12 +35,12 @@ const Hero: React.FC<HeroProps> = ({ bannerImages = [] }) => {
 
     const prevSlide = () => {
         setCurrentSlide(
-            (prev) => (prev - 1 + displayImages.length) % displayImages.length
+            (prev) => (prev - 1 + displayImages.length) % displayImages.length,
         );
     };
 
     return (
-        <div className="relative max-w-7xl mx-auto px-2 py-2 md:py-4 md:px-6 lg:px-8">
+        <div className="relative max-w-8xl mx-auto">
             <div className="relative bg-gray-900 overflow-hidden h-[150px] md:h-[400px] rounded-xl shadow-lg">
                 {displayImages.map((image, index) => (
                     <div

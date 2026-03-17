@@ -1,173 +1,191 @@
-import React, { useRef, useEffect, useState } from "react";
-import { router } from "@inertiajs/react";
+import React, { useState, useEffect } from "react";
+import { Link } from "@inertiajs/react";
 import ProductCard from "./ProductCard";
-import { Product } from "@/types";
+import { Category, Product } from "@/types";
+import { ChevronRight, Loader2 } from "lucide-react";
 
-interface ProductGridProps {
+export interface CategoryProducts {
+    category: Category;
     products: {
         data: Product[];
-        links: any[];
-        next_page_url?: string | null;
         current_page: number;
         last_page: number;
+        per_page: number;
+        total: number;
     };
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
-    const [allProducts, setAllProducts] = useState<Product[]>(
-        products?.data || []
-    );
-    const [nextPage, setNextPage] = useState<number | null>(
-        products?.current_page < products?.last_page
-            ? products.current_page + 1
-            : null
-    );
-    const [isLoading, setIsLoading] = useState(false);
-    const loadMoreRef = useRef<HTMLDivElement>(null);
-    const accumulatedProductsRef = useRef<Product[]>(products?.data || []);
+interface ProductGridProps {
+    productsByCategory: CategoryProducts[];
+    filters?: {
+        search?: string;
+        min_price?: string;
+        max_price?: string;
+        sort?: string;
+        in_stock?: string;
+    };
+}
 
-    // Reset products when the initial products prop changes (e.g., after filtering)
+const ProductGrid: React.FC<ProductGridProps> = ({
+    productsByCategory,
+    filters = {},
+}) => {
+    const [sections, setSections] = useState<
+        Record<
+            number,
+            { products: Product[]; nextPage: number | null; loading?: boolean }
+        >
+    >(() => {
+        const initial: Record<
+            number,
+            { products: Product[]; nextPage: number | null }
+        > = {};
+        productsByCategory?.forEach(({ category, products: p }) => {
+            initial[category.id] = {
+                products: p?.data ?? [],
+                nextPage:
+                    p && p.current_page < p.last_page ? p.current_page + 1 : null,
+            };
+        });
+        return initial;
+    });
+
     useEffect(() => {
-        // Only reset if it's actually a new search/filter (page 1) or if the data completely changed
-        if (products?.current_page === 1) {
-            setAllProducts(products?.data || []);
-            accumulatedProductsRef.current = products?.data || [];
-            setNextPage(
-                products?.current_page < products?.last_page
-                    ? products.current_page + 1
-                    : null
+        const next: Record<
+            number,
+            { products: Product[]; nextPage: number | null }
+        > = {};
+        productsByCategory?.forEach(({ category, products: p }) => {
+            next[category.id] = {
+                products: p?.data ?? [],
+                nextPage:
+                    p && p.current_page < p.last_page ? p.current_page + 1 : null,
+            };
+        });
+        setSections(next);
+    }, [productsByCategory]);
+
+    const loadMore = async (category: Category) => {
+        const section = sections[category.id];
+        if (!section?.nextPage || section.loading) return;
+
+        setSections((prev) => ({
+            ...prev,
+            [category.id]: { ...prev[category.id], loading: true },
+        }));
+
+        const params = new URLSearchParams();
+        params.set("page", String(section.nextPage));
+        if (filters.search) params.set("search", filters.search);
+        if (filters.min_price) params.set("min_price", filters.min_price);
+        if (filters.max_price) params.set("max_price", filters.max_price);
+        if (filters.sort) params.set("sort", filters.sort);
+        if (filters.in_stock) params.set("in_stock", filters.in_stock);
+
+        try {
+            const res = await fetch(
+                `/api/categories/${encodeURIComponent(category.slug)}/products?${params.toString()}`
             );
+            const json = await res.json();
+            const newProducts = (json.data ?? []) as Product[];
+
+            setSections((prev) => {
+                const current = prev[category.id];
+                const nextPage =
+                    json.current_page < json.last_page
+                        ? json.current_page + 1
+                        : null;
+                return {
+                    ...prev,
+                    [category.id]: {
+                        products: [...(current?.products ?? []), ...newProducts],
+                        nextPage,
+                        loading: false,
+                    },
+                };
+            });
+        } catch (e) {
+            setSections((prev) => ({
+                ...prev,
+                [category.id]: { ...prev[category.id], loading: false },
+            }));
         }
-    }, [products]);
-
-    // Infinite scroll observer
-    useEffect(() => {
-        if (!loadMoreRef.current || !nextPage) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const first = entries[0];
-                if (first.isIntersecting && !isLoading && nextPage) {
-                    loadMore();
-                }
-            },
-            { threshold: 0.1 }
-        );
-
-        observer.observe(loadMoreRef.current);
-
-        return () => {
-            if (loadMoreRef.current) {
-                observer.unobserve(loadMoreRef.current);
-            }
-        };
-    }, [nextPage, isLoading]);
-
-    const loadMore = () => {
-        if (isLoading || !nextPage) return;
-
-        setIsLoading(true);
-
-        // Get current URL search params
-        const currentParams = new URLSearchParams(window.location.search);
-
-        // Create new URLSearchParams with page parameter
-        const params: Record<string, any> = {};
-        currentParams.forEach((value, key) => {
-            params[key] = value;
-        });
-        params.page = nextPage;
-
-        router.get(window.location.pathname, params, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-            only: ["products"],
-            onSuccess: (page) => {
-                const newProducts = page.props.products as typeof products;
-                const updatedProducts = [
-                    ...accumulatedProductsRef.current,
-                    ...newProducts.data,
-                ];
-
-                accumulatedProductsRef.current = updatedProducts;
-                setAllProducts(updatedProducts);
-
-                setNextPage(
-                    newProducts.current_page < newProducts.last_page
-                        ? newProducts.current_page + 1
-                        : null
-                );
-
-                setIsLoading(false);
-            },
-            onError: (errors) => {
-                console.error("Failed to load more products:", errors);
-                setIsLoading(false);
-            },
-        });
     };
 
-    if (!products || !products.data) return null;
+    if (!productsByCategory?.length) return null;
 
     return (
         <div className="max-w-7xl mx-auto px-2 md:px-6 lg:px-8 py-2 md:py-4 lg:py-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-4 sm:gap-6">
-                {allProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </div>
+            <div className="space-y-10 md:space-y-12">
+                {productsByCategory.map(({ category }) => {
+                    const section = sections[category.id];
+                    const products = section?.products ?? [];
+                    const hasMore = section?.nextPage != null;
+                    const loading = section?.loading ?? false;
 
-            {nextPage && (
-                <div ref={loadMoreRef} className="mt-8 text-center">
-                    {isLoading ? (
-                        <div className="inline-flex items-center gap-2 text-gray-500">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600">
-                                {" "}
-                            </div>
-                            <span> Loading more products...</span>
-                        </div>
-                    ) : (
-                        <div className="text-sm text-gray-400">
-                            Scroll to load more
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* No more products message */}
-            {!nextPage && allProducts.length > 0 && (
-                <div className="mt-8 text-center text-sm text-gray-400">
-                    You've reached the end
-                </div>
-            )}
-
-            {/* Empty state */}
-            {allProducts.length === 0 && (
-                <div className="mt-12 text-center py-12">
-                    <div className="max-w-md mx-auto">
-                        <svg
-                            className="mx-auto h-16 w-16 text-gray-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                    return (
+                        <section
+                            key={category.id}
+                            className="scroll-mt-4"
+                            id={`category-${category.slug}`}
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1}
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-8V4a1 1 0 00-1-1h-2a1 1 0 00-1 1v1M9 7h6"
-                            />
-                        </svg>
-                        <h3 className="mt-4 text-lg font-medium text-gray-900">
-                            No products found
-                        </h3>
-                        <p className="mt-2 text-gray-500">
-                            Try adjusting your search or filter criteria.
-                        </p>
-                    </div>
-                </div>
-            )}
+                            <div className="flex items-center justify-between gap-4 mb-4 md:mb-6">
+                                <h2 className="text-lg md:text-xl font-semibold text-slate-800 truncate">
+                                    {category.title}
+                                </h2>
+                                <Link
+                                    href={route("products.category", category.slug)}
+                                    className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 shrink-0"
+                                >
+                                    View all
+                                    <ChevronRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+
+                            {products.length === 0 ? (
+                                <div className="rounded-xl border border-slate-100 bg-slate-50/50 py-10 text-center">
+                                    <p className="text-slate-500 text-sm">
+                                        No products in this category right now.
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                                        {products.map((product) => (
+                                            <ProductCard
+                                                key={product.id}
+                                                product={product}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {hasMore && (
+                                        <div className="mt-6 flex justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    loadMore(category)
+                                                }
+                                                disabled={loading}
+                                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none transition-colors"
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Loading…
+                                                    </>
+                                                ) : (
+                                                    "Load more"
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </section>
+                    );
+                })}
+            </div>
         </div>
     );
 };

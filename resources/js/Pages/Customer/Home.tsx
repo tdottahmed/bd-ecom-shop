@@ -9,9 +9,14 @@ import { Category, Product, PaginatedData } from "@/types";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProductFilters from "@/Components/Customer/ProductFilters";
 
+interface CategoryProductsSection {
+    category: Category;
+    products: PaginatedData<Product>;
+}
+
 interface HomeProps {
     categories: Category[];
-    products: PaginatedData<Product>;
+    productsByCategory: CategoryProductsSection[];
     website_settings?: {
         banner_images: string[];
         banner_active: boolean;
@@ -30,7 +35,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({
     categories,
-    products,
+    productsByCategory = [],
     website_settings,
     filters = {},
     category,
@@ -74,101 +79,57 @@ const Home: React.FC<HomeProps> = ({
     return (
         <CustomerLayout>
             <Head title={category ? category.title : "Home"} />
-            <FilterSidebar
-                isOpen={isFilterOpen}
-                onClose={() => setIsFilterOpen(false)}
-                filters={filters}
-                currentUrl={currentUrl}
-            />
-            {/* Hero Section */}
-            <Hero
-                bannerImages={
-                    website_settings?.banner_active
-                        ? website_settings.banner_images
-                        : []
-                }
-            />
-            {/* Categories */}
-            <div className="bg-white border-b border-gray-100">
-                <CategorySlider
-                    categories={categories}
-                    activeCategory={category}
-                />
-            </div>
+            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+                {/* Background accents */}
+                <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-40 blur-3xl" />
+                </div>
+                <div className="pointer-events-none absolute -bottom-32 left-0 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-indigo-300/25 blur-3xl" />
 
-            {/* Search and Filters Section */}
-            <ProductFilters
-                sort={sort}
-                setSort={setSort}
-                setIsFilterOpen={setIsFilterOpen}
-                filters={filters}
-                togglePreorder={() => {
-                    const params: Record<string, string> = {};
-                    if (filters.search) params.search = filters.search;
-                    if (filters.min_price) params.min_price = filters.min_price;
-                    if (filters.max_price) params.max_price = filters.max_price;
-                    if (sort && sort !== "latest") params.sort = sort;
-                    if (filters.in_stock) params.in_stock = filters.in_stock;
-                    if (filters.stock_out) params.stock_out = filters.stock_out;
-
-                    // Toggle preorder
-                    if (filters.is_preorder === "true") {
-                        delete params.is_preorder;
-                    } else {
-                        params.is_preorder = "true";
-                    }
-
-                    router.visit(currentUrl, {
-                        data: params,
-                        preserveState: true,
-                        preserveScroll: false,
-                        replace: true,
-                        only: ["products", "filters"],
-                        onSuccess: () => {
-                            document
-                                .getElementById("products-section")
-                                ?.scrollIntoView({ behavior: "smooth" });
-                        },
-                    });
-                }}
-                toggleStockOut={() => {
-                    const params: Record<string, string> = {};
-                    if (filters.search) params.search = filters.search;
-                    if (filters.min_price) params.min_price = filters.min_price;
-                    if (filters.max_price) params.max_price = filters.max_price;
-                    if (sort && sort !== "latest") params.sort = sort;
-                    if (filters.in_stock) params.in_stock = filters.in_stock;
-                    if (filters.is_preorder)
-                        params.is_preorder = filters.is_preorder;
-
-                    // Toggle stock_out
-                    if (filters.stock_out === "true") {
-                        delete params.stock_out;
-                    } else {
-                        params.stock_out = "true";
-                    }
-
-                    router.visit(currentUrl, {
-                        data: params,
-                        preserveState: true,
-                        preserveScroll: false,
-                        replace: true,
-                        only: ["products", "filters"],
-                        onSuccess: () => {
-                            document
-                                .getElementById("products-section")
-                                ?.scrollIntoView({ behavior: "smooth" });
-                        },
-                    });
-                }}
-            />
-
-            {/* Products */}
-            <div
-                className="bg-gray-50 min-h-screen py-2 md:py-6"
-                id="products-section"
-            >
-                <ProductGrid products={products} />
+                <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-10 pt-4 sm:px-6 sm:pt-6 lg:px-10 lg:pt-10">
+                    <FilterSidebar
+                        isOpen={isFilterOpen}
+                        onClose={() => setIsFilterOpen(false)}
+                        filters={filters}
+                        currentUrl={currentUrl}
+                    />
+                    <div className="space-y-6">
+                        {/* Hero Section */}
+                        <Hero
+                            bannerImages={
+                                website_settings?.banner_active
+                                    ? website_settings.banner_images
+                                    : []
+                            }
+                        />
+                        {/* Categories */}
+                        <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
+                            <CategorySlider
+                                categories={categories}
+                                activeCategory={category}
+                            />
+                        </div>
+                        {/* Search / Filters & Products Section */}
+                        <div
+                            className="rounded-3xl border border-slate-100 bg-white py-4 md:py-6 shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                            id="products-section"
+                        >
+                            <ProductFilters
+                                sort={sort}
+                                setSort={setSort}
+                                setIsFilterOpen={setIsFilterOpen}
+                                filters={filters}
+                            />
+                            <div className="mt-3 md:mt-4">
+                                <ProductGrid
+                                    productsByCategory={productsByCategory}
+                                    filters={filters}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </CustomerLayout>
     );

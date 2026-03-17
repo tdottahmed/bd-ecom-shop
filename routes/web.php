@@ -15,6 +15,7 @@ Route::get('products', [CustomerController::class, 'products'])->name('products.
 Route::get('product/{product:slug}', [CustomerController::class, 'show'])->name('products.show');
 
 Route::get('api/search', [CustomerController::class, 'search'])->name('api.search');
+Route::get('api/categories/{category}/products', [CustomerController::class, 'categoryProducts'])->name('api.categories.products');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

@@ -11,12 +11,18 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $products = $this->filterProducts($request);
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
 
+        $productsByCategory = $categories->map(function (Category $cat) use ($request) {
+            return [
+                'category' => $cat,
+                'products' => $this->filterProducts($request, $cat->id, 8),
+            ];
+        });
+
         return Inertia::render('Customer/Home', [
-            'products' => $products,
+            'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
             'filters' => [
@@ -33,16 +39,20 @@ class CustomerController extends Controller
 
     public function category(Request $request, string $category)
     {
-        $category = Category::where('slug', $category)->firstOrFail();
-
-        $products = $this->filterProducts($request, $category->id);
+        $categoryModel = Category::where('slug', $category)->firstOrFail();
+        $products = $this->filterProducts($request, $categoryModel->id, 8);
 
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
 
-        return Inertia::render('Customer/Home', [
-            'category' => $category,
+        $productsByCategory = [[
+            'category' => $categoryModel,
             'products' => $products,
+        ]];
+
+        return Inertia::render('Customer/Home', [
+            'category' => $categoryModel,
+            'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
             'filters' => [
@@ -59,13 +69,18 @@ class CustomerController extends Controller
 
     public function products(Request $request)
     {
-        $products = $this->filterProducts($request);
-
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
 
+        $productsByCategory = $categories->map(function (Category $cat) use ($request) {
+            return [
+                'category' => $cat,
+                'products' => $this->filterProducts($request, $cat->id, 8),
+            ];
+        });
+
         return Inertia::render('Customer/Home', [
-            'products' => $products,
+            'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
             'filters' => [
@@ -80,7 +95,7 @@ class CustomerController extends Controller
         ]);
     }
 
-    private function filterProducts(Request $request, ?int $categoryId = null)
+    private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 12)
     {
         $query = Product::with(['category', 'product_variations', 'product_variations.product_attribute'])
             ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images');
@@ -137,7 +152,7 @@ class CustomerController extends Controller
                 break;
         }
 
-        return $query->paginate(12)->withQueryString();
+        return $query->paginate($perPage)->withQueryString();
     }
 
     public function show(Product $product)
@@ -146,6 +161,23 @@ class CustomerController extends Controller
 
         return Inertia::render('Customer/ProductShow', [
             'product' => $product,
+        ]);
+    }
+
+    /**
+     * API: Paginated products for a category (for "Load more" per category).
+     */
+    public function categoryProducts(Request $request, string $category)
+    {
+        $categoryModel = Category::where('slug', $category)->firstOrFail();
+        $products = $this->filterProducts($request, $categoryModel->id, 8);
+
+        return response()->json([
+            'data' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'per_page' => $products->perPage(),
+            'total' => $products->total(),
         ]);
     }
 
