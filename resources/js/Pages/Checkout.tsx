@@ -90,49 +90,6 @@ export default function Checkout({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Check category-specific minimum order quantities first
-        const invalidItems: Array<{ name: string; minQty: number }> = [];
-        let hasCategorySpecificRules = false;
-        
-        cartItems.forEach((item) => {
-            let minRequired = 3; // Default minimum is 3
-            
-            if (item.use_add_cart_qty_as_min && item.add_cart_qty) {
-                // If enabled, use add_cart_qty as minimum
-                minRequired = item.add_cart_qty;
-                hasCategorySpecificRules = true;
-            }
-            
-            if (item.quantity < minRequired) {
-                invalidItems.push({
-                    name: item.name,
-                    minQty: minRequired,
-                });
-            }
-        });
-
-        // if (invalidItems.length > 0) {
-        //     const minQty = invalidItems[0].minQty;
-        //     const itemNames = invalidItems.map((i) => i.name).join(", ");
-        //     toast.warning(
-        //         `Some products require a minimum order quantity of ${minQty}. Please check: ${itemNames}`,
-        //     );
-        //     return;
-        // }
-
-        // Fallback: Check global minimum order quantity only if no category-specific rules
-        if (!hasCategorySpecificRules) {
-            const totalCartCount = cartItems.reduce(
-                (sum, item) => sum + item.quantity,
-                0,
-            );
-            if (totalCartCount < 3) {
-                toast.warning("You have to order at least 3 products");
-                return;
-            }
-        }
-
         post(route("checkout.store"));
     };
 
@@ -145,11 +102,7 @@ export default function Checkout({
         if (quantity < 1) return;
 
         const item = cartItems.find((i) => i.cart_id === cartId);
-        // Correct stock checking mechanism for variations
         if (item) {
-            // For variations, we need to respect the available stock for that variation
-            // The store already calculates `item.stock` correctly as min(variation stocks) or product stock
-            // So relying on item.stock is correct here.
             if (item.stock && quantity > item.stock) {
                 toast.warning(`Only ${item.stock} items available in stock`);
                 return;

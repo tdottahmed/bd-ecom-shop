@@ -52,15 +52,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         if (hasVariations) {
             setShowVariationModal(true);
         } else {
-            // Determine quantity to add based on category settings
-            let qtyToAdd = 1;
-            if (
-                product.category?.add_cart_qty &&
-                product.category.add_cart_qty > 0
-            ) {
-                qtyToAdd = product.category.add_cart_qty;
-            }
-            addToCart(product, qtyToAdd);
+            addToCart(product, 1);
         }
     };
 
@@ -69,8 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     };
 
     const handleUpdateQuantity = (newQuantity: number) => {
-        const minQty = product.category?.add_cart_qty || 1;
-        if (newQuantity < minQty) return;
+        if (newQuantity < 1) return;
         setQuantity(newQuantity);
     };
 
@@ -193,7 +184,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 onIncrease={() =>
                                     handleUpdateQuantity(quantity + 1)
                                 }
-                                min={product.category?.add_cart_qty || 1}
+                                min={1}
                                 max={
                                     product.is_preorder
                                         ? undefined

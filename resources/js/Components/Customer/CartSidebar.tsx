@@ -11,60 +11,17 @@ import CartSidebarItem from "./CartSidebarItem";
 import OrderHistoryList from "./OrderHistoryList";
 
 import { useCartStore } from "@/Stores/useCartStore";
-import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
 const CartSidebar = () => {
-    const { cart, isOpen, setIsOpen, getCartTotal, getCartCount } =
-        useCartStore();
+    const { cart, isOpen, setIsOpen, getCartTotal } = useCartStore();
     const cartItems = Object.values(cart);
     const cartTotal = getCartTotal();
     const [activeTab, setActiveTab] = useState<"cart" | "orders">("cart");
 
     const onClose = () => setIsOpen(false);
 
-    const handleCheckout = (e: React.MouseEvent) => {
-        // Check category-specific minimum order quantities first
-        const invalidItems: Array<{ name: string; minQty: number }> = [];
-        let hasCategorySpecificRules = false;
-        
-        cartItems.forEach((item) => {
-            let minRequired = 3; // Default minimum is 3
-            
-            if (item.use_add_cart_qty_as_min && item.add_cart_qty) {
-                // If enabled, use add_cart_qty as minimum
-                minRequired = item.add_cart_qty;
-                hasCategorySpecificRules = true;
-            }
-            
-            if (item.quantity < minRequired) {
-                invalidItems.push({
-                    name: item.name,
-                    minQty: minRequired,
-                });
-            }
-        });
-
-        // if (invalidItems.length > 0) {
-        //     e.preventDefault();
-        //     const minQty = invalidItems[0].minQty;
-        //     const itemNames = invalidItems.map((i) => i.name).join(", ");
-        //     toast.warning(
-        //         `Some products require a minimum order quantity of ${minQty}. Please check: ${itemNames}`,
-        //     );
-        //     return;
-        // }
-
-        // Fallback: Check global minimum order quantity only if no category-specific rules
-        if (!hasCategorySpecificRules) {
-            const totalCartCount = getCartCount();
-            if (totalCartCount < 3) {
-                e.preventDefault();
-                toast.warning("You have to order at least 3 products.");
-                return;
-            }
-        }
-
+    const handleCheckout = () => {
         onClose();
     };
 
