@@ -16,6 +16,21 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    private function normalizeVariationImageString(?string $path): ?string
+    {
+        if (!$path) return null;
+        $p = trim($path);
+        if ($p === '') return null;
+        if (str_starts_with($p, 'http://') || str_starts_with($p, 'https://')) {
+            return $p;
+        }
+        $clean = ltrim($p, '/');
+        if (!str_contains($clean, '/')) {
+            return 'products/variations/' . $clean;
+        }
+        return $clean;
+    }
+
     public function index(Request $request)
     {
         $query = Product::with('category', 'brand', 'product_variations.product_attribute');
@@ -149,7 +164,7 @@ class ProductController extends Controller
                         $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
                     } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
                         // Allow passing a path/url string without upload (e.g. imports)
-                        $variationImagePath = $variationData['image'];
+                        $variationImagePath = $this->normalizeVariationImageString($variationData['image']);
                     }
 
                     ProductVariation::create([
@@ -280,7 +295,7 @@ class ProductController extends Controller
                             }
                             $nextImage = null;
                         } elseif (array_key_exists('image', $variationData) && is_string($variationData['image'])) {
-                            $nextImage = $variationData['image'];
+                            $nextImage = $this->normalizeVariationImageString($variationData['image']);
                         }
 
                         // Update existing variation
@@ -297,7 +312,7 @@ class ProductController extends Controller
                         if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
                             $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
                         } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
-                            $variationImagePath = $variationData['image'];
+                            $variationImagePath = $this->normalizeVariationImageString($variationData['image']);
                         }
 
                         // Create new variation
@@ -312,9 +327,7 @@ class ProductController extends Controller
                     }
                 }
             } else {
-                // If variations field is missing or null, assume no variations or user cleared them? 
-                // Wait, if empty array is sent, we should clear all.
-                // The frontend sends empty array if all removed.
+                
                 $product->product_variations()->delete();
             }
 

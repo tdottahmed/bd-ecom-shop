@@ -406,6 +406,42 @@ export const getAssetUrl = (path: string | null | undefined): string => {
 };
 
 /**
+ * Ensure a storage path has a prefix when user provides only filename.
+ * - Keeps absolute URLs as-is
+ * - Trims leading slashes for local paths
+ * - If the remaining value has no '/', treat as filename and prefix it
+ */
+export const ensureStoragePrefix = (
+    path: string | null | undefined,
+    prefix: string
+): string | null => {
+    if (!path) return null;
+    const raw = String(path).trim();
+    if (!raw) return null;
+
+    if (
+        raw.startsWith("http://") ||
+        raw.startsWith("https://") ||
+        raw.startsWith("//")
+    ) {
+        return raw;
+    }
+
+    const clean = raw.startsWith("/") ? raw.slice(1) : raw;
+    if (!clean.includes("/")) {
+        const p = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+        return `${p}/${clean}`;
+    }
+    return clean;
+};
+
+export const ensureProductImagePath = (path: string | null | undefined): string | null =>
+    ensureStoragePrefix(path, "products");
+
+export const ensureVariationImagePath = (path: string | null | undefined): string | null =>
+    ensureStoragePrefix(path, "products/variations");
+
+/**
  * Cookie utility functions for reliable cookie management
  */
 
@@ -691,6 +727,9 @@ export default {
     isNewProduct,
     calculateProfit,
     getAssetUrl,
+    ensureStoragePrefix,
+    ensureProductImagePath,
+    ensureVariationImagePath,
     getCookie,
     setCookie,
     deleteCookie,

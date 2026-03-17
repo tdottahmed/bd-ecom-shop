@@ -18,6 +18,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductImportController extends Controller
 {
+    private const DEFAULT_VARIATION_ATTRIBUTE = 'Variation';
+
     public function index(Request $request)
     {
         $token = $request->query('token');
@@ -74,7 +76,7 @@ class ProductImportController extends Controller
             '',
             '',
             'https://example.com/img1.jpg|https://example.com/img2.jpg',
-            'Color:Red:155:10|Color:Blue:160:15',
+            'Color:Red:155:10:https://example.com/red.jpg|Color:Blue:160:15:https://example.com/blue.jpg',
         ];
 
         $csv = implode(',', $headers) . "\n" . implode(',', array_map([$this, 'csvEscape'], $example)) . "\n";
@@ -113,7 +115,7 @@ class ProductImportController extends Controller
         $preview = $this->buildPreview($rows);
 
         $validRows = collect($preview['rows'])
-            ->filter(fn ($r) => count($r['errors']) === 0)
+            ->filter(fn($r) => count($r['errors']) === 0)
             ->values();
 
         $created = 0;
@@ -150,7 +152,7 @@ class ProductImportController extends Controller
         $sheet = $sheets[0] ?? [];
         if (count($sheet) === 0) return [];
 
-        $header = array_map(fn ($h) => $this->normalizeHeader((string) $h), $sheet[0]);
+        $header = array_map(fn($h) => $this->normalizeHeader((string) $h), $sheet[0]);
         $rows = [];
         foreach (array_slice($sheet, 1) as $row) {
             if ($this->isEmptyRow($row)) continue;
@@ -189,12 +191,12 @@ class ProductImportController extends Controller
             'rows' => $out,
             'counts' => [
                 'total' => count($out),
-                'valid' => collect($out)->filter(fn ($r) => count($r['errors']) === 0)->count(),
-                'invalid' => collect($out)->filter(fn ($r) => count($r['errors']) > 0)->count(),
+                'valid' => collect($out)->filter(fn($r) => count($r['errors']) === 0)->count(),
+                'invalid' => collect($out)->filter(fn($r) => count($r['errors']) > 0)->count(),
             ],
             'willCreate' => $toCreate,
             'formatHelp' => [
-                'variations' => 'Use | to separate variations. Format: Attribute:Value:Price:Stock:Image (price/stock/image optional). Example: Color:Red:155:10:https://example.com/red.jpg|Color:Blue:160:15:https://example.com/blue.jpg',
+                'variations' => 'Use | to separate variations. Supported formats: (1) Attribute:Value:Price:Stock:Image, (2) Value:Price:Stock:Image. Price/stock/image optional. Example: Color:Red:155:10:https://example.com/red.jpg|Blue:160:15:/blue.webp',
                 'images' => 'Optional. Use | to separate multiple image URLs/paths.',
             ],
         ];
@@ -256,19 +258,18 @@ class ProductImportController extends Controller
         $variations = [];
         if ($variationsRaw !== '') {
             foreach ($this->splitPipe($variationsRaw) as $v) {
-                $parts = array_map('trim', explode(':', $v));
-                if (count($parts) < 2) {
-                    $errors[] = "invalid variation format: {$v}";
+                [$parsed, $parseError] = $this->parseVariationString($v);
+                if ($parseError) {
+                    $errors[] = $parseError;
                     continue;
                 }
-                [$attrName, $value] = [$parts[0], $parts[1]];
-                $price = $this->toFloat($parts[2] ?? null);
-                $vStock = $this->toInt($parts[3] ?? null);
-                $vImage = trim((string) ($parts[4] ?? '')) ?: null;
-                if ($attrName === '' || $value === '') {
-                    $errors[] = "variation must include Attribute and Value: {$v}";
-                    continue;
-                }
+
+                $attrName = $parsed['attribute'];
+                $value = $parsed['value'];
+                $price = $parsed['price'];
+                $vStock = $parsed['stock'];
+                $vImage = $parsed['image'];
+
                 $variations[] = [
                     'attribute' => $attrName,
                     'value' => $value,
@@ -379,7 +380,7 @@ class ProductImportController extends Controller
     {
         $s = trim((string) ($value ?? ''));
         if ($s === '') return [];
-        return array_values(array_filter(array_map('trim', explode('|', $s)), fn ($x) => $x !== ''));
+        return array_values(array_filter(array_map('trim', explode('|', $s)), fn($x) => $x !== ''));
     }
 
     private function toFloat($value): ?float
@@ -447,5 +448,76 @@ class ProductImportController extends Controller
         $escaped = str_replace('"', '""', $value);
         return $needsQuotes ? "\"{$escaped}\"" : $escaped;
     }
-}
 
+    /**
+     * Supported formats:
+     * 1) Attribute:Value:Price:Stock:Image
+     * 2) Value:Price:Stock:Image  (attribute defaults to self::DEFAULT_VARIATION_ATTRIBUTE)
+     */
+    private function parseVariationString(string $input): array
+    {
+        $raw = trim($input);
+        if ($raw === '') {
+            return [null, 'invalid variation format: empty variation'];
+        }
+
+        $parts = array_map('trim', explode(':', $raw));
+        $parts = array_values($parts);
+
+        // Heuristic: if we have 4 parts and the 2nd part is numeric-ish, treat as Value:Price:Stock:Image
+        if (count($parts) === 4 && $parts[0] !== '' && is_numeric($parts[1])) {
+            $value = $parts[0];
+            $price = $this->toFloat($parts[1]);
+            $stock = $this->toInt($parts[2]);
+            $image = trim((string) $parts[3]) ?: null;
+
+            return [[
+                'attribute' => self::DEFAULT_VARIATION_ATTRIBUTE,
+                'value' => $value,
+                'price' => $price,
+                'stock' => $stock,
+                'image' => $this->normalizeImportedImagePath($image),
+            ], null];
+        }
+
+        // Default: Attribute:Value:Price:Stock:Image (with optional trailing fields)
+        if (count($parts) < 2) {
+            return [null, "invalid variation format: {$input}"];
+        }
+
+        $attribute = $parts[0] ?? '';
+        $value = $parts[1] ?? '';
+        if ($attribute === '' || $value === '') {
+            return [null, "variation must include Attribute and Value: {$input}"];
+        }
+
+        $price = $this->toFloat($parts[2] ?? null);
+        $stock = $this->toInt($parts[3] ?? null);
+        $image = trim((string) ($parts[4] ?? '')) ?: null;
+
+        return [[
+            'attribute' => $attribute,
+            'value' => $value,
+            'price' => $price,
+            'stock' => $stock,
+            'image' => $this->normalizeImportedImagePath($image),
+        ], null];
+    }
+
+    private function normalizeImportedImagePath(?string $path): ?string
+    {
+        if (!$path) return null;
+        $p = trim($path);
+        if ($p === '') return null;
+        // Keep URLs as-is, normalize local paths by removing leading slash.
+        if (str_starts_with($p, 'http://') || str_starts_with($p, 'https://')) {
+            return $p;
+        }
+        $clean = ltrim($p, '/');
+        // If user provided only a filename, assume it's stored under products/variations/
+        if (!str_contains($clean, '/')) {
+            return 'products/' . $clean;
+        }
+        return $clean;
+    }
+}

@@ -6,6 +6,7 @@ import PrimaryButton from "@/Components/Actions/PrimaryButton";
 import SelectInput from "@/Components/Ui/SelectInput";
 import ImageUploader from "@/Components/Ui/ImageUploader";
 import { Car, PlusIcon, Trash2Icon } from "lucide-react";
+import { ensureVariationImagePath, getAssetUrl } from "@/Utils/helpers";
 
 interface Variation {
     id: string;
@@ -214,33 +215,78 @@ export default function ImagesVariations({
                                 </div>
 
                                 <div className="mt-4">
-                                    <ImageUploader
-                                        label="Variation Image (optional)"
-                                        multiple={false}
-                                        maxFiles={1}
-                                        inputId={`variation-image-${variation.id}`}
-                                        value={
-                                            variation.image instanceof File
-                                                ? variation.image
-                                                : null
-                                        }
-                                        existingImages={
-                                            !variation.deleted_image &&
-                                            typeof variation.image === "string" &&
-                                            variation.image
-                                                ? [variation.image]
-                                                : []
-                                        }
-                                        onChange={(file) => {
-                                            updateVariation(variation.id, "image", file);
-                                            updateVariation(variation.id, "deleted_image", false);
-                                        }}
-                                        onRemoveExisting={() => {
-                                            updateVariation(variation.id, "image", null);
-                                            updateVariation(variation.id, "deleted_image", true);
-                                        }}
-                                        error={errors?.variations?.[index]?.image}
+                                    <InputLabel
+                                        htmlFor={`variation-image-${variation.id}`}
+                                        value="Variation Image (optional)"
                                     />
+
+                                    {/* Existing image preview (if any) */}
+                                    {!variation.deleted_image &&
+                                        typeof variation.image === "string" &&
+                                        variation.image && (
+                                            <div className="mt-2 flex items-center gap-3">
+                                                <img
+                                                    src={getAssetUrl(
+                                                        ensureVariationImagePath(
+                                                            variation.image,
+                                                        ),
+                                                    )}
+                                                    alt="Variation"
+                                                    className="w-16 h-16 rounded-lg object-cover border border-gray-800 bg-[#0C1311]"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src =
+                                                            "/placeholder.png";
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        updateVariation(
+                                                            variation.id,
+                                                            "image",
+                                                            null,
+                                                        );
+                                                        updateVariation(
+                                                            variation.id,
+                                                            "deleted_image",
+                                                            true,
+                                                        );
+                                                    }}
+                                                    className="text-sm px-3 py-2 rounded-lg border border-gray-800 text-red-400 hover:bg-red-600/10 transition-colors"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        )}
+
+                                    {/* New upload */}
+                                    <input
+                                        id={`variation-image-${variation.id}`}
+                                        name={`variations[${index}][image]`}
+                                        type="file"
+                                        accept="image/*"
+                                        className="mt-2 block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#151F1D] file:text-white hover:file:bg-[#1A2624]"
+                                        onChange={(e) => {
+                                            const file =
+                                                e.target.files?.[0] ?? null;
+                                            updateVariation(
+                                                variation.id,
+                                                "image",
+                                                file,
+                                            );
+                                            updateVariation(
+                                                variation.id,
+                                                "deleted_image",
+                                                false,
+                                            );
+                                        }}
+                                    />
+
+                                    {errors?.variations?.[index]?.image && (
+                                        <div className="text-sm text-red-500 mt-2">
+                                            {errors.variations[index].image}
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
