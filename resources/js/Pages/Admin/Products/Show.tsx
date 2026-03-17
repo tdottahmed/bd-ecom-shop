@@ -8,7 +8,6 @@ import {
     ArrowLeftIcon,
     PackageIcon,
     TagIcon,
-    TruckIcon,
     LayersIcon,
     AlertTriangleIcon,
 } from "lucide-react";
@@ -24,10 +23,6 @@ export default function Show({ product }: ShowPageProps) {
 
     const getCategoryName = () => {
         return product.category?.title || "N/A";
-    };
-
-    const getSupplierName = () => {
-        return product.supplier?.name || "N/A";
     };
 
     const getAttributeName = (attributeId: number) => {
@@ -157,19 +152,6 @@ export default function Show({ product }: ShowPageProps) {
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-purple-900/30 rounded-full text-purple-400">
-                                                <TruckIcon size={18} />
-                                            </div>
-                                            <span className="text-sm font-medium text-gray-300">
-                                                Supplier
-                                            </span>
-                                        </div>
-                                        <span className="font-medium text-white">
-                                            {getSupplierName()}
-                                        </span>
-                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -212,26 +194,17 @@ export default function Show({ product }: ShowPageProps) {
                                             </span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm text-gray-400 mb-1">
-                                            MOQ Price
-                                        </p>
-                                        <p className="text-lg font-medium text-gray-300">
-                                            {product.moq_price
-                                                ? formatPrice(product.moq_price)
-                                                : "N/A"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-400 mb-1">
-                                            UAN Price
-                                        </p>
-                                        <p className="text-lg font-medium text-gray-300">
-                                            {product.uan_price
-                                                ? formatPrice(product.uan_price)
-                                                : "N/A"}
-                                        </p>
-                                    </div>
+                                   
+                                    {product.brand && (
+                                        <div>
+                                            <p className="text-sm text-gray-400 mb-1">
+                                                Brand
+                                            </p>
+                                            <p className="text-lg font-medium text-gray-300">
+                                                {product.brand.title}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

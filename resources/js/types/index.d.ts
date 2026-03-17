@@ -122,10 +122,8 @@ export interface Product {
     stock: number;
     category_id?: number;
     brand_id?: number | null;
-    supplier_id?: number;
     category?: Category;
     brand?: Brand | null;
-    supplier?: Supplier;
     product_variations?: ProductVariation[];
     qty_price?: QtyPrice[];
     status?: "active" | "inactive" | "draft" | "out_of_stock";
@@ -168,7 +166,6 @@ export interface ProductsIndexProps {
     products: PaginatedData<Product>;
     categories: Category[];
     brands: Brand[];
-    suppliers: Supplier[];
     stats: {
         total: number;
         checkouts: number;
@@ -181,7 +178,6 @@ export interface ProductsIndexProps {
         search?: string;
         category?: string;
         brand?: string;
-        supplier?: string;
         sort?: string;
     };
 }
@@ -189,7 +185,6 @@ export interface ProductsIndexProps {
 export interface CreatePageProps extends PageProps {
     categories: Category[];
     brands: Brand[];
-    suppliers: Supplier[];
     attributes: ProductAttribute[];
 }
 
@@ -197,7 +192,6 @@ export interface EditPageProps extends PageProps {
     product: Product;
     categories: Category[];
     brands: Brand[];
-    suppliers: Supplier[];
     attributes: ProductAttribute[];
 }
 
@@ -211,7 +205,6 @@ export interface ProductFormData {
     slug: string;
     description: string;
     category_id: string;
-    supplier_id: string;
     purchase_price: string;
     sale_price: string;
     moq_price: string;
@@ -271,7 +264,6 @@ export interface PaginatedResponse<T = any> extends ApiResponse<T> {
 // Filter and Search types
 export interface ProductFilters {
     category?: number | string;
-    supplier?: number | string;
     stock_status?: "in_stock" | "out_of_stock" | "low_stock";
     status?: "active" | "inactive" | "draft";
     search?: string;
@@ -291,7 +283,6 @@ export interface PaginationParams {
 export interface DashboardStats {
     total_products: number;
     total_categories: number;
-    total_suppliers: number;
     low_stock_products: number;
     out_of_stock_products: number;
     total_revenue?: number;
@@ -326,7 +317,6 @@ export interface ProductFormState {
     name: FormField<string>;
     description: FormField<string>;
     category_id: FormField<string>;
-    supplier_id: FormField<string>;
     purchase_price: FormField<string>;
     sale_price: FormField<string>;
     stock: FormField<string>;
@@ -371,8 +361,7 @@ export interface BulkAction {
     | "delete"
     | "activate"
     | "deactivate"
-    | "update_category"
-    | "update_supplier";
+    | "update_category";
     ids: number[];
     data?: any;
 }
@@ -383,7 +372,6 @@ export type {
     PageProps,
     Category,
     Brand,
-    Supplier,
     ProductAttribute,
     ProductVariation,
     QtyPrice,
@@ -419,7 +407,6 @@ export default {
     User,
     PageProps,
     Category,
-    Supplier,
     Product,
     ProductAttribute,
     ProductVariation,

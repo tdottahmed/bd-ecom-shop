@@ -31,11 +31,6 @@ class Product extends Model
         return $this->belongsTo(Brand::class);
     }
 
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class);
-    }
-
     public function product_variations()
     {
         return $this->hasMany(ProductVariation::class);

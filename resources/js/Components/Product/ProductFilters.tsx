@@ -3,19 +3,17 @@ import { router } from "@inertiajs/react";
 import { Filter, Grid3X3, List } from "lucide-react";
 import Search from "@/Components/Ui/Search";
 import SelectInput from "@/Components/Ui/SelectInput";
-import { Brand, Category, Supplier } from "@/types";
+import { Brand, Category } from "@/types";
 
 interface ProductFiltersProps {
     filters: {
         search?: string;
         category?: string;
         brand?: string;
-        supplier?: string;
         sort?: string;
     };
     categories: Category[];
     brands: Brand[];
-    suppliers: Supplier[];
     viewMode: "grid" | "list";
     setViewMode: (mode: "grid" | "list") => void;
 }
@@ -24,7 +22,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     filters,
     categories,
     brands,
-    suppliers,
     viewMode,
     setViewMode,
 }) => {
@@ -38,9 +35,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     const [selectedBrand, setSelectedBrand] = useState(
         filters.brand || "all"
     );
-    const [selectedSupplier, setSelectedSupplier] = useState(
-        filters.supplier || "all"
-    );
     const [sortOrder, setSortOrder] = useState(filters.sort || "newest");
 
     // Sync state with props when they change (e.g. after clear filters)
@@ -48,7 +42,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         setSearchTerm(filters.search || "");
         setSelectedCategory(filters.category || "all");
         setSelectedBrand(filters.brand || "all");
-        setSelectedSupplier(filters.supplier || "all");
         setSortOrder(filters.sort || "newest");
     }, [filters]);
 
@@ -71,8 +64,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 category:
                     selectedCategory !== "all" ? selectedCategory : undefined,
                 brand: selectedBrand !== "all" ? selectedBrand : undefined,
-                supplier:
-                    selectedSupplier !== "all" ? selectedSupplier : undefined,
                 sort: sortOrder,
             },
             {
@@ -87,7 +78,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             search: searchTerm || undefined,
             category: selectedCategory !== "all" ? selectedCategory : undefined,
             brand: selectedBrand !== "all" ? selectedBrand : undefined,
-            supplier: selectedSupplier !== "all" ? selectedSupplier : undefined,
             sort: sortOrder,
         };
 
@@ -97,9 +87,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         } else if (filterType === "brand") {
             setSelectedBrand(value);
             newFilters.brand = value !== "all" ? value : undefined;
-        } else if (filterType === "supplier") {
-            setSelectedSupplier(value);
-            newFilters.supplier = value !== "all" ? value : undefined;
         } else if (filterType === "sort") {
             setSortOrder(value);
             newFilters.sort = value;
@@ -165,7 +152,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 }`}
             >
                 <div className="overflow-hidden">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 bg-gray-800/50 rounded-lg mb-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-gray-800/50 rounded-lg mb-1">
                         <SelectInput
                             value={sortOrder}
                             onChange={(value) =>
@@ -221,23 +208,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                                 ...brands.map((b) => ({
                                     value: b.id.toString(),
                                     label: b.title,
-                                })),
-                            ]}
-                            className="w-full"
-                        />
-                        <SelectInput
-                            value={selectedSupplier}
-                            onChange={(value) =>
-                                handleFilterChange("supplier", value)
-                            }
-                            options={[
-                                {
-                                    value: "all",
-                                    label: "All Suppliers",
-                                },
-                                ...suppliers.map((s) => ({
-                                    value: s.id.toString(),
-                                    label: s.name,
                                 })),
                             ]}
                             className="w-full"

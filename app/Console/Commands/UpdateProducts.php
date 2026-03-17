@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\Supplier;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -48,12 +47,6 @@ class UpdateProducts extends Command
         $additionalCost = get_setting('additional_cost', 0);
         $this->info("Found " . count($products) . " products. Starting update with Additional Cost: {$additionalCost}...");
 
-        // Ensure a default supplier exists
-        $supplier = Supplier::firstOrCreate(
-            ['id' => 1],
-            ['name' => 'Default Supplier', 'phone' => '0000000000', 'address' => 'Default Address']
-        );
-
         $bar = $this->output->createProgressBar(count($products));
         $bar->start();
 
@@ -90,7 +83,6 @@ class UpdateProducts extends Command
                         'name' => $item['title'],
                         'slug' => $slug,
                         'category_id' => $categoryId,
-                        'supplier_id' => $supplier->id,
                         'description' => $item['description'],
                         'purchase_price' => $purchasePrice,
                         'sale_price' => $sellPrice,

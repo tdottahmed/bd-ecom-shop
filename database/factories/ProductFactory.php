@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Category;
-use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -34,7 +33,6 @@ class ProductFactory extends Factory
             'uan_price' => $salePrice * 0.95, // 5% discount for UAN
             'stock' => $this->faker->numberBetween(0, 100),
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
-            'supplier_id' => Supplier::inRandomOrder()->first()->id ?? Supplier::factory(),
         ];
     }
 }

@@ -71,12 +71,6 @@ class ImportProducts extends Command
 
         $this->info("Found " . count($products) . " products. Starting import...");
 
-        // Ensure a default supplier exists
-        $supplier = \App\Models\Supplier::firstOrCreate(
-            ['id' => 1],
-            ['name' => 'Default Supplier', 'phone' => '0000000000', 'address' => 'Default Address']
-        );
-
         $bar = $this->output->createProgressBar(count($products));
         $bar->start();
 
@@ -111,7 +105,6 @@ class ImportProducts extends Command
                         'name' => $item['title'],
                         'slug' => $slug,
                         'category_id' => $categoryId,
-                        'supplier_id' => $supplier->id,
                         'description' => $item['description'],
                         'purchase_price' => $buyPrice,
                         'sale_price' => $sellPrice,

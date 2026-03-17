@@ -44,13 +44,6 @@ export const secondaryMenuItems: MenuItem[] = [
         urlPattern: "/admin/brands",
     },
     {
-        key: "suppliers",
-        label: "Suppliers",
-            icon: <Users size={ 18 } />,
-    route: "admin.suppliers.index",
-        urlPattern: "/admin/suppliers",
-    },
-{
     key: "discounts",
         label: "Discounts",
             icon: <BadgePercent size={ 18 } />,

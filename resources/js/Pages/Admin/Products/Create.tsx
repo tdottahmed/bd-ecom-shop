@@ -32,7 +32,6 @@ interface priceSettings {
 export default function Create({
     categories,
     brands,
-    suppliers,
     attributes,
     settings,
 }: CreatePageProps & { settings: priceSettings }) {
@@ -41,7 +40,6 @@ export default function Create({
         slug: "",
         category_id: "",
         brand_id: "" as string | null,
-        supplier_id: "",
         description: "",
         purchase_price: "",
         sale_price: "",
@@ -73,7 +71,6 @@ export default function Create({
                     errors={errors}
                     categories={categories}
                     brands={brands}
-                    suppliers={suppliers}
                 />
 
                 <PricingInventory

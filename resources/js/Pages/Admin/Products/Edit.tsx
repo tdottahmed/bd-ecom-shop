@@ -35,7 +35,6 @@ export default function Edit({
     product,
     categories,
     brands,
-    suppliers,
     attributes,
     settings,
 }: EditPageProps & { settings: priceSettings }) {
@@ -67,7 +66,6 @@ export default function Edit({
         slug: product.slug || "",
         category_id: product.category_id?.toString() || "",
         brand_id: product.brand_id != null ? product.brand_id.toString() : "",
-        supplier_id: product.supplier_id?.toString() || "",
         description: product.description || "",
 
         purchase_price: product.purchase_price?.toString() || "",
@@ -155,7 +153,6 @@ export default function Edit({
                     errors={errors}
                     categories={categories}
                     brands={brands}
-                    suppliers={suppliers}
                 />
 
                 <PricingInventory

@@ -14,7 +14,6 @@ interface Props {
     errors: any;
     categories: any[];
     brands: any[];
-    suppliers: any[];
 }
 
 export default function GeneralInformation({
@@ -23,7 +22,6 @@ export default function GeneralInformation({
     errors,
     categories,
     brands,
-    suppliers,
 }: Props) {
     return (
         <div className="mb-2">
@@ -73,7 +71,7 @@ export default function GeneralInformation({
                             <InputError message={errors.slug} />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <InputLabel
                                     htmlFor="category_id"
@@ -113,27 +111,6 @@ export default function GeneralInformation({
                                     }))}
                                     placeholder="Select Brand (optional)"
                                     error={errors.brand_id}
-                                />
-                            </div>
-                            <div>
-                                <InputLabel
-                                    htmlFor="supplier_id"
-                                    value="Supplier"
-                                    required
-                                />
-                                <SelectInput
-                                    id="supplier_id"
-                                    name="supplier_id"
-                                    value={data.supplier_id}
-                                    onChange={(val) =>
-                                        setData("supplier_id", val)
-                                    }
-                                    options={suppliers.map((s) => ({
-                                        value: s.id,
-                                        label: s.name,
-                                    }))}
-                                    placeholder="Select Supplier"
-                                    error={errors.supplier_id}
                                 />
                             </div>
                         </div>

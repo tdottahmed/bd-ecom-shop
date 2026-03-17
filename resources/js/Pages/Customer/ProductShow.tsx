@@ -274,14 +274,6 @@ export default function ProductShow({
                                             </Link>
                                         </div>
                                     )}
-                                    {product.supplier && (
-                                        <div className="flex justify-between">
-                                            <span>Supplier: </span>
-                                            <span className="font-medium text-gray-900">
-                                                {product.supplier.name}
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>

@@ -16,7 +16,6 @@ const Index: React.FC<ProductsIndexProps> = ({
     products,
     categories,
     brands,
-    suppliers,
     stats,
     filters,
 }) => {
@@ -37,7 +36,6 @@ const Index: React.FC<ProductsIndexProps> = ({
                     filters={filters}
                     categories={categories}
                     brands={brands}
-                    suppliers={suppliers}
                     viewMode={viewMode}
                     setViewMode={setViewMode}
                 />
