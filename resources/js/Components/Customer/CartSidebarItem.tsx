@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { CartItem } from "@/types";
 import { useCartStore } from "@/Stores/useCartStore";
-import { X, Trash2, Minus, Plus } from "lucide-react";
+import { X, Minus, Plus } from "lucide-react";
 import Image from "../Ui/Image";
 
 interface CartSidebarItemProps {
@@ -58,10 +58,19 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                         <h4 className="font-medium text-gray-900 text-sm line-clamp-2 leading-tight">
                             {item?.name ?? "Product"}
                         </h4>
-                        <div className="font-bold text-gray-900 text-sm whitespace-nowrap">
-                            {formatPrice(
-                                (Number(item?.price) || 0) * (Number(item?.quantity) || 0)
+                        <div className="text-right shrink-0">
+                            {(item?.original_price ?? 0) > (Number(item?.price) ?? 0) && (
+                                <div className="text-[10px] text-gray-400 line-through mb-0.5">
+                                    {formatPrice(
+                                        (Number(item?.original_price) || 0) * (Number(item?.quantity) || 0)
+                                    )}
+                                </div>
                             )}
+                            <div className="font-bold text-gray-900 text-sm whitespace-nowrap">
+                                {formatPrice(
+                                    (Number(item?.price) || 0) * (Number(item?.quantity) || 0)
+                                )}
+                            </div>
                         </div>
                     </div>
 

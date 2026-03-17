@@ -83,6 +83,15 @@ export default function Checkout({
     };
 
     const discountAmount = getDiscount();
+
+    const productSavings = cartItems.reduce((sum, item) => {
+        const orig = Number(item.original_price ?? 0);
+        const price = Number(item.price ?? 0);
+        const qty = Number(item.quantity ?? 0);
+        if (orig > price && qty > 0) return sum + (orig - price) * qty;
+        return sum;
+    }, 0);
+
     const total =
         cartTotal +
         (selectedDelivery ? Number(selectedDelivery.cost) : 0) -
@@ -137,18 +146,6 @@ export default function Checkout({
             <Head title="Checkout" />
             <div className="min-h-screen bg-[#F8F9FA] py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between mb-4 md:mb-8">
-                        <Link
-                            href="/"
-                            className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                        >
-                            <ArrowLeft className="w-6 h-6 text-gray-700" />
-                        </Link>
-                        <div className="text-xl font-bold text-[#1A1A1A]">
-                            Paikari World
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         {/* Left Column: Form & Delivery */}
                         <div className="lg:col-span-7 space-y-6">
@@ -177,6 +174,7 @@ export default function Checkout({
                                         ? Number(selectedDelivery.cost)
                                         : 0
                                 }
+                                productSavings={productSavings}
                                 discountAmount={discountAmount}
                                 total={total}
                                 processing={processing}

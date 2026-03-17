@@ -169,10 +169,25 @@ export default function ProductShow({
                                     {product.name}
                                 </h1>
 
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                        ৳{product.sale_price}
-                                    </div>
+                                <div className="flex flex-wrap items-baseline gap-3 mb-6">
+                                    {product.discounted_sale_price != null &&
+                                    Number(product.discounted_sale_price) < Number(product.sale_price) ? (
+                                        <>
+                                            <span className="text-xl text-gray-500 line-through">
+                                                ৳{product.sale_price}
+                                            </span>
+                                            <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                ৳{product.discounted_sale_price}
+                                            </span>
+                                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                                Sale
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                            ৳{product.sale_price}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="prose prose-sm text-gray-600 mb-8 max-w-none">

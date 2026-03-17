@@ -171,6 +171,21 @@ export default function Show({ product }: ShowPageProps) {
                                             {formatPrice(product.sale_price)}
                                         </p>
                                     </div>
+                                    {product.has_discount &&
+                                        product.discounted_sale_price != null && (
+                                            <div>
+                                                <p className="text-sm text-gray-400 mb-1">
+                                                    Discounted Price
+                                                </p>
+                                                <p className="text-xl font-bold text-amber-400">
+                                                    {formatPrice(
+                                                        Number(
+                                                            product.discounted_sale_price,
+                                                        ),
+                                                    )}
+                                                </p>
+                                            </div>
+                                        )}
                                     <div>
                                         <p className="text-sm text-gray-400 mb-1">
                                             Purchase Price

@@ -5,6 +5,7 @@ import {
     ArrowRight,
     ShoppingCart,
     History,
+    Sparkles,
 } from "lucide-react";
 import { formatPrice } from "@/Utils/helpers";
 import CartSidebarItem from "./CartSidebarItem";
@@ -69,6 +70,18 @@ const CartSidebar = () => {
     };
 
     const discountAmount = getDiscount();
+
+    // Product discount savings (original_price - price) per item
+    const productSavings = useMemo(() => {
+        return cartItems.reduce((sum, item) => {
+            const orig = Number(item.original_price ?? 0);
+            const price = Number(item.price ?? 0);
+            const qty = Number(item.quantity ?? 0);
+            if (orig > price && qty > 0) return sum + (orig - price) * qty;
+            return sum;
+        }, 0);
+    }, [cartItems]);
+
     const finalTotal = cartTotal - discountAmount;
 
     return (
@@ -164,31 +177,34 @@ const CartSidebar = () => {
 
                     {/* Footer - Only show for Cart tab */}
                     {activeTab === "cart" && cartItems.length > 0 && (
-                        <div className="p-4 border-t bg-white">
+                        <div className="p-4 border-t bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between text-base text-gray-600">
-                                        <p>Subtotal </p>
-                                        <p> {formatPrice(cartTotal)} </p>
+                                        <span>Subtotal</span>
+                                        <span>{formatPrice(cartTotal)}</span>
                                     </div>
-                                    {discountAmount > 0 && (
-                                        <div className="flex items-center justify-between text-base text-green-600 font-medium">
-                                            <p>Quantity Discount </p>
-                                            <p>
-                                                {" "}
-                                                -
-                                                {formatPrice(
-                                                    discountAmount,
-                                                )}{" "}
-                                            </p>
+                                    {productSavings > 0 && (
+                                        <div className="flex items-center justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
+                                            <span className="flex items-center gap-1.5">
+                                                <Sparkles size={14} />
+                                                Product discount
+                                            </span>
+                                            <span>-{formatPrice(productSavings)}</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center justify-between text-lg font-bold text-gray-900 pt-2 border-t">
-                                        <p>Total </p>
-                                        <p> {formatPrice(finalTotal)} </p>
+                                    {discountAmount > 0 && (
+                                        <div className="flex items-center justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
+                                            <span>Quantity discount</span>
+                                            <span>-{formatPrice(discountAmount)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-100">
+                                        <span>Total</span>
+                                        <span>{formatPrice(finalTotal)}</span>
                                     </div>
                                 </div>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs text-gray-500">
                                     Shipping and taxes calculated at checkout.
                                 </p>
                                 <div className="flex flex-col gap-3">

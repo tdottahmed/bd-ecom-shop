@@ -19,6 +19,9 @@ class Product extends Model
         'uan_price' => 'float',
         'stock' => 'integer',
         'is_preorder' => 'boolean',
+        'has_discount' => 'boolean',
+        'discount_value' => 'float',
+        'discounted_sale_price' => 'float',
     ];
 
     public function category()

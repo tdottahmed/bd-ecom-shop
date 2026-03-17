@@ -137,8 +137,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     </h3>
                 </Link>
                 <div className="mb-2 md:mb-4 px-2">
-                    <span className="text-l font-bold text-gray-900">
+                    <div className="flex flex-wrap items-baseline gap-2">
                         {(() => {
+                            const hasDiscount =
+                                product.discounted_sale_price != null &&
+                                Number(product.discounted_sale_price) < Number(product.sale_price);
                             if (
                                 product.product_variations &&
                                 product.product_variations.length > 0
@@ -154,16 +157,39 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 if (prices.length > 0) {
                                     const minPrice = Math.min(...prices);
                                     const maxPrice = Math.max(...prices);
-
-                                    if (minPrice !== maxPrice) {
-                                        return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
-                                    }
-                                    return formatPrice(minPrice);
+                                    const rangeStr =
+                                        minPrice !== maxPrice
+                                            ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
+                                            : formatPrice(minPrice);
+                                    return (
+                                        <span className="text-l font-bold text-gray-900">
+                                            {rangeStr}
+                                        </span>
+                                    );
                                 }
                             }
-                            return formatPrice(product.sale_price);
+                            const effectivePrice = hasDiscount
+                                ? Number(product.discounted_sale_price)
+                                : product.sale_price;
+                            return (
+                                <>
+                                    {hasDiscount && (
+                                        <span className="text-sm text-gray-500 line-through">
+                                            {formatPrice(product.sale_price)}
+                                        </span>
+                                    )}
+                                    <span className="text-l font-bold text-gray-900">
+                                        {formatPrice(effectivePrice)}
+                                    </span>
+                                    {hasDiscount && (
+                                        <span className="text-xs font-semibold text-green-600">
+                                            Sale
+                                        </span>
+                                    )}
+                                </>
+                            );
                         })()}
-                    </span>
+                    </div>
                 </div>
 
                 <div className="mt-auto">

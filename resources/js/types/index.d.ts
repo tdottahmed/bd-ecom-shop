@@ -58,6 +58,8 @@ export interface CartItem {
     product_id: number;
     name: string;
     price: number;
+    /** Original price before product discount (sale_price); used to show "You save ৳X" */
+    original_price?: number;
     quantity: number;
     stock: number;
     image: string | null;
@@ -133,6 +135,10 @@ export interface Product {
     dimensions?: string;
     featured?: boolean;
     is_preorder?: boolean;
+    has_discount?: boolean;
+    discount_type?: "flat" | "percentage" | null;
+    discount_value?: number | null;
+    discounted_sale_price?: number | null;
     created_at: string;
     updated_at: string;
 }
@@ -210,6 +216,10 @@ export interface ProductFormData {
     moq_price: string;
     uan_price: string;
     stock: string;
+    has_discount?: boolean;
+    discount_type?: string;
+    discount_value?: string;
+    discounted_sale_price?: string | null;
     status: string;
     sku?: string;
     barcode?: string;

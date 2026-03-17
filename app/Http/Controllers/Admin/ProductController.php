@@ -135,6 +135,10 @@ class ProductController extends Controller
                 'images' => $uploadedImages,
                 'qty_price' => $qtyPriceData,
                 'is_preorder' => $request->is_preorder ?? false,
+                'has_discount' => (bool) ($request->has_discount ?? false),
+                'discount_type' => $request->discount_type ?: null,
+                'discount_value' => $request->discount_value !== null && $request->discount_value !== '' ? (float) $request->discount_value : null,
+                'discounted_sale_price' => $this->getDiscountedSalePrice($request),
             ]);
 
             if ($request->has('variations') && !empty($request->variations)) {
@@ -222,6 +226,10 @@ class ProductController extends Controller
                 'images' => $currentImages,
                 'qty_price' => $qtyPriceData,
                 'is_preorder' => $request->is_preorder ?? false,
+                'has_discount' => (bool) ($request->has_discount ?? false),
+                'discount_type' => $request->discount_type ?: null,
+                'discount_value' => $request->discount_value !== null && $request->discount_value !== '' ? (float) $request->discount_value : null,
+                'discounted_sale_price' => $this->getDiscountedSalePrice($request),
             ]);
             // Handle Variations Update (Sync Logic)
             if ($request->has('variations')) {
@@ -304,6 +312,22 @@ class ProductController extends Controller
             }
         }
         return $qtyPrices;
+    }
+
+    protected function getDiscountedSalePrice(Request $request): ?float
+    {
+        if (empty($request->has_discount) || !$request->discount_type || $request->discount_value === null || $request->discount_value === '') {
+            return null;
+        }
+        $salePrice = (float) $request->sale_price;
+        $value = (float) $request->discount_value;
+        if ($request->discount_type === 'flat') {
+            $discounted = $salePrice - $value;
+            return $discounted > 0 ? round($discounted, 2) : 0;
+        }
+        // percentage
+        $discounted = $salePrice * (1 - $value / 100);
+        return round(max(0, $discounted), 2);
     }
 
     public function destroy(Product $product)

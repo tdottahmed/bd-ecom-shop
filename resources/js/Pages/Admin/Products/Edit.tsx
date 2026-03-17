@@ -73,6 +73,10 @@ export default function Edit({
         stock: product.stock?.toString() || "",
         uan_price: product.uan_price?.toString() || "",
         is_preorder: product.is_preorder || false,
+        has_discount: !!(product.has_discount || (product.discounted_sale_price != null && product.discounted_sale_price !== "")),
+        discount_type: product.discount_type ?? "",
+        discount_value: product.discount_value != null ? String(product.discount_value) : "",
+        discounted_sale_price: product.discounted_sale_price != null ? String(product.discounted_sale_price) : null,
 
         qty_prices: (product.qty_price || []).map((qp: any) => ({
             id: Math.random().toString(), // Add temporary ID for frontend key

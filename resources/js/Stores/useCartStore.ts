@@ -33,6 +33,10 @@ function sanitizeCart(
             typeof item.stock === "number" && !isNaN(item.stock)
                 ? item.stock
                 : Number(item.stock) || 0;
+        const originalPrice =
+            typeof item.original_price === "number" && !isNaN(item.original_price)
+                ? item.original_price
+                : undefined;
         result[key] = {
             cart_id: key,
             product_id: productId,
@@ -57,6 +61,7 @@ function sanitizeCart(
                     ? item.add_cart_qty
                     : undefined,
             use_add_cart_qty_as_min: Boolean(item.use_add_cart_qty_as_min),
+            ...(originalPrice !== undefined && { original_price: originalPrice }),
         };
     }
     return result;
@@ -147,8 +152,11 @@ export const useCartStore = create<CartState>()(
                         }
                     }
 
-                    // Calculate price logic
-                    let price = Number(product.sale_price);
+                    // Calculate price logic: use discounted sale price when available
+                    const basePrice = Number(
+                        product.discounted_sale_price ?? product.sale_price
+                    );
+                    let price = basePrice;
                     if (variations && variations.length > 0) {
                         const varPrices = variations
                             .map((v) =>
@@ -158,9 +166,12 @@ export const useCartStore = create<CartState>()(
 
                         if (varPrices.length > 0) {
                             price = Math.max(...varPrices);
+                        } else {
+                            price = basePrice;
                         }
                     }
 
+                    const originalPrice = Number(product.sale_price);
                     return {
                         cart: {
                             ...state.cart,
@@ -169,6 +180,7 @@ export const useCartStore = create<CartState>()(
                                 product_id: product.id,
                                 name: product.name,
                                 price: price,
+                                original_price: originalPrice > 0 ? originalPrice : undefined,
                                 stock: stock,
                                 quantity: newQuantity,
                                 image: product.images?.[0] || null,

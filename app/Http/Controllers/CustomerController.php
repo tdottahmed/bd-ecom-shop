@@ -98,7 +98,7 @@ class CustomerController extends Controller
     private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 12)
     {
         $query = Product::with(['category', 'product_variations', 'product_variations.product_attribute'])
-            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images');
+            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
 
         // Filter by category if provided
         if ($categoryId) {

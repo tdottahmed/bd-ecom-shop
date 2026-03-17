@@ -86,7 +86,12 @@ export default function CheckoutItem({
                         size="sm"
                     />
 
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
+                        {(item.original_price ?? 0) > (item.price ?? 0) && (
+                            <div className="text-xs text-gray-400 line-through mb-0.5">
+                                {formatPrice((item.original_price ?? 0) * item.quantity)}
+                            </div>
+                        )}
                         <div className="text-sm font-bold text-gray-900">
                             {formatPrice(item.price * item.quantity)}
                         </div>

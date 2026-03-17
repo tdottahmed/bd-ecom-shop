@@ -37,6 +37,10 @@ class ProductRequest extends FormRequest
             'variations.*.stock' => 'nullable|integer|min:0',
             'variations.*.price' => 'nullable|numeric|min:0',
             'is_preorder' => 'boolean',
+            'has_discount' => 'nullable|boolean',
+            'discount_type' => 'nullable|in:flat,percentage',
+            'discount_value' => 'nullable|numeric|min:0',
+            'discounted_sale_price' => 'nullable|numeric|min:0',
         ];
     }
 
