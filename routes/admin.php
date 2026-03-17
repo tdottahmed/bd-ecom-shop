@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
@@ -25,6 +26,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
   Route::get('products/show/{product}', [ProductController::class, 'show'])->name('product.show');
 
   Route::resource('categories', CategoryController::class);
+  Route::resource('brands', BrandController::class);
   Route::resource('suppliers', SupplierController::class);
 
   // New Modules

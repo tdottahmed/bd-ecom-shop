@@ -15,6 +15,7 @@ import ProductFilters from "@/Components/Product/ProductFilters";
 const Index: React.FC<ProductsIndexProps> = ({
     products,
     categories,
+    brands,
     suppliers,
     stats,
     filters,
@@ -35,6 +36,7 @@ const Index: React.FC<ProductsIndexProps> = ({
                 <ProductFilters
                     filters={filters}
                     categories={categories}
+                    brands={brands}
                     suppliers={suppliers}
                     viewMode={viewMode}
                     setViewMode={setViewMode}

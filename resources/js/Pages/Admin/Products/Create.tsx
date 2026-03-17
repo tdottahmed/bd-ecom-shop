@@ -31,6 +31,7 @@ interface priceSettings {
 
 export default function Create({
     categories,
+    brands,
     suppliers,
     attributes,
     settings,
@@ -39,6 +40,7 @@ export default function Create({
         name: "",
         slug: "",
         category_id: "",
+        brand_id: "" as string | null,
         supplier_id: "",
         description: "",
         purchase_price: "",
@@ -70,6 +72,7 @@ export default function Create({
                     setData={setData}
                     errors={errors}
                     categories={categories}
+                    brands={brands}
                     suppliers={suppliers}
                 />
 

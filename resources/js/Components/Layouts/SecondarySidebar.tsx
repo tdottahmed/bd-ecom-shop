@@ -10,6 +10,7 @@ import {
     X,
     ArrowLeft,
     Layers,
+    Tag,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -32,11 +33,18 @@ export const secondaryMenuItems: MenuItem[] = [
         key: "categories",
         label: "Categories",
         icon: <Layers size={ 18} />,
-    route: "admin.categories.index",
-    urlPattern: "/admin/categories",
+        route: "admin.categories.index",
+        urlPattern: "/admin/categories",
     },
-{
-    key: "suppliers",
+    {
+        key: "brands",
+        label: "Brands",
+        icon: <Tag size={18} />,
+        route: "admin.brands.index",
+        urlPattern: "/admin/brands",
+    },
+    {
+        key: "suppliers",
         label: "Suppliers",
             icon: <Users size={ 18 } />,
     route: "admin.suppliers.index",

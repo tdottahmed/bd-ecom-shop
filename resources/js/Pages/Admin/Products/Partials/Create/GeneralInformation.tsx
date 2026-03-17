@@ -10,9 +10,10 @@ import Checkbox from "@/Components/Ui/Checkbox";
 
 interface Props {
     data: any;
-    setData: (key: string, value: any) => void; // Simplified type for setData
+    setData: (key: string, value: any) => void;
     errors: any;
     categories: any[];
+    brands: any[];
     suppliers: any[];
 }
 
@@ -21,6 +22,7 @@ export default function GeneralInformation({
     setData,
     errors,
     categories,
+    brands,
     suppliers,
 }: Props) {
     return (
@@ -71,7 +73,7 @@ export default function GeneralInformation({
                             <InputError message={errors.slug} />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <InputLabel
                                     htmlFor="category_id"
@@ -93,7 +95,26 @@ export default function GeneralInformation({
                                     error={errors.category_id}
                                 />
                             </div>
-
+                            <div>
+                                <InputLabel
+                                    htmlFor="brand_id"
+                                    value="Brand"
+                                />
+                                <SelectInput
+                                    id="brand_id"
+                                    name="brand_id"
+                                    value={data.brand_id ?? ""}
+                                    onChange={(val) =>
+                                        setData("brand_id", val || null)
+                                    }
+                                    options={brands.map((b) => ({
+                                        value: b.id,
+                                        label: b.title,
+                                    }))}
+                                    placeholder="Select Brand (optional)"
+                                    error={errors.brand_id}
+                                />
+                            </div>
                             <div>
                                 <InputLabel
                                     htmlFor="supplier_id"

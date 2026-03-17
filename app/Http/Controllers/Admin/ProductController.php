@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -18,7 +19,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category', 'supplier', 'product_variations.product_attribute');
+        $query = Product::with('category', 'brand', 'supplier', 'product_variations.product_attribute');
 
         // Search by name or SKU
         if ($request->filled('search')) {
@@ -31,6 +32,11 @@ class ProductController extends Controller
         // Filter by category
         if ($request->filled('category') && $request->category !== 'all') {
             $query->where('category_id', $request->category);
+        }
+
+        // Filter by brand
+        if ($request->filled('brand') && $request->brand !== 'all') {
+            $query->where('brand_id', $request->brand);
         }
 
         // Filter by supplier
@@ -71,16 +77,19 @@ class ProductController extends Controller
         $stats['profit'] = $stats['sell_value'] - $stats['buy_value'];
 
         $categories = Category::select(['id', 'title'])->get();
+        $brands = Brand::select(['id', 'title'])->get();
         $suppliers = Supplier::select(['id', 'name'])->get();
 
         return inertia('Admin/Products/Index', [
             'products' => $products,
             'categories' => $categories,
+            'brands' => $brands,
             'suppliers' => $suppliers,
             'stats' => $stats,
             'filters' => [
                 'search' => $request->search,
                 'category' => $request->get('category', 'all'),
+                'brand' => $request->get('brand', 'all'),
                 'supplier' => $request->get('supplier', 'all'),
                 'sort' => $sortOrder,
             ],
@@ -90,11 +99,12 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::select(['id', 'title'])->get();
+        $brands = Brand::select(['id', 'title'])->get();
         $supplier = Supplier::select(['id', 'name'])->get();
-        $attributes = ProductAttribute::select(['id', 'name'])->get();
         $attributes = ProductAttribute::select(['id', 'name'])->get();
         return inertia('Admin/Products/Create', [
             'categories' => $categories,
+            'brands' => $brands,
             'suppliers' => $supplier,
             'attributes' => $attributes,
             'settings' => [
@@ -132,6 +142,7 @@ class ProductController extends Controller
                 'stock' => $request->stock,
                 'uan_price' => $request->uan_price,
                 'category_id' => $request->category_id,
+                'brand_id' => $request->brand_id ?: null,
                 'supplier_id' => $request->supplier_id,
                 'images' => $uploadedImages,
                 'qty_price' => $qtyPriceData,
@@ -164,14 +175,16 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $product->load('category', 'supplier', 'product_variations.product_attribute');
+        $product->load('category', 'brand', 'supplier', 'product_variations.product_attribute');
         $categories = Category::select(['id', 'title'])->get();
+        $brands = Brand::select(['id', 'title'])->get();
         $supplier = Supplier::select(['id', 'name'])->get();
         $attributes = ProductAttribute::select(['id', 'name'])->get();
         $variations = ProductVariation::where('product_id', $product->id)->get();
         return inertia('Admin/Products/Edit', [
             'product' => $product,
             'categories' => $categories,
+            'brands' => $brands,
             'suppliers' => $supplier,
             'attributes' => $attributes,
             'variations' => $variations,
@@ -219,6 +232,7 @@ class ProductController extends Controller
                 'stock' => $request->stock,
                 'uan_price' => $request->uan_price,
                 'category_id' => $request->category_id,
+                'brand_id' => $request->brand_id ?: null,
                 'supplier_id' => $request->supplier_id,
                 'images' => $currentImages,
                 'qty_price' => $qtyPriceData,
@@ -287,7 +301,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load('category', 'supplier', 'product_variations.product_attribute');
+        $product->load('category', 'brand', 'supplier', 'product_variations.product_attribute');
         return inertia('Admin/Products/Show', [
             'product' => $product,
         ]);

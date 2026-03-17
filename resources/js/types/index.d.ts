@@ -27,6 +27,17 @@ export interface Category {
     updated_at?: string;
 }
 
+// Brand type
+export interface Brand {
+    id: number;
+    title: string;
+    slug: string;
+    image?: string | null;
+    is_featured?: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 // Supplier type
 export interface Supplier {
     id: number;
@@ -110,8 +121,10 @@ export interface Product {
     uan_price?: number;
     stock: number;
     category_id?: number;
+    brand_id?: number | null;
     supplier_id?: number;
     category?: Category;
+    brand?: Brand | null;
     supplier?: Supplier;
     product_variations?: ProductVariation[];
     qty_price?: QtyPrice[];
@@ -154,6 +167,7 @@ export interface PaginatedData<T> {
 export interface ProductsIndexProps {
     products: PaginatedData<Product>;
     categories: Category[];
+    brands: Brand[];
     suppliers: Supplier[];
     stats: {
         total: number;
@@ -166,6 +180,7 @@ export interface ProductsIndexProps {
     filters: {
         search?: string;
         category?: string;
+        brand?: string;
         supplier?: string;
         sort?: string;
     };
@@ -173,6 +188,7 @@ export interface ProductsIndexProps {
 
 export interface CreatePageProps extends PageProps {
     categories: Category[];
+    brands: Brand[];
     suppliers: Supplier[];
     attributes: ProductAttribute[];
 }
@@ -180,6 +196,7 @@ export interface CreatePageProps extends PageProps {
 export interface EditPageProps extends PageProps {
     product: Product;
     categories: Category[];
+    brands: Brand[];
     suppliers: Supplier[];
     attributes: ProductAttribute[];
 }
@@ -365,6 +382,7 @@ export type {
     User,
     PageProps,
     Category,
+    Brand,
     Supplier,
     ProductAttribute,
     ProductVariation,
