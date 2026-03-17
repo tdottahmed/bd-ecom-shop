@@ -15,7 +15,7 @@ class PageController extends Controller
             ->firstOrFail();
 
         return Inertia::render('Customer/Page', [
-            'page' => $page->only(['title', 'slug', 'content', 'meta_title', 'meta_description']),
+            'page' => $page->only(['title', 'slug', 'content']),
         ]);
     }
 

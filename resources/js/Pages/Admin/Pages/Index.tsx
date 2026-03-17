@@ -29,8 +29,11 @@ export default function PagesIndex({ pages }: Props) {
     };
 
     return (
-        <Master title="Pages" head={<Header title="Pages" showUserMenu={true} />}>
-            <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
+        <Master
+            title="Pages"
+            head={<Header title="Pages" showUserMenu={true} />}
+        >
+            <div className="p-4 md:p-6 space-y-6 max-w-8xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-white">
@@ -41,7 +44,10 @@ export default function PagesIndex({ pages }: Props) {
                         </p>
                     </div>
 
-                    <Link href={route("admin.pages.create")} className="w-full md:w-auto">
+                    <Link
+                        href={route("admin.pages.create")}
+                        className="w-full md:w-auto"
+                    >
                         <PrimaryButton className="w-full md:w-auto flex items-center justify-center gap-2">
                             <Plus size={18} />
                             <span>Add Page</span>
@@ -80,7 +86,10 @@ export default function PagesIndex({ pages }: Props) {
                                     </tr>
                                 ) : (
                                     pages.map((p) => (
-                                        <tr key={p.id} className="text-gray-200">
+                                        <tr
+                                            key={p.id}
+                                            className="text-gray-200"
+                                        >
                                             <td className="px-4 py-3">
                                                 <div className="font-semibold text-white">
                                                     {p.title}
@@ -97,21 +106,30 @@ export default function PagesIndex({ pages }: Props) {
                                                             : "bg-gray-500/10 text-gray-300 border-gray-500/30"
                                                     }`}
                                                 >
-                                                    {p.is_published ? "Published" : "Draft"}
+                                                    {p.is_published
+                                                        ? "Published"
+                                                        : "Draft"}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex justify-end gap-2">
                                                     <Link
-                                                        href={route("admin.pages.edit", p.id)}
+                                                        href={route(
+                                                            "admin.pages.edit",
+                                                            p.id,
+                                                        )}
                                                         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
                                                     >
                                                         <Edit size={16} />
                                                         Edit
                                                     </Link>
                                                     <button
-                                                        onClick={() => handleDelete(p.id)}
-                                                        disabled={deletingId === p.id}
+                                                        onClick={() =>
+                                                            handleDelete(p.id)
+                                                        }
+                                                        disabled={
+                                                            deletingId === p.id
+                                                        }
                                                         className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <Trash2 size={16} />
@@ -129,4 +147,3 @@ export default function PagesIndex({ pages }: Props) {
         </Master>
     );
 }
-

@@ -33,8 +33,6 @@ class PageController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:pages,slug'],
             'content' => ['nullable', 'string'],
-            'meta_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string', 'max:1000'],
             'is_published' => ['sometimes', 'boolean'],
         ]);
 
@@ -48,7 +46,7 @@ class PageController extends Controller
     public function edit(Page $page)
     {
         return Inertia::render('Admin/Pages/Form', [
-            'page' => $page->only(['id', 'title', 'slug', 'content', 'meta_title', 'meta_description', 'is_published']),
+            'page' => $page->only(['id', 'title', 'slug', 'content', 'is_published']),
         ]);
     }
 
@@ -64,8 +62,6 @@ class PageController extends Controller
                 Rule::unique('pages', 'slug')->ignore($page->id),
             ],
             'content' => ['nullable', 'string'],
-            'meta_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string', 'max:1000'],
             'is_published' => ['sometimes', 'boolean'],
         ]);
 

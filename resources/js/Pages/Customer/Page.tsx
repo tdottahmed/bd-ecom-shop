@@ -6,8 +6,6 @@ type Page = {
     title: string;
     slug: string;
     content?: string | null;
-    meta_title?: string | null;
-    meta_description?: string | null;
 };
 
 interface Props {
@@ -17,11 +15,7 @@ interface Props {
 export default function PageView({ page }: Props) {
     return (
         <CustomerLayout>
-            <Head title={page.meta_title || page.title}>
-                {page.meta_description && (
-                    <meta name="description" content={page.meta_description} />
-                )}
-            </Head>
+            <Head title={page.title} />
 
             <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
