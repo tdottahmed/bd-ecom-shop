@@ -74,7 +74,7 @@ export default function ProductShow({
             <Head title={product.name} />
 
             <div className="bg-gray-50 py-4 md:py-8">
-                <div className="w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
+                <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto">
                     {/* Breadcrumbs */}
                     <nav className="hidden md:flex items-center text-sm text-gray-500 mb-8">
                         <Link href="/" className="hover:text-gray-900">

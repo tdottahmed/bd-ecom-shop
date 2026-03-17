@@ -36,7 +36,6 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     return (
         <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
             <Toaster position="top-center" richColors />
-            {/* {isLoading && <Preloader onFinish={() => setIsLoading(false)} />} */}
 
             <Header onMenuClick={() => setIsMenuOpen(true)} />
 
