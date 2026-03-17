@@ -111,13 +111,13 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                             onClick={() => handleQuantityChange(quantity - 1)}
                             className={`w-7 h-full flex items-center justify-center rounded-l-lg transition-colors border-r border-gray-200 ${
                                 !isUnavailable &&
-                                quantity <= (item?.add_cart_qty ?? 1)
+                                quantity <= 1
                                     ? "text-gray-300 cursor-not-allowed"
                                     : "text-gray-500 hover:text-gray-700 hover:bg-white"
                             }`}
                             disabled={
                                 !isUnavailable &&
-                                quantity <= (item?.add_cart_qty ?? 1)
+                                quantity <= 1
                             }
                         >
                             <Minus size={12} />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Head, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
-import ProductGrid from "@/Components/Customer/ProductGrid";
+import ProductCard from "@/Components/Customer/ProductCard";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
 import { Category, PaginatedData, Product } from "@/types";
 import { Search, SlidersHorizontal } from "lucide-react";
@@ -202,7 +202,19 @@ const ProductList: React.FC<ProductListProps> = ({
                 </div>
             </div>
 
-            <ProductGrid products={products} />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {products.data?.length ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {products.data.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-gray-500 py-12">
+                        No products found.
+                    </div>
+                )}
+            </div>
         </CustomerLayout>
     );
 };

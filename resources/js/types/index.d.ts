@@ -66,9 +66,6 @@ export interface CartItem {
     is_preorder?: boolean;
     variations?: ProductVariation[];
     category_id?: number;
-    min_order_qty?: number;
-    add_cart_qty?: number;
-    use_add_cart_qty_as_min?: boolean;
 }
 
 export interface DeliveryCharge {

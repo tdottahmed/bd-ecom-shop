@@ -135,11 +135,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                 (product.is_preorder || currentSelectionStock > 0)
             ) {
                 // Add new item
-                const initialQty =
-                    product.category?.add_cart_qty &&
-                    product.category.add_cart_qty > 0
-                        ? product.category.add_cart_qty
-                        : 1;
+                const initialQty = 1;
 
                 setCartBatch((prev) => [
                     ...prev,
@@ -164,10 +160,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
     // Once added, existsIndex will be found, so it won't add again.
 
     const handleBatchQuantityUpdate = (index: number, newQty: number) => {
-        const minQty =
-            product.category?.add_cart_qty && product.category.add_cart_qty > 0
-                ? product.category.add_cart_qty
-                : 1;
+        const minQty = 1;
 
         if (newQty < minQty) return;
 
@@ -504,17 +497,11 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                         }
                                                                         disabled={
                                                                             item.quantity <=
-                                                                            (product
-                                                                                .category
-                                                                                ?.add_cart_qty ||
-                                                                                1)
+                                                                            1
                                                                         }
                                                                         className={`w-8 h-full flex items-center justify-center rounded-l-lg transition-colors ${
                                                                             item.quantity <=
-                                                                            (product
-                                                                                .category
-                                                                                ?.add_cart_qty ||
-                                                                                1)
+                                                                            1
                                                                                 ? "text-gray-300 cursor-not-allowed"
                                                                                 : "hover:bg-gray-100 text-gray-600"
                                                                         }`}

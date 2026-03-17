@@ -52,15 +52,6 @@ function sanitizeCart(
             variations: Array.isArray(item.variations) ? item.variations : undefined,
             category_id:
                 typeof item.category_id === "number" ? item.category_id : undefined,
-            min_order_qty:
-                typeof item.min_order_qty === "number"
-                    ? item.min_order_qty
-                    : undefined,
-            add_cart_qty:
-                typeof item.add_cart_qty === "number"
-                    ? item.add_cart_qty
-                    : undefined,
-            use_add_cart_qty_as_min: Boolean(item.use_add_cart_qty_as_min),
             ...(originalPrice !== undefined && { original_price: originalPrice }),
         };
     }
@@ -187,9 +178,6 @@ export const useCartStore = create<CartState>()(
                                 is_preorder: product.is_preorder,
                                 variations: variations,
                                 category_id: product.category_id,
-                                min_order_qty: product.category?.min_order_qty,
-                                add_cart_qty: product.category?.add_cart_qty,
-                                use_add_cart_qty_as_min: product.category?.use_add_cart_qty_as_min,
                             },
                         },
                         isOpen: window.innerWidth >= 768,

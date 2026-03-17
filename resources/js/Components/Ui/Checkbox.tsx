@@ -1,16 +1,18 @@
 import React from "react";
 
 interface CheckboxProps {
+    id?: string;
     name: string;
     checked: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ name, checked, onChange }) => {
+const Checkbox: React.FC<CheckboxProps> = ({ id, name, checked, onChange }) => {
     return (
         <label className="inline-flex items-center cursor-pointer">
             <input
                 type="checkbox"
+                id={id}
                 name={name}
                 checked={checked}
                 onChange={onChange}

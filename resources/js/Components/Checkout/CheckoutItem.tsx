@@ -81,7 +81,7 @@ export default function CheckoutItem({
                         onIncrease={() =>
                             onQuantityChange(item.cart_id, item.quantity + 1)
                         }
-                        min={item.add_cart_qty || 1}
+                        min={1}
                         max={item.is_preorder ? undefined : item.stock}
                         size="sm"
                     />
