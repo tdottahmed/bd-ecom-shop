@@ -23,6 +23,8 @@ interface Variation {
     value: string;
     stock?: string;
     price?: string;
+    image?: string | File | null;
+    deleted_image?: boolean;
 }
 
 interface priceSettings {
@@ -94,6 +96,8 @@ export default function Edit({
             value: v.value,
             stock: v.stock?.toString(),
             price: v.price?.toString(),
+            image: v.image ?? null,
+            deleted_image: false,
         })) as Variation[],
 
         images: [] as File[],

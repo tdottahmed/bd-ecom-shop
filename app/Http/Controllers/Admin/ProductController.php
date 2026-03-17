@@ -140,11 +140,23 @@ class ProductController extends Controller
             ]);
 
             if ($request->has('variations') && !empty($request->variations)) {
-                foreach ($request->variations as $variationData) {
+                foreach ($request->variations as $i => $variationData) {
+                    // Important: nested files live in $request->file(), not in $variationData
+                    $uploadedImage = $request->file("variations.{$i}.image");
+
+                    $variationImagePath = null;
+                    if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
+                        $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                    } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
+                        // Allow passing a path/url string without upload (e.g. imports)
+                        $variationImagePath = $variationData['image'];
+                    }
+
                     ProductVariation::create([
                         'product_id' => $product->id,
                         'product_attribute_id' => $variationData['attribute_id'],
                         'value' => $variationData['value'],
+                        'image' => $variationImagePath,
                         'stock' => $variationData['stock'] ?? null,
                         'price' => $variationData['price'] ?? null,
                     ]);
@@ -245,26 +257,55 @@ class ProductController extends Controller
                     ->delete();
 
                 // 3. Update existing or Create new
-                foreach ($submittedVariations as $variationData) {
+                foreach ($submittedVariations as $i => $variationData) {
                     $variation = null;
                     if (isset($variationData['id']) && is_numeric($variationData['id'])) {
                         $variation = \App\Models\ProductVariation::find($variationData['id']);
                     }
 
                     if ($variation && $variation->product_id == $product->id) {
+                        $nextImage = $variation->image;
+
+                        $uploadedImage = $request->file("variations.{$i}.image");
+                        if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
+                            // Replace existing image
+                            if (!empty($variation->image)) {
+                                FileUpload::deleteImages([$variation->image]);
+                            }
+                            $nextImage = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                        } elseif (!empty($variationData['deleted_image'])) {
+                            // Remove existing image
+                            if (!empty($variation->image)) {
+                                FileUpload::deleteImages([$variation->image]);
+                            }
+                            $nextImage = null;
+                        } elseif (array_key_exists('image', $variationData) && is_string($variationData['image'])) {
+                            $nextImage = $variationData['image'];
+                        }
+
                         // Update existing variation
                         $variation->update([
                             'product_attribute_id' => $variationData['attribute_id'],
                             'value' => $variationData['value'],
+                            'image' => $nextImage,
                             'stock' => $variationData['stock'] ?? null,
                             'price' => $variationData['price'] ?? null,
                         ]);
                     } else {
+                        $uploadedImage = $request->file("variations.{$i}.image");
+                        $variationImagePath = null;
+                        if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
+                            $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                        } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
+                            $variationImagePath = $variationData['image'];
+                        }
+
                         // Create new variation
                         ProductVariation::create([
                             'product_id' => $product->id,
                             'product_attribute_id' => $variationData['attribute_id'],
                             'value' => $variationData['value'],
+                            'image' => $variationImagePath,
                             'stock' => $variationData['stock'] ?? null,
                             'price' => $variationData['price'] ?? null,
                         ]);

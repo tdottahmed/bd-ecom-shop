@@ -35,6 +35,8 @@ class ProductRequest extends FormRequest
             'variations.*.value' => 'required_with:variations|string',
             'variations.*.stock' => 'nullable|integer|min:0',
             'variations.*.price' => 'nullable|numeric|min:0',
+            'variations.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'variations.*.deleted_image' => 'nullable|boolean',
             'is_preorder' => 'boolean',
             'has_discount' => 'nullable|boolean',
             'discount_type' => 'nullable|in:flat,percentage',

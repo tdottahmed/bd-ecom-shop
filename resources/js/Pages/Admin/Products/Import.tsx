@@ -100,7 +100,7 @@ export default function Import({ token, preview }: Props) {
                             - Optional: <b>brand</b> (auto-create if not exists), <b>images</b>, <b>variations</b>, <b>slug</b>, <b>description</b>, <b>stock</b>.
                         </p>
                         <p>
-                            - <b>Variations</b>: {preview?.formatHelp?.variations ?? 'Use | to separate variations. Format: Attribute:Value:Price:Stock'}
+                            - <b>Variations</b>: {preview?.formatHelp?.variations ?? 'Use | to separate variations. Format: Attribute:Value:Price:Stock:Image (image optional)'}
                         </p>
                         <p>
                             - <b>Images</b>: {preview?.formatHelp?.images ?? 'Optional. Use | to separate multiple image URLs/paths.'}

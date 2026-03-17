@@ -194,7 +194,7 @@ class ProductImportController extends Controller
             ],
             'willCreate' => $toCreate,
             'formatHelp' => [
-                'variations' => 'Use | to separate variations. Format: Attribute:Value:Price:Stock (price/stock optional). Example: Color:Red:155:10|Color:Blue:160:15',
+                'variations' => 'Use | to separate variations. Format: Attribute:Value:Price:Stock:Image (price/stock/image optional). Example: Color:Red:155:10:https://example.com/red.jpg|Color:Blue:160:15:https://example.com/blue.jpg',
                 'images' => 'Optional. Use | to separate multiple image URLs/paths.',
             ],
         ];
@@ -264,6 +264,7 @@ class ProductImportController extends Controller
                 [$attrName, $value] = [$parts[0], $parts[1]];
                 $price = $this->toFloat($parts[2] ?? null);
                 $vStock = $this->toInt($parts[3] ?? null);
+                $vImage = trim((string) ($parts[4] ?? '')) ?: null;
                 if ($attrName === '' || $value === '') {
                     $errors[] = "variation must include Attribute and Value: {$v}";
                     continue;
@@ -273,6 +274,7 @@ class ProductImportController extends Controller
                     'value' => $value,
                     'price' => $price,
                     'stock' => $vStock,
+                    'image' => $vImage,
                 ];
 
                 $attrExists = ProductAttribute::whereRaw('LOWER(name) = ?', [mb_strtolower($attrName)])->exists();
@@ -350,6 +352,7 @@ class ProductImportController extends Controller
                 'product_id' => $product->id,
                 'product_attribute_id' => $attr->id,
                 'value' => $v['value'],
+                'image' => $v['image'] ?? null,
                 'price' => $v['price'],
                 'stock' => $v['stock'],
             ]);

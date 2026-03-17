@@ -21,6 +21,8 @@ interface Variation {
     value: string;
     stock?: string;
     price?: string;
+    image?: string | File | null;
+    deleted_image?: boolean;
 }
 
 interface priceSettings {

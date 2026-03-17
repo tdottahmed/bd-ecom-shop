@@ -13,6 +13,8 @@ interface Variation {
     value: string;
     stock?: string;
     price?: string;
+    image?: string | File | null;
+    deleted_image?: boolean;
 }
 
 interface Props {
@@ -49,6 +51,8 @@ export default function ImagesVariations({
             value: "",
             stock: "",
             price: "",
+            image: null,
+            deleted_image: false,
         };
         setData("variations", [...data.variations, newVariation]);
     };
@@ -63,7 +67,7 @@ export default function ImagesVariations({
     const updateVariation = (
         id: string,
         field: keyof Variation,
-        value: string,
+        value: any,
     ) => {
         const updated = data.variations.map((item: Variation) =>
             item.id === id ? { ...item, [field]: value } : item,
@@ -103,8 +107,8 @@ export default function ImagesVariations({
                     </PrimaryButton>
                 </CardHeader>
                 {data.variations.map((variation: Variation, index: number) => (
-                    <CardContent>
-                        <Card key={variation.id} className="relative">
+                    <CardContent key={variation.id}>
+                        <Card className="relative">
                             <CardContent className="pt-6">
                                 <div className="absolute top-3 right-3">
                                     <button
@@ -207,6 +211,36 @@ export default function ImagesVariations({
                                             required
                                         />
                                     </div>
+                                </div>
+
+                                <div className="mt-4">
+                                    <ImageUploader
+                                        label="Variation Image (optional)"
+                                        multiple={false}
+                                        maxFiles={1}
+                                        inputId={`variation-image-${variation.id}`}
+                                        value={
+                                            variation.image instanceof File
+                                                ? variation.image
+                                                : null
+                                        }
+                                        existingImages={
+                                            !variation.deleted_image &&
+                                            typeof variation.image === "string" &&
+                                            variation.image
+                                                ? [variation.image]
+                                                : []
+                                        }
+                                        onChange={(file) => {
+                                            updateVariation(variation.id, "image", file);
+                                            updateVariation(variation.id, "deleted_image", false);
+                                        }}
+                                        onRemoveExisting={() => {
+                                            updateVariation(variation.id, "image", null);
+                                            updateVariation(variation.id, "deleted_image", true);
+                                        }}
+                                        error={errors?.variations?.[index]?.image}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>

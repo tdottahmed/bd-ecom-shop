@@ -24,6 +24,7 @@ interface ImageUploaderProps {
     required?: boolean;
     multiple?: boolean;
     maxFiles?: number;
+    inputId?: string;
     value: File | File[] | null;
     existingImages?: string[];
     onChange: (files: File | File[] | null) => void;
@@ -40,6 +41,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     required = false,
     multiple = true,
     maxFiles = 10,
+    inputId = "image-upload",
     value,
     existingImages = DEFAULT_EXISTING_IMAGES,
     onChange,
@@ -235,7 +237,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <div className="space-y-3">
             {label && (
                 <InputLabel
-                    htmlFor="image-upload"
+                    htmlFor={inputId}
                     value={label}
                     required={required}
                     className="mb-2"
@@ -258,7 +260,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                     accept={accept}
                     onChange={handleFileSelect}
                     className="hidden"
-                    id="image-upload"
+                    id={inputId}
                 />
                 <Upload className="mx-auto h-12 w-12 text-white-400" />
                 <div className="mt-2">
