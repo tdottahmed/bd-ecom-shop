@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\PriceCalculatorController;
 use App\Http\Controllers\Admin\MarketingController;
+use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\OrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,10 +38,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
   Route::post('payment-gateways/update', [PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
   Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
   Route::post('courier/update', [CourierController::class, 'update'])->name('courier.update');
-  Route::get('price-calculator', [PriceCalculatorController::class, 'index'])->name('price-calculator.index');
-  Route::post('price-calculator/update', [PriceCalculatorController::class, 'update'])->name('price-calculator.update');
   Route::get('marketing', [MarketingController::class, 'index'])->name('marketing.index');
   Route::post('marketing/update', [MarketingController::class, 'update'])->name('marketing.update');
+  Route::get('seo', [SeoController::class, 'index'])->name('seo.index');
+  Route::post('seo/update', [SeoController::class, 'update'])->name('seo.update');
+  Route::post('seo/regenerate-sitemap', [SeoController::class, 'regenerateSitemap'])->name('seo.regenerate-sitemap');
+  Route::post('seo/regenerate-rss', [SeoController::class, 'regenerateRss'])->name('seo.regenerate-rss');
 
   // Order Management
   Route::get('orders/bulk-details', [OrderController::class, 'bulkDetails'])->name('orders.bulk-details');

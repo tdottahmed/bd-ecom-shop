@@ -44,6 +44,15 @@ class HandleInertiaRequests extends Middleware
             'messengerLink' => fn() => get_setting('messenger_link'),
             'additionalCost' => fn() => get_setting('additional_cost', 0),
             'discount' => fn() => get_setting('quantity_discounts'),
+            'seo' => fn() => [
+                'siteName' => get_setting('seo_site_name', config('app.name')),
+                'defaultTitle' => get_setting('seo_default_title', config('app.name')),
+                'defaultDescription' => get_setting('seo_default_description', ''),
+                'defaultKeywords' => get_setting('seo_default_keywords', ''),
+                'robots' => get_setting('seo_robots', 'index,follow'),
+                'ogImage' => get_setting('seo_og_image', ''),
+                'googleSiteVerification' => get_setting('google_site_verification', ''),
+            ],
         ];
     }
 }

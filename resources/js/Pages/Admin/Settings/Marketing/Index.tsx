@@ -58,7 +58,7 @@ export default function Index({ settings }: Props) {
                                     onChange={(e) =>
                                         setData(
                                             "meta_pixel_enabled",
-                                            e.target.checked
+                                            e.target.checked,
                                         )
                                     }
                                 />
@@ -80,7 +80,7 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) =>
                                             setData(
                                                 "meta_pixel_id",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         placeholder="Enter your Meta Pixel ID"
@@ -104,7 +104,7 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) =>
                                             setData(
                                                 "meta_pixel_access_token",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         placeholder="Enter your Meta Pixel Access Token"
@@ -131,7 +131,7 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) =>
                                             setData(
                                                 "meta_pixel_test_code",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         placeholder="Enter test code"
@@ -157,7 +157,7 @@ export default function Index({ settings }: Props) {
                                     onChange={(e) =>
                                         setData(
                                             "google_tag_manager_enabled",
-                                            e.target.checked
+                                            e.target.checked,
                                         )
                                     }
                                 />
@@ -181,7 +181,7 @@ export default function Index({ settings }: Props) {
                                         onChange={(e) =>
                                             setData(
                                                 "google_tag_manager_container_id",
-                                                e.target.value
+                                                e.target.value,
                                             )
                                         }
                                         placeholder="Enter your Google Tag Manager Container ID (e.g., GTM-XXXXXXX)"
@@ -199,9 +199,9 @@ export default function Index({ settings }: Props) {
                             </div>
                         </Card>
 
-                        <div className="flex items-center justify-center pt-4">
+                        <div className="flex items-center justify-end pt-4">
                             <PrimaryButton
-                                className="w-full justify-center max-w-md"
+                                className="w-auto justify-center max-w-md"
                                 disabled={processing}
                             >
                                 {processing ? "Saving..." : "Save Settings"}

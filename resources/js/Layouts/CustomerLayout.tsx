@@ -20,8 +20,13 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const cartItemCount = getCartCount();
 
-    const { url, component } = usePage();
+    const { url, props } = usePage();
     const isCheckoutPage = url.includes("/checkout");
+    const seo = (props as any)?.seo || {};
+    const baseUrl =
+        typeof window !== "undefined"
+            ? window.location.origin
+            : (import.meta as any).env?.VITE_APP_URL || "";
 
     React.useEffect(() => {
         const handleOpenCart = () => {
@@ -35,6 +40,76 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+            <Head>
+                <title>{seo?.defaultTitle || "Home"}</title>
+                {seo?.defaultDescription && (
+                    <meta
+                        name="description"
+                        content={seo.defaultDescription}
+                    />
+                )}
+                {seo?.defaultKeywords && (
+                    <meta name="keywords" content={seo.defaultKeywords} />
+                )}
+                <meta name="robots" content={seo?.robots || "index,follow"} />
+
+                {seo?.siteName && (
+                    <meta property="og:site_name" content={seo.siteName} />
+                )}
+                <meta property="og:type" content="website" />
+                <meta
+                    property="og:url"
+                    content={`${baseUrl}${url || "/"}`}
+                />
+                {seo?.defaultTitle && (
+                    <meta property="og:title" content={seo.defaultTitle} />
+                )}
+                {seo?.defaultDescription && (
+                    <meta
+                        property="og:description"
+                        content={seo.defaultDescription}
+                    />
+                )}
+                {seo?.ogImage && (
+                    <meta
+                        property="og:image"
+                        content={`${baseUrl}/storage/${seo.ogImage.replace(
+                            /^\//,
+                            "",
+                        )}`}
+                    />
+                )}
+
+                {seo?.googleSiteVerification && (
+                    <meta
+                        name="google-site-verification"
+                        content={seo.googleSiteVerification}
+                    />
+                )}
+
+                <meta name="twitter:card" content="summary_large_image" />
+                {seo?.defaultTitle && (
+                    <meta name="twitter:title" content={seo.defaultTitle} />
+                )}
+                {seo?.defaultDescription && (
+                    <meta
+                        name="twitter:description"
+                        content={seo.defaultDescription}
+                    />
+                )}
+                {seo?.ogImage && (
+                    <meta
+                        name="twitter:image"
+                        content={`${baseUrl}/storage/${seo.ogImage.replace(
+                            /^\//,
+                            "",
+                        )}`}
+                    />
+                )}
+
+                <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" />
+                <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+            </Head>
             <Toaster position="top-center" richColors />
 
             <Header onMenuClick={() => setIsMenuOpen(true)} />

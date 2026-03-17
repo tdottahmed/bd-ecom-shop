@@ -8,6 +8,8 @@ use Inertia\Inertia;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\RssController;
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');
@@ -16,6 +18,10 @@ Route::get('product/{product:slug}', [CustomerController::class, 'show'])->name(
 
 Route::get('api/search', [CustomerController::class, 'search'])->name('api.search');
 Route::get('api/categories/{category}/products', [CustomerController::class, 'categoryProducts'])->name('api.categories.products');
+
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

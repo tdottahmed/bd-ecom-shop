@@ -16,6 +16,8 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "shahariar-ahmad/courier-fraud-checker-bd": "^2.0",
+        "spatie/laravel-feed": "^4.5",
+        "spatie/laravel-sitemap": "^8.1",
         "steadfast-courier/steadfast-courier-laravel-package": "^1.1",
         "tightenco/ziggy": "^2.0"
     },
