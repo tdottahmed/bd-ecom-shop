@@ -1,10 +1,8 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Edit2, Eye, Box, Package, SwatchBookIcon } from "lucide-react";
+import { Edit2, Eye, Box } from "lucide-react";
 import { getAssetUrl, formatPrice } from "@/Utils/helpers";
 import { Product } from "@/types";
-import Image from "../Ui/Image";
-
 interface ProductCardProps {
     product: Product;
     onEdit?: (product: Product) => void;
@@ -47,13 +45,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit }) => {
                     <Box size={14} strokeWidth={2.5} />
                     <span>{product.stock || 0} </span>
                 </div>
-
-                {/* Bottom Right: UAN/Yen Badge */}
-                <div className="absolute bottom-2 right-2 bg-[#F472B6] text-[#0C1311] text-xs font-bold px-2 py-1 rounded-md flex items-center gap-0.5">
-                    <span className="text-[10px]">¥</span>
-                    <span> {product.uan_price || 0} </span>
-                </div>
-
                 {/* Quick Actions Overlay (Hidden by default, shown on hover) */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
                     <div className="flex gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
@@ -75,7 +66,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit }) => {
                 </div>
             </div>
 
-            {/* Footer Info */}
+            {/* Product name */}
+            <div className="p-2 min-h-0 flex-1 flex flex-col justify-center">
+                <p className="text-sm font-medium text-white line-clamp-2" title={product.name}>
+                    {product.name}
+                </p>
+            </div>
+
+            {/* Footer: Price info */}
             <div className="bg-[#0C1311] p-2 border-t border-[#1E2826]">
                 <div className="grid grid-cols-3 gap-2 text-center">
                     {/* BUY */}

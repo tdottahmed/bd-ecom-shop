@@ -19,7 +19,7 @@ const Index: React.FC<ProductsIndexProps> = ({
     stats,
     filters,
 }) => {
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
     const clearAllFilters = () => {
         router.get(route("admin.products.index"));

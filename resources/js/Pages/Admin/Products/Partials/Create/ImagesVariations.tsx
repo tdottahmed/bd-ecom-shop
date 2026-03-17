@@ -75,7 +75,7 @@ export default function ImagesVariations({
         <div className="lg:p-6 sm:p-2">
             <Card className="mt-4">
                 <CardHeader>
-                    <CardTitle>Product Images & Variations </CardTitle>
+                    <CardTitle>Product Images </CardTitle>
                 </CardHeader>
                 <CardContent padding="lg">
                     <ImageUploader
