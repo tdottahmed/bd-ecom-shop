@@ -50,7 +50,7 @@ class ProductController extends Controller
         }
         $clean = ltrim($p, '/');
         if (!str_contains($clean, '/')) {
-            return 'products/variations/' . $clean;
+            return 'products/' . $clean;
         }
         return $clean;
     }
@@ -185,7 +185,7 @@ class ProductController extends Controller
 
                     $variationImagePath = null;
                     if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
-                        $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                        $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products');
                     } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
                         // Allow passing a path/url string without upload (e.g. imports)
                         $variationImagePath = $this->normalizeVariationImageString($variationData['image']);
@@ -312,7 +312,7 @@ class ProductController extends Controller
                             if (!empty($variation->image)) {
                                 FileUpload::deleteImages([$variation->image]);
                             }
-                            $nextImage = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                            $nextImage = FileUpload::uploadImage($uploadedImage, 'products');
                         } elseif (!empty($variationData['deleted_image'])) {
                             // Remove existing image
                             if (!empty($variation->image)) {
@@ -335,7 +335,7 @@ class ProductController extends Controller
                         $uploadedImage = $request->file("variations.{$i}.image");
                         $variationImagePath = null;
                         if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
-                            $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products/variations');
+                            $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products');
                         } elseif (!empty($variationData['image']) && is_string($variationData['image'])) {
                             $variationImagePath = $this->normalizeVariationImageString($variationData['image']);
                         }

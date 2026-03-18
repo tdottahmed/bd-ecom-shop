@@ -439,7 +439,7 @@ export const ensureProductImagePath = (path: string | null | undefined): string 
     ensureStoragePrefix(path, "products");
 
 export const ensureVariationImagePath = (path: string | null | undefined): string | null =>
-    ensureStoragePrefix(path, "products/variations");
+    ensureStoragePrefix(path, "products");
 
 /**
  * Cookie utility functions for reliable cookie management

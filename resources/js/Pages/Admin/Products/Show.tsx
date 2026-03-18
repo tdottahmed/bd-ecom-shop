@@ -12,7 +12,7 @@ import {
     AlertTriangleIcon,
 } from "lucide-react";
 import ImageGallery from "@/Components/Ui/ImageGallery";
-import { formatPrice, getAssetUrl } from "@/Utils/helpers";
+import { formatPrice, getAssetUrl, ensureVariationImagePath } from "@/Utils/helpers";
 import { get } from "http";
 
 export default function Show({ product }: ShowPageProps) {
@@ -252,6 +252,9 @@ export default function Show({ product }: ShowPageProps) {
                                                 <thead className="text-xs text-gray-400 uppercase bg-gray-800">
                                                     <tr>
                                                         <th className="px-6 py-3">
+                                                            Image
+                                                        </th>
+                                                        <th className="px-6 py-3">
                                                             Attribute
                                                         </th>
                                                         <th className="px-6 py-3">
@@ -274,6 +277,22 @@ export default function Show({ product }: ShowPageProps) {
                                                                 }
                                                                 className="bg-gray-900 border-b border-gray-800 hover:bg-gray-800/50"
                                                             >
+                                                                <td className="px-6 py-4">
+                                                                    {variation.image ? (
+                                                                        <img
+                                                                            src={getAssetUrl(ensureVariationImagePath(variation.image))}
+                                                                            alt={variation.value}
+                                                                            className="w-10 h-10 rounded object-cover border border-gray-700 bg-gray-800"
+                                                                            onError={(e) => {
+                                                                                e.currentTarget.src = "/placeholder.png";
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-10 h-10 rounded border border-gray-700 bg-gray-800 flex items-center justify-center text-gray-500 text-xs">
+                                                                            -
+                                                                        </div>
+                                                                    )}
+                                                                </td>
                                                                 <td className="px-6 py-4 font-medium text-white">
                                                                     {getAttributeName(
                                                                         variation.attribute_id
