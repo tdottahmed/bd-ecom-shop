@@ -13,9 +13,14 @@ class ProductRequest extends FormRequest
 
     public function rules(): array
     {
+        $productId = $this->route('product');
+        if (is_object($productId)) {
+            $productId = $productId->id;
+        }
+
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products,slug,' . $this->route('product')?->id,
+            'slug' => 'required|string|unique:products,slug,' . ($productId ?? 'NULL'),
             'description' => 'required|string',
             'purchase_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
@@ -35,7 +40,7 @@ class ProductRequest extends FormRequest
             'variations.*.value' => 'required_with:variations|string',
             'variations.*.stock' => 'nullable|integer|min:0',
             'variations.*.price' => 'nullable|numeric|min:0',
-            'variations.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'variations.*.image' => 'nullable', // Removed 'image' rule here as it fails on existing path strings; Controller handles file check
             'variations.*.deleted_image' => 'nullable|boolean',
             'is_preorder' => 'boolean',
             'has_discount' => 'nullable|boolean',
@@ -54,7 +59,7 @@ class ProductRequest extends FormRequest
             'images.min' => 'Please upload at least one product image.',
             'qty_prices.*.qty.required' => 'Quantity is required for quantity pricing.',
             'qty_prices.*.qty_price.required' => 'Price is required for quantity pricing.',
-            'variations.*.attribute.required' => 'Attribute is required for variation.',
+            'variations.*.attribute_id.required' => 'Attribute is required for variation.',
             'variations.*.value.required' => 'Value is required for variation.',
         ];
     }

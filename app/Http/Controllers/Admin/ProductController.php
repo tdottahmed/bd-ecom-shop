@@ -13,9 +13,33 @@ use App\Models\ProductVariation;
 use App\Utility\FileUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
+    private function logProductFormError(string $message, \Throwable $e, Request $request, ?Product $product = null, array $extra = []): void
+    {
+        $variationCount = is_array($request->input('variations')) ? count($request->input('variations')) : 0;
+        $variationFileCount = is_array($request->file('variations')) ? count($request->file('variations')) : 0;
+
+        Log::error($message, [
+            'exception' => $e,
+            'user_id' => $request->user()?->id,
+            'product_id' => $product?->id,
+            'route' => $request->route()?->getName(),
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'has_files' => $request->hasFile('images') || $request->hasFile('variations'),
+            'counts' => [
+                'variations' => $variationCount,
+                'variation_files' => $variationFileCount,
+                'product_images' => $request->hasFile('images') ? count((array) $request->file('images')) : 0,
+            ],
+            'payload_keys' => array_keys($request->except(['images', 'variations'])),
+            'extra' => $extra,
+        ]);
+    }
+
     private function normalizeVariationImageString(?string $path): ?string
     {
         if (!$path) return null;
@@ -186,6 +210,7 @@ class ProductController extends Controller
                 FileUpload::deleteImages($uploadedImages);
             }
 
+            $this->logProductFormError('Admin product create failed', $e, $request, null);
             return back()->with('error', 'Failed to create product: ' . $e->getMessage());
         }
     }
@@ -338,6 +363,7 @@ class ProductController extends Controller
             if (isset($newImages)) {
                 FileUpload::deleteImages($newImages);
             }
+            $this->logProductFormError('Admin product update failed', $e, $request, $product);
             return back()->with('error', 'Failed to update product: ' . $e->getMessage());
         }
     }
