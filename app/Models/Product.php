@@ -13,7 +13,7 @@ class Product extends Model implements Feedable
     protected $guarded = [];
 
     protected $casts = [
-        'images' => 'json',
+        'images' => \App\Casts\UnescapedJson::class,
         'qty_price' => 'array',
         'purchase_price' => 'float',
         'sale_price' => 'float',

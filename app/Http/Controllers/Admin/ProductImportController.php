@@ -252,7 +252,8 @@ class ProductImportController extends Controller
             if (!$exists) $creates['brands'][] = $brandTitle;
         }
 
-        $images = $this->splitPipe($row['images'] ?? null);
+        $rawImages = $this->splitPipe($row['images'] ?? null);
+        $images = array_values(array_filter(array_map([$this, 'normalizeImportedImagePath'], $rawImages)));
 
         $variationsRaw = trim((string) ($row['variations'] ?? ''));
         $variations = [];
@@ -509,15 +510,16 @@ class ProductImportController extends Controller
         if (!$path) return null;
         $p = trim($path);
         if ($p === '') return null;
-        // Keep URLs as-is, normalize local paths by removing leading slash.
+        
         if (str_starts_with($p, 'http://') || str_starts_with($p, 'https://')) {
             return $p;
         }
+        
         $clean = ltrim($p, '/');
-        // If user provided only a filename, assume it's stored under products/variations/
-        if (!str_contains($clean, '/')) {
+        if (!str_starts_with($clean, 'products/')) {
             return 'products/' . $clean;
         }
+        
         return $clean;
     }
 }
