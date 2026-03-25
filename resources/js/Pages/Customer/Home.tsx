@@ -17,10 +17,6 @@ interface CategoryProductsSection {
 interface HomeProps {
     categories: Category[];
     productsByCategory: CategoryProductsSection[];
-    website_settings?: {
-        banner_images: string[];
-        banner_active: boolean;
-    };
     category?: Category;
     filters?: {
         search?: string;
@@ -36,7 +32,6 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({
     categories,
     productsByCategory = [],
-    website_settings,
     filters = {},
     category,
 }) => {
@@ -96,13 +91,7 @@ const Home: React.FC<HomeProps> = ({
                     />
                     <div className="space-y-6">
                         {/* Hero Section */}
-                        <Hero
-                            bannerImages={
-                                website_settings?.banner_active
-                                    ? website_settings.banner_images
-                                    : []
-                            }
-                        />
+                        <Hero />
                         {/* Categories */}
                         <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
                             <CategorySlider

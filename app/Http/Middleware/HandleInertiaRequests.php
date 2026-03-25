@@ -65,6 +65,8 @@ class HandleInertiaRequests extends Middleware
                 'youtube' => get_setting('social_youtube'),
                 'tiktok' => get_setting('social_tiktok'),
             ],
+            'bannerImages' => fn() => get_setting('banner_images'),
+            'bannerActive' => fn() => get_setting('banner_active'),
         ];
     }
 }

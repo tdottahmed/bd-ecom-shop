@@ -2,17 +2,63 @@ import React, { useState, useEffect } from "react";
 import { getAssetUrl } from "@/Utils/helpers";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "../Ui/Image";
+import { usePage } from "@inertiajs/react";
 
 interface HeroProps {
     bannerImages?: string[];
 }
 
-const Hero: React.FC<HeroProps> = ({ bannerImages = [] }) => {
+const Hero: React.FC<HeroProps> = ({ bannerImages }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    // Prefer banner images from shared middleware props:
+    // - `bannerActive` is usually a string like "1" / "0"
+    // - `bannerImages` is usually JSON text (because `get_setting()` returns raw `value`)
+    const { bannerImages: sharedBannerImages, bannerActive } =
+        usePage().props as any;
+
+    const isBannerActive =
+        bannerActive === true ||
+        bannerActive === 1 ||
+        bannerActive === "1" ||
+        bannerActive === "true";
+
+    const parsedSharedBannerImages: string[] = (() => {
+        if (Array.isArray(sharedBannerImages)) {
+            return sharedBannerImages.filter(
+                (img) => typeof img === "string" && img.trim().length > 0,
+            );
+        }
+
+        if (typeof sharedBannerImages === "string") {
+            try {
+                const parsed = JSON.parse(sharedBannerImages);
+                if (Array.isArray(parsed)) {
+                    return parsed.filter(
+                        (img) =>
+                            typeof img === "string" &&
+                            img.trim().length > 0,
+                    );
+                }
+            } catch {
+                // ignore invalid JSON
+            }
+        }
+
+        return [];
+    })();
+
+    const effectiveBannerImages = (
+        isBannerActive
+            ? parsedSharedBannerImages.length > 0
+                ? parsedSharedBannerImages
+                : bannerImages ?? []
+            : []
+    ).filter((img) => typeof img === "string" && img.trim().length > 0);
+
     const displayImages =
-        bannerImages.length > 0
-            ? bannerImages.map((img) => getAssetUrl(img))
+        effectiveBannerImages.length > 0
+            ? effectiveBannerImages.map((img) => getAssetUrl(img))
             : ["/images/banner-1.jpg", "/images/banner-2.jpeg"];
 
     // Auto-play for slider
