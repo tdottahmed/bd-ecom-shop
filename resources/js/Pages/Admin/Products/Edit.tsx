@@ -89,7 +89,7 @@ export default function Edit({
         })) as QtyPrice[],
 
         variations: (product.product_variations || []).map((v: any) => ({
-            id: v.id?.toString() || Math.random().toString(),
+            id: v.id?.toString() || "temp_" + Date.now().toString() + "_" + Math.random().toString(36).substring(2),
             attribute_id:
                 v.product_attribute_id?.toString() ||
                 v.attribute_id?.toString(),

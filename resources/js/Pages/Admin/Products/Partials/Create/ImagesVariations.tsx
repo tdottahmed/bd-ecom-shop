@@ -47,7 +47,7 @@ export default function ImagesVariations({
 
     const addVariation = () => {
         const newVariation: Variation = {
-            id: Date.now().toString() + Math.random(),
+            id: "temp_" + Date.now().toString() + "_" + Math.random().toString(36).substring(2),
             attribute_id: "",
             value: "",
             stock: "",
@@ -72,6 +72,13 @@ export default function ImagesVariations({
     ) => {
         const updated = data.variations.map((item: Variation) =>
             item.id === id ? { ...item, [field]: value } : item,
+        );
+        setData("variations", updated);
+    };
+
+    const updateVariationFields = (id: string, fields: Partial<Variation>) => {
+        const updated = data.variations.map((item: Variation) =>
+            item.id === id ? { ...item, ...fields } : item,
         );
         setData("variations", updated);
     };
@@ -146,6 +153,11 @@ export default function ImagesVariations({
                                             }))}
                                             placeholder="Select Attribute"
                                         />
+                                        {errors[`variations.${index}.attribute_id`] && (
+                                            <div className="text-sm text-red-500 mt-1">
+                                                {errors[`variations.${index}.attribute_id`]}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <InputLabel
@@ -167,6 +179,11 @@ export default function ImagesVariations({
                                             placeholder="e.g., Red, Large"
                                             required
                                         />
+                                        {errors[`variations.${index}.value`] && (
+                                            <div className="text-sm text-red-500 mt-1">
+                                                {errors[`variations.${index}.value`]}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <InputLabel
@@ -189,6 +206,11 @@ export default function ImagesVariations({
                                             placeholder="e.g., 50.00"
                                             required
                                         />
+                                        {errors[`variations.${index}.price`] && (
+                                            <div className="text-sm text-red-500 mt-1">
+                                                {errors[`variations.${index}.price`]}
+                                            </div>
+                                        )}
                                     </div>
                                     <div>
                                         <InputLabel
@@ -211,6 +233,11 @@ export default function ImagesVariations({
                                             placeholder="e.g., 100"
                                             required
                                         />
+                                        {errors[`variations.${index}.stock`] && (
+                                            <div className="text-sm text-red-500 mt-1">
+                                                {errors[`variations.${index}.stock`]}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -241,16 +268,10 @@ export default function ImagesVariations({
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        updateVariation(
-                                                            variation.id,
-                                                            "image",
-                                                            null,
-                                                        );
-                                                        updateVariation(
-                                                            variation.id,
-                                                            "deleted_image",
-                                                            true,
-                                                        );
+                                                        updateVariationFields(variation.id, {
+                                                            image: null,
+                                                            deleted_image: true,
+                                                        });
                                                     }}
                                                     className="text-sm px-3 py-2 rounded-lg border border-gray-800 text-red-400 hover:bg-red-600/10 transition-colors"
                                                 >
@@ -269,22 +290,16 @@ export default function ImagesVariations({
                                         onChange={(e) => {
                                             const file =
                                                 e.target.files?.[0] ?? null;
-                                            updateVariation(
-                                                variation.id,
-                                                "image",
-                                                file,
-                                            );
-                                            updateVariation(
-                                                variation.id,
-                                                "deleted_image",
-                                                false,
-                                            );
+                                            updateVariationFields(variation.id, {
+                                                image: file,
+                                                deleted_image: false,
+                                            });
                                         }}
                                     />
 
-                                    {errors?.variations?.[index]?.image && (
+                                    {errors[`variations.${index}.image`] && (
                                         <div className="text-sm text-red-500 mt-2">
-                                            {errors.variations[index].image}
+                                            {errors[`variations.${index}.image`]}
                                         </div>
                                     )}
                                 </div>

@@ -44,7 +44,7 @@ class ProductController extends Controller
     {
         if (!$path) return null;
         $p = trim($path);
-        if ($p === '') return null;
+        if ($p === '' || $p === 'null' || $p === 'undefined') return null;
         if (str_starts_with($p, 'http://') || str_starts_with($p, 'https://')) {
             return $p;
         }
@@ -180,8 +180,9 @@ class ProductController extends Controller
 
             if ($request->has('variations') && !empty($request->variations)) {
                 foreach ($request->variations as $i => $variationData) {
-                    // Important: nested files live in $request->file(), not in $variationData
-                    $uploadedImage = $request->file("variations.{$i}.image");
+                    $uploadedImage = isset($variationData['image']) && $variationData['image'] instanceof \Illuminate\Http\UploadedFile 
+                        ? $variationData['image'] 
+                        : $request->file("variations.{$i}.image");
 
                     $variationImagePath = null;
                     if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
@@ -306,14 +307,17 @@ class ProductController extends Controller
                     if ($variation && $variation->product_id == $product->id) {
                         $nextImage = $variation->image;
 
-                        $uploadedImage = $request->file("variations.{$i}.image");
+                        $uploadedImage = isset($variationData['image']) && $variationData['image'] instanceof \Illuminate\Http\UploadedFile 
+                            ? $variationData['image'] 
+                            : $request->file("variations.{$i}.image");
+                        
                         if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
                             // Replace existing image
                             if (!empty($variation->image)) {
                                 FileUpload::deleteImages([$variation->image]);
                             }
                             $nextImage = FileUpload::uploadImage($uploadedImage, 'products');
-                        } elseif (!empty($variationData['deleted_image'])) {
+                        } elseif (isset($variationData['deleted_image']) && filter_var($variationData['deleted_image'], FILTER_VALIDATE_BOOLEAN)) {
                             // Remove existing image
                             if (!empty($variation->image)) {
                                 FileUpload::deleteImages([$variation->image]);
@@ -332,7 +336,10 @@ class ProductController extends Controller
                             'price' => $variationData['price'] ?? null,
                         ]);
                     } else {
-                        $uploadedImage = $request->file("variations.{$i}.image");
+                        $uploadedImage = isset($variationData['image']) && $variationData['image'] instanceof \Illuminate\Http\UploadedFile 
+                            ? $variationData['image'] 
+                            : $request->file("variations.{$i}.image");
+                        
                         $variationImagePath = null;
                         if ($uploadedImage instanceof \Illuminate\Http\UploadedFile) {
                             $variationImagePath = FileUpload::uploadImage($uploadedImage, 'products');
