@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'siteLogo' => fn() => get_setting('site_logo'),
             'siteDescription' => fn() => get_setting('footer_description'),
+            'siteFavicon' => fn() => get_setting('site_favicon'),
             'footer' => fn() => [
                 'description' => get_setting('footer_description'),
                 'facebook' => get_setting('social_facebook'),

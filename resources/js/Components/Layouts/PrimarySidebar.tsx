@@ -1,6 +1,6 @@
 import React from "react";
 import { Home, ShoppingBag, Package, Grid } from "lucide-react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
 
 interface PrimarySidebarProps {
@@ -40,6 +40,7 @@ const primaryMenuItems = [
 
 const PrimarySidebar: React.FC<PrimarySidebarProps> = ({ onMoreClick }) => {
     const activeRoute = useActiveRoute();
+    const { siteFavicon } = usePage().props as any;
 
     const handleItemClick = (item: (typeof primaryMenuItems)[0]) => {
         if (item.key === "more" && onMoreClick) {
@@ -65,11 +66,20 @@ const PrimarySidebar: React.FC<PrimarySidebarProps> = ({ onMoreClick }) => {
     };
 
     return (
-        <aside className="w-20 bg-[#0E1614] border-r border-gray-800 flex flex-col items-center py-6">
-            <div className="mb-8">
-                <div className="w-10 h-10 bg-[#2DE3A7] rounded-lg flex items-center justify-center text-black font-bold text-sm">
-                    PW
-                </div>
+        <aside className="w-20 bg-[#0E1614] border-r border-gray-800 flex flex-col items-center py-6 focus:outline-none z-50">
+            <div className="mb-8 w-full flex justify-center">
+                {siteFavicon ? (
+                    <img
+                        src={`/storage/${siteFavicon}`}
+                        alt="Nix-Store"
+                        className="w-10 h-10 rounded-lg object-contain bg-white/10"
+                    />
+                ) : (
+                    <div className="w-10 h-10 bg-[#2DE3A7] rounded-lg flex flex-col items-center justify-center text-black font-extrabold text-[10px] leading-tight text-center px-0.5">
+                        <span>Nix-</span>
+                        <span>Store</span>
+                    </div>
+                )}
             </div>
 
             <nav className="flex-1 space-y-4">

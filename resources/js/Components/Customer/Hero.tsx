@@ -13,10 +13,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages = [] }) => {
     const displayImages =
         bannerImages.length > 0
             ? bannerImages.map((img) => getAssetUrl(img))
-            : [
-                  "/images/paikari-banner-1.webp",
-                  "/images/paikari-banner-2.webp",
-              ];
+            : ["/images/banner-1.jpg", "/images/banner-2.jpeg"];
 
     // Auto-play for slider
     useEffect(() => {
@@ -82,11 +79,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages = [] }) => {
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`w-2 h-2 rounded-full transition-colors ${
-                                        index === currentSlide
-                                            ? "bg-white"
-                                            : "bg-white/50"
-                                    }`}
+                                    className={`w-2 h-2 rounded-full transition-colors ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
                                     aria-label={`Go to slide ${index + 1}`}
                                 />
                             ))}

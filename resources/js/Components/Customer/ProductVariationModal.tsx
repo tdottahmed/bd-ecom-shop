@@ -303,11 +303,48 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 {product.name}
                                             </h4>
                                             {/* Show base price or range here since dynamic price is per-item now */}
-                                            <p className="text-indigo-600 font-bold mt-1 text-lg">
-                                                {formatPrice(
-                                                    product.sale_price,
-                                                )}
-                                            </p>
+                                            <div className="text-indigo-600 font-bold mt-1 text-lg">
+                                                {useMemo(() => {
+                                                    const priceVariation = Object.values(selectedVariations)
+                                                        .find(v => v.price !== null && v.price !== undefined && parseFloat(String(v.price)) > 0);
+                                                    const selectedPrice = priceVariation && priceVariation.price ? parseFloat(String(priceVariation.price)) : null;
+                                                    
+                                                    const hasVariations = product.product_variations && product.product_variations.length > 0;
+                                                    
+                                                    if (selectedPrice !== null && selectedPrice > 0) {
+                                                        return formatPrice(selectedPrice);
+                                                    }
+
+                                                    if ((!product.sale_price || Number(product.sale_price) === 0) && hasVariations && product.product_variations) {
+                                                        const validPrices = product.product_variations
+                                                            .map(v => v.price != null ? parseFloat(String(v.price)) : 0)
+                                                            .filter(p => p > 0);
+                                                            
+                                                        if (validPrices.length > 0) {
+                                                            const minPrice = Math.min(...validPrices);
+                                                            const maxPrice = Math.max(...validPrices);
+                                                            
+                                                            if (minPrice === maxPrice) return formatPrice(minPrice);
+                                                            return `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
+                                                        }
+                                                    }
+
+                                                    if (product.discounted_sale_price != null && Number(product.discounted_sale_price) < Number(product.sale_price)) {
+                                                        return (
+                                                            <div className="flex flex-wrap items-baseline gap-2">
+                                                                <span className="text-sm text-gray-400 line-through font-normal">
+                                                                    {formatPrice(product.sale_price)}
+                                                                </span>
+                                                                <span>
+                                                                    {formatPrice(product.discounted_sale_price)}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return formatPrice(product.sale_price || 0);
+                                                }, [product, selectedVariations])}
+                                            </div>
                                         </div>
                                     </div>
 
