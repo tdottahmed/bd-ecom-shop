@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Product, ProductVariation } from "@/types";
 import { Check, X } from "lucide-react";
-import { formatPrice } from "@/Utils/helpers";
+import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { toast } from "sonner";
 
 interface ProductVariationSelectorProps {
     product: Product;
     onAddToCart: (variations: ProductVariation[], quantity: number) => void;
+    onVariationSelect?: (
+        variation: ProductVariation,
+        allSelected: Record<number, ProductVariation>,
+    ) => void;
 }
 
 const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
     product,
     onAddToCart,
+    onVariationSelect,
 }) => {
     const [selectedVariations, setSelectedVariations] = useState<
         Record<number, ProductVariation>
@@ -54,10 +59,14 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         attributeId: number,
         variation: ProductVariation,
     ) => {
-        setSelectedVariations((prev) => ({
-            ...prev,
+        const newSelected = {
+            ...selectedVariations,
             [attributeId]: variation,
-        }));
+        };
+        setSelectedVariations(newSelected);
+        if (onVariationSelect) {
+            onVariationSelect(variation, newSelected);
+        }
     };
 
     const isAllSelected =
@@ -222,13 +231,22 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                     variation,
                                                 )
                                             }
-                                            className={`relative px-4 py-2 rounded-lg text-sm border transition-all flex items-center gap-2 font-medium ${
+                                            className={`relative py-2 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
+                                                variation.image ? "pl-2" : "pl-4"
+                                            } ${
                                                 isSelected
                                                     ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
                                                     : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            } ${variation.image ? "rounded-lg" : "rounded-lg"}`}
                                         >
-                                            {variation.value}
+                                            {variation.image && (
+                                                <img
+                                                    src={getAssetUrl(variation.image)}
+                                                    alt={variation.value}
+                                                    className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                />
+                                            )}
+                                            <span>{variation.value}</span>
                                             {showPriceHint && (
                                                 <span className="text-xs opacity-70 font-normal ml-0.5">
                                                     (

@@ -205,6 +205,20 @@ export default function ProductShow({
                                             onAddToCart={
                                                 handleVariationAddToCart
                                             }
+                                            onVariationSelect={(
+                                                variation,
+                                                allSelected,
+                                            ) => {
+                                                const imageVariation =
+                                                    Object.values(
+                                                        allSelected,
+                                                    ).find((v) => v.image);
+                                                setSelectedImage(
+                                                    imageVariation?.image ||
+                                                        product.images?.[0] ||
+                                                        null,
+                                                );
+                                            }}
                                         />
                                     </div>
                                 ) : (

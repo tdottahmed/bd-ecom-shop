@@ -24,6 +24,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
     const [cartBatch, setCartBatch] = useState<
         { variations: ProductVariation[]; quantity: number }[]
     >([]);
+    const [modalImage, setModalImage] = useState<string | null>(null);
 
     // Group variations by attribute
     const variationsByAttribute = React.useMemo(() => {
@@ -60,17 +61,22 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         if (isOpen) {
             setSelectedVariations({});
             setCartBatch([]);
+            setModalImage(product.images?.[0] || null);
         }
-    }, [isOpen]);
+    }, [isOpen, product.images]);
 
     const handleVariationSelect = (
         attributeId: number,
         variation: ProductVariation,
     ) => {
-        setSelectedVariations((prev) => ({
-            ...prev,
+        const newSelected = {
+            ...selectedVariations,
             [attributeId]: variation,
-        }));
+        };
+        setSelectedVariations(newSelected);
+
+        const imageVariation = Object.values(newSelected).find((v) => v.image);
+        setModalImage(imageVariation?.image || product.images?.[0] || null);
     };
 
     const isAllSelected =
@@ -270,13 +276,21 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     <div className="flex gap-4 mb-6">
                                         {/* Product Thumbnail */}
                                         <div className="w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
-                                            {product.images?.[0] ? (
+                                            {modalImage ? (
+                                                <img
+                                                    src={getAssetUrl(
+                                                        modalImage,
+                                                    )}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover bg-white"
+                                                />
+                                            ) : product.images?.[0] ? (
                                                 <img
                                                     src={getAssetUrl(
                                                         product.images[0],
                                                     )}
                                                     alt={product.name}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-full object-cover bg-white"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -339,15 +353,22 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                             variation,
                                                                         )
                                                                     }
-                                                                    className={`relative px-4 py-2 rounded-lg text-sm border transition-all flex items-center gap-2 font-medium ${
+                                                                    className={`relative py-2 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
+                                                                        variation.image ? "pl-2" : "pl-4"
+                                                                    } ${
                                                                         isSelected
                                                                             ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
                                                                             : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                                                                    }`}
+                                                                    } ${variation.image ? "rounded-lg" : "rounded-lg"}`}
                                                                 >
-                                                                    {
-                                                                        variation.value
-                                                                    }
+                                                                    {variation.image && (
+                                                                        <img
+                                                                            src={getAssetUrl(variation.image)}
+                                                                            alt={variation.value}
+                                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                                        />
+                                                                    )}
+                                                                    <span>{variation.value}</span>
                                                                     {showPriceHint && (
                                                                         <span className="text-xs opacity-70 font-normal ml-0.5">
                                                                             (
