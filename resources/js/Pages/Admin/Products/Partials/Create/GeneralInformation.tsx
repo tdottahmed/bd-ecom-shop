@@ -4,9 +4,9 @@ import CollapsibleSection from "@/Components/Ui/CollapsibleSection";
 import InputLabel from "@/Components/Ui/InputLabel";
 import TextInput from "@/Components/Ui/TextInput";
 import SelectInput from "@/Components/Ui/SelectInput";
-import TextArea from "@/Components/Ui/TextArea";
 import InputError from "@/Components/Ui/InputError";
 import Checkbox from "@/Components/Ui/Checkbox";
+import RichTextEditor from "@/Components/Ui/RichTextEditor";
 
 interface Props {
     data: any;
@@ -121,14 +121,11 @@ export default function GeneralInformation({
                                 value="Description"
                                 required
                             />
-                            <TextArea
-                                id="description"
-                                name="description"
+                            <RichTextEditor
                                 value={data.description}
-                                onChange={(e) =>
-                                    setData("description", e.target.value)
+                                onChange={(value) =>
+                                    setData("description", value)
                                 }
-                                required
                             />
                             <InputError message={errors.description} />
                         </div>

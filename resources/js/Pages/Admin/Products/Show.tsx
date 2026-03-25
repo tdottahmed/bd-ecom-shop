@@ -12,13 +12,17 @@ import {
     AlertTriangleIcon,
 } from "lucide-react";
 import ImageGallery from "@/Components/Ui/ImageGallery";
-import { formatPrice, getAssetUrl, ensureVariationImagePath } from "@/Utils/helpers";
+import {
+    formatPrice,
+    getAssetUrl,
+    ensureVariationImagePath,
+} from "@/Utils/helpers";
 import { get } from "http";
 
 export default function Show({ product }: ShowPageProps) {
     const profit = product.sale_price - product.purchase_price;
     const profitPercentage = ((profit / product.purchase_price) * 100).toFixed(
-        1
+        1,
     );
 
     const getCategoryName = () => {
@@ -30,7 +34,7 @@ export default function Show({ product }: ShowPageProps) {
             product.product_variations?.find(
                 (v) =>
                     v.attribute_id === attributeId ||
-                    v.product_attribute_id === attributeId
+                    v.product_attribute_id === attributeId,
             )?.product_attribute?.name || attributeId.toString()
         );
     };
@@ -99,7 +103,7 @@ export default function Show({ product }: ShowPageProps) {
                                                 alt: `${product.name} image ${
                                                     index + 1
                                                 }`,
-                                            })
+                                            }),
                                         )}
                                     />
                                 ) : (
@@ -151,7 +155,6 @@ export default function Show({ product }: ShowPageProps) {
                                             )}
                                         </div>
                                     </div>
-
                                 </div>
                             </CardContent>
                         </Card>
@@ -172,7 +175,8 @@ export default function Show({ product }: ShowPageProps) {
                                         </p>
                                     </div>
                                     {product.has_discount &&
-                                        product.discounted_sale_price != null && (
+                                        product.discounted_sale_price !=
+                                            null && (
                                             <div>
                                                 <p className="text-sm text-gray-400 mb-1">
                                                     Discounted Price
@@ -192,7 +196,7 @@ export default function Show({ product }: ShowPageProps) {
                                         </p>
                                         <p className="text-xl font-semibold text-white">
                                             {formatPrice(
-                                                product.purchase_price
+                                                product.purchase_price,
                                             )}
                                         </p>
                                     </div>
@@ -209,7 +213,7 @@ export default function Show({ product }: ShowPageProps) {
                                             </span>
                                         </div>
                                     </div>
-                                   
+
                                     {product.brand && (
                                         <div>
                                             <p className="text-sm text-gray-400 mb-1">
@@ -230,12 +234,17 @@ export default function Show({ product }: ShowPageProps) {
                                 <CardTitle>Description </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="prose prose-invert max-w-none text-gray-300">
-                                    <p className="whitespace-pre-wrap leading-relaxed">
-                                        {product.description ||
-                                            "No description provided."}
-                                    </p>
-                                </div>
+                                <div
+                                    className="prose prose-invert max-w-none text-gray-300 leading-relaxed"
+                                    dangerouslySetInnerHTML={{
+                                        __html: (
+                                            product.description ||
+                                            "No description provided."
+                                        )
+                                            .replace(/\\n/g, "<br/>")
+                                            .replace(/\n/g, "<br/>"),
+                                    }}
+                                />
                             </CardContent>
                         </Card>
 
@@ -280,11 +289,20 @@ export default function Show({ product }: ShowPageProps) {
                                                                 <td className="px-6 py-4">
                                                                     {variation.image ? (
                                                                         <img
-                                                                            src={getAssetUrl(ensureVariationImagePath(variation.image))}
-                                                                            alt={variation.value}
+                                                                            src={getAssetUrl(
+                                                                                ensureVariationImagePath(
+                                                                                    variation.image,
+                                                                                ),
+                                                                            )}
+                                                                            alt={
+                                                                                variation.value
+                                                                            }
                                                                             className="w-10 h-10 rounded object-cover border border-gray-700 bg-gray-800"
-                                                                            onError={(e) => {
-                                                                                e.currentTarget.src = "/placeholder.png";
+                                                                            onError={(
+                                                                                e,
+                                                                            ) => {
+                                                                                e.currentTarget.src =
+                                                                                    "/placeholder.png";
                                                                             }}
                                                                         />
                                                                     ) : (
@@ -295,7 +313,7 @@ export default function Show({ product }: ShowPageProps) {
                                                                 </td>
                                                                 <td className="px-6 py-4 font-medium text-white">
                                                                     {getAttributeName(
-                                                                        variation.attribute_id
+                                                                        variation.attribute_id,
                                                                     )}
                                                                 </td>
                                                                 <td className="px-6 py-4">
@@ -329,7 +347,7 @@ export default function Show({ product }: ShowPageProps) {
                                                                     {variation.price ? (
                                                                         <span className="font-medium text-emerald-400">
                                                                             {formatPrice(
-                                                                                variation.price
+                                                                                variation.price,
                                                                             )}
                                                                         </span>
                                                                     ) : (
@@ -339,7 +357,7 @@ export default function Show({ product }: ShowPageProps) {
                                                                     )}
                                                                 </td>
                                                             </tr>
-                                                        )
+                                                        ),
                                                     )}
                                                 </tbody>
                                             </table>
@@ -368,14 +386,14 @@ export default function Show({ product }: ShowPageProps) {
                                                     </span>
                                                     <span className="text-lg font-bold text-emerald-400">
                                                         {formatPrice(
-                                                            qtyPrice.price
+                                                            qtyPrice.price,
                                                         )}
                                                     </span>
                                                     <span className="text-xs text-gray-400 mt-1">
                                                         per unit
                                                     </span>
                                                 </div>
-                                            )
+                                            ),
                                         )}
                                     </div>
                                 </CardContent>

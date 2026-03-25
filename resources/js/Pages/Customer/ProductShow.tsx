@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import { Product } from "@/types";
@@ -29,6 +29,9 @@ export default function ProductShow({
     const [selectedImage, setSelectedImage] = useState(
         product.images?.[0] || null,
     );
+    const [selectedVariationPrice, setSelectedVariationPrice] = useState<
+        number | null
+    >(null);
     const debouncedQuantity = useDebounce(quantity, 300);
 
     // Sync local quantity with store quantity (handling external updates)
@@ -170,28 +173,100 @@ export default function ProductShow({
                                 </h1>
 
                                 <div className="flex flex-wrap items-baseline gap-3 mb-6">
-                                    {product.discounted_sale_price != null &&
-                                    Number(product.discounted_sale_price) < Number(product.sale_price) ? (
-                                        <>
-                                            <span className="text-xl text-gray-500 line-through">
-                                                ৳{product.sale_price}
-                                            </span>
-                                            <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                ৳{product.discounted_sale_price}
-                                            </span>
-                                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                                                Sale
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                            ৳{product.sale_price}
-                                        </span>
-                                    )}
-                                </div>
+                                    {useMemo(() => {
+                                        if (
+                                            selectedVariationPrice !== null &&
+                                            selectedVariationPrice > 0
+                                        ) {
+                                            return (
+                                                <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                    ৳{selectedVariationPrice}
+                                                </span>
+                                            );
+                                        }
 
-                                <div className="prose prose-sm text-gray-600 mb-8 max-w-none">
-                                    <p>{product.description} </p>
+                                        // Check if base price is effectively 0 and we have variations with prices
+                                        if (
+                                            (!product.sale_price ||
+                                                Number(product.sale_price) ===
+                                                    0) &&
+                                            hasVariations &&
+                                            product.product_variations
+                                        ) {
+                                            const validPrices =
+                                                product.product_variations
+                                                    .map((v) =>
+                                                        v.price != null
+                                                            ? parseFloat(
+                                                                  String(
+                                                                      v.price,
+                                                                  ),
+                                                              )
+                                                            : 0,
+                                                    )
+                                                    .filter((p) => p > 0);
+
+                                            if (validPrices.length > 0) {
+                                                const minPrice = Math.min(
+                                                    ...validPrices,
+                                                );
+                                                const maxPrice = Math.max(
+                                                    ...validPrices,
+                                                );
+
+                                                if (minPrice === maxPrice) {
+                                                    return (
+                                                        <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                            ৳{minPrice}
+                                                        </span>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                        ৳{minPrice} - ৳
+                                                        {maxPrice}
+                                                    </span>
+                                                );
+                                            }
+                                        }
+
+                                        // Standard logic
+                                        if (
+                                            product.discounted_sale_price !=
+                                                null &&
+                                            Number(
+                                                product.discounted_sale_price,
+                                            ) < Number(product.sale_price)
+                                        ) {
+                                            return (
+                                                <>
+                                                    <span className="text-xl text-gray-500 line-through">
+                                                        ৳{product.sale_price}
+                                                    </span>
+                                                    <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                        ৳
+                                                        {
+                                                            product.discounted_sale_price
+                                                        }
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                                                        Sale
+                                                    </span>
+                                                </>
+                                            );
+                                        }
+
+                                        return (
+                                            <span className="text-2xl md:text-3xl font-bold text-indigo-600">
+                                                ৳{product.sale_price || 0}
+                                            </span>
+                                        );
+                                    }, [
+                                        product,
+                                        selectedVariationPrice,
+                                        hasVariations,
+                                    ])}
                                 </div>
 
                                 {/* Variation Selection OR Simple Add to Cart */}
@@ -218,6 +293,37 @@ export default function ProductShow({
                                                         product.images?.[0] ||
                                                         null,
                                                 );
+
+                                                // Find if they selected a price-overriding variation
+                                                const priceVariation =
+                                                    Object.values(
+                                                        allSelected,
+                                                    ).find(
+                                                        (v) =>
+                                                            v.price !== null &&
+                                                            v.price !==
+                                                                undefined &&
+                                                            parseFloat(
+                                                                String(v.price),
+                                                            ) > 0,
+                                                    );
+
+                                                if (
+                                                    priceVariation &&
+                                                    priceVariation.price
+                                                ) {
+                                                    setSelectedVariationPrice(
+                                                        parseFloat(
+                                                            String(
+                                                                priceVariation.price,
+                                                            ),
+                                                        ),
+                                                    );
+                                                } else {
+                                                    setSelectedVariationPrice(
+                                                        null,
+                                                    );
+                                                }
                                             }}
                                         />
                                     </div>
@@ -278,6 +384,14 @@ export default function ProductShow({
                                         </div>
                                     </div>
                                 )}
+                                <div
+                                    className="prose prose-sm text-gray-600 mb-8 max-w-none"
+                                    dangerouslySetInnerHTML={{
+                                        __html: (product.description || "")
+                                            .replace(/\\n/g, "<br/>")
+                                            .replace(/\n/g, "<br/>"),
+                                    }}
+                                />
 
                                 {/* Meta Info */}
                                 <div className="border-t border-gray-100 pt-6 mt-8 space-y-3 text-sm text-gray-500">
