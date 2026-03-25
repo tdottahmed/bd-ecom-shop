@@ -17,6 +17,8 @@ interface CategoryProductsSection {
 interface HomeProps {
     categories: Category[];
     productsByCategory: CategoryProductsSection[];
+    bannerImages?: string[];
+    bannerActive?: boolean;
     category?: Category;
     filters?: {
         search?: string;
@@ -32,6 +34,8 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({
     categories,
     productsByCategory = [],
+    bannerImages,
+    bannerActive,
     filters = {},
     category,
 }) => {
@@ -91,7 +95,10 @@ const Home: React.FC<HomeProps> = ({
                     />
                     <div className="space-y-6">
                         {/* Hero Section */}
-                        <Hero />
+                        <Hero
+                            bannerImages={bannerImages}
+                            bannerActive={bannerActive}
+                        />
                         {/* Categories */}
                         <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
                             <CategorySlider

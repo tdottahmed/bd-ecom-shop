@@ -10,10 +10,41 @@ use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
+    private function getBannerSettings(): array
+    {
+        $bannerActiveValue = get_setting("banner_active", "0");
+        $bannerActive =
+            $bannerActiveValue === true ||
+            $bannerActiveValue === 1 ||
+            $bannerActiveValue === "1" ||
+            $bannerActiveValue === "true";
+
+        $bannerImagesValue = get_setting("banner_images", "[]");
+
+        $bannerImages = [];
+        if (is_array($bannerImagesValue)) {
+            $bannerImages = $bannerImagesValue;
+        } else {
+            $decoded = json_decode($bannerImagesValue ?: "[]", true);
+            $bannerImages = is_array($decoded) ? $decoded : [];
+        }
+
+        // Ensure it's an array of strings
+        $bannerImages = array_values(
+            array_filter($bannerImages, fn($img) => is_string($img) && trim($img) !== "")
+        );
+
+        return [
+            "bannerActive" => $bannerActive,
+            "bannerImages" => $bannerImages,
+        ];
+    }
+
     public function index(Request $request)
     {
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $bannerSettings = $this->getBannerSettings();
 
         $productsByCategory = $categories->map(function (Category $cat) use ($request) {
             return [
@@ -26,6 +57,8 @@ class CustomerController extends Controller
             'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
+            'bannerImages' => $bannerSettings["bannerImages"],
+            'bannerActive' => $bannerSettings["bannerActive"],
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),
@@ -45,6 +78,7 @@ class CustomerController extends Controller
 
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $bannerSettings = $this->getBannerSettings();
 
         $productsByCategory = [[
             'category' => $categoryModel,
@@ -56,6 +90,8 @@ class CustomerController extends Controller
             'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
+            'bannerImages' => $bannerSettings["bannerImages"],
+            'bannerActive' => $bannerSettings["bannerActive"],
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),
@@ -72,6 +108,7 @@ class CustomerController extends Controller
     {
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $bannerSettings = $this->getBannerSettings();
 
         $productsByCategory = $categories->map(function (Category $cat) use ($request) {
             return [
@@ -84,6 +121,8 @@ class CustomerController extends Controller
             'productsByCategory' => $productsByCategory,
             'categories' => $categories,
             'website_settings' => $websiteSettings,
+            'bannerImages' => $bannerSettings["bannerImages"],
+            'bannerActive' => $bannerSettings["bannerActive"],
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),
