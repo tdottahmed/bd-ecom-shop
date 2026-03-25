@@ -1,11 +1,19 @@
-import { Link, usePage } from "@inertiajs/react";
-import { Facebook, Instagram, Youtube, Video } from "lucide-react";
+import { Link, router, usePage } from "@inertiajs/react";
+import {
+    Facebook,
+    Instagram,
+    Youtube,
+    Video,
+    LogIn,
+    LogOut,
+} from "lucide-react";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
-    const { siteLogo, siteDescription, seo, footer, categories, brands }: any =
+    const { siteLogo, siteDescription, seo, footer, auth }: any =
         usePage().props;
     const siteName = seo?.siteName || "Paikari World";
+    const isAuthenticated = !!auth?.user;
 
     // Helper to render social icon
     const SocialLink = ({ href, icon: Icon, label }: any) => {
@@ -18,7 +26,10 @@ export default function Footer() {
                 className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#0F1A18] text-[#2DE3A7] hover:bg-[#2DE3A7] hover:text-black transition-all duration-300 shadow-sm group"
                 aria-label={label}
             >
-                <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                <Icon
+                    size={20}
+                    className="group-hover:scale-110 transition-transform"
+                />
             </a>
         );
     };
@@ -43,9 +54,10 @@ export default function Footer() {
                                 </span>
                             )}
                         </Link>
-                        
+
                         <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
-                            {siteDescription || "Your one-stop destination for premium products and authentic shopping experience."}
+                            {siteDescription ||
+                                "Your one-stop destination for premium products and authentic shopping experience."}
                         </p>
                     </div>
 
@@ -55,10 +67,26 @@ export default function Footer() {
                             Stay Connected
                         </h3>
                         <div className="flex items-center gap-3">
-                            <SocialLink href={footer?.facebook} icon={Facebook} label="Facebook" />
-                            <SocialLink href={footer?.instagram} icon={Instagram} label="Instagram" />
-                            <SocialLink href={footer?.youtube} icon={Youtube} label="YouTube" />
-                            <SocialLink href={footer?.tiktok} icon={Video} label="TikTok" />
+                            <SocialLink
+                                href={footer?.facebook}
+                                icon={Facebook}
+                                label="Facebook"
+                            />
+                            <SocialLink
+                                href={footer?.instagram}
+                                icon={Instagram}
+                                label="Instagram"
+                            />
+                            <SocialLink
+                                href={footer?.youtube}
+                                icon={Youtube}
+                                label="YouTube"
+                            />
+                            <SocialLink
+                                href={footer?.tiktok}
+                                icon={Video}
+                                label="TikTok"
+                            />
                         </div>
                     </div>
                 </div>
@@ -66,7 +94,11 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-xs sm:text-sm text-gray-500 order-2 md:order-1">
-                        &copy; {currentYear} <span className="font-semibold text-gray-900">{siteName}</span>. All rights reserved.
+                        &copy; {currentYear}{" "}
+                        <span className="font-semibold text-gray-900">
+                            {siteName}
+                        </span>
+                        . All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-1.5 order-1 md:order-2 text-xs sm:text-sm text-gray-500">

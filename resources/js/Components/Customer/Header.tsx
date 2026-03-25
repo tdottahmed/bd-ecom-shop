@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, LogIn, ChevronDown } from "lucide-react";
+import { MessageCircle, X, ChevronDown } from "lucide-react";
 import { Link, usePage } from "@inertiajs/react";
 
 import Logo from "./Header/Logo";
@@ -21,7 +21,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const cartCount = getCartCount();
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const { auth, messengerLink, categories, brands }: any = usePage().props;
-    const isAuthenticated = !!auth?.user;
 
     const [openDropdown, setOpenDropdown] = useState<
         "categories" | "brands" | null
@@ -335,14 +334,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 <SearchToggle
                                     onClick={() => setIsMobileSearchOpen(true)}
                                 />
-                                {!isAuthenticated && (
-                                    <Link
-                                        href={route("login")}
-                                        className="p-2 text-gray-800 hover:text-gray-900 transition-colors"
-                                    >
-                                        <LogIn size={20} />
-                                    </Link>
-                                )}
                                 <button
                                     onClick={onCartClick}
                                     className="p-2 text-gray-800 hover:text-gray-900 transition-colors"
@@ -356,17 +347,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 <div className="hidden lg:block w-[320px]">
                                     <SearchAutocomplete />
                                 </div>
-                                {!isAuthenticated && (
-                                    <Link
-                                        href={route("login")}
-                                        className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                                    >
-                                        <LogIn size={18} />
-                                        <span className="text-sm font-medium">
-                                            Login
-                                        </span>
-                                    </Link>
-                                )}
                                 <button
                                     onClick={onCartClick}
                                     className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors"
