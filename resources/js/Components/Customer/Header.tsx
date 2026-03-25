@@ -26,20 +26,36 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const [openDropdown, setOpenDropdown] = useState<
         "categories" | "brands" | null
     >(null);
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    // There are two desktop nav variants (lg+ integrated row, and md+ second row).
+    // Both exist in the DOM (one is just hidden by CSS), so we must not reuse
+    // a single ref for outside-click detection (it would get overwritten).
+    const dropdownRefLg = useRef<HTMLDivElement | null>(null);
+    const dropdownRefMd = useRef<HTMLDivElement | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
-        const handleDocMouseDown = (e: MouseEvent) => {
-            if (!dropdownRef.current) return;
-            if (!dropdownRef.current.contains(e.target as Node)) {
+        const handleDocClick = (e: MouseEvent) => {
+            const target = e.target as Node | null;
+            if (!target) return;
+
+            const inLg =
+                !!dropdownRefLg.current &&
+                dropdownRefLg.current.contains(target);
+            const inMd =
+                !!dropdownRefMd.current &&
+                dropdownRefMd.current.contains(target);
+
+            if (!inLg && !inMd) {
                 setOpenDropdown(null);
             }
         };
 
-        document.addEventListener("mousedown", handleDocMouseDown);
+        // Close only when the user actually clicks outside.
+        // Using `mousedown` can cause the dropdown to disappear on some trackpad/mouse interactions
+        // while the user is trying to hover/select the dropdown items.
+        document.addEventListener("click", handleDocClick);
         return () => {
-            document.removeEventListener("mousedown", handleDocMouseDown);
+            document.removeEventListener("click", handleDocClick);
         };
     }, []);
 
@@ -104,7 +120,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                             {/* Desktop Navigation (lg+) - single-row header */}
                             <div className="hidden lg:flex flex-1 items-center justify-center">
                                 <div
-                                    ref={dropdownRef}
+                                    ref={dropdownRefLg}
                                     className="flex items-center gap-1 whitespace-nowrap"
                                 >
                                     <Link
@@ -121,12 +137,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                     </Link>
 
                                     {/* Categories dropdown */}
-                                    <div
-                                        className="relative"
-                                        onMouseLeave={() =>
-                                            setOpenDropdown(null)
-                                        }
-                                    >
+                                    <div className="relative">
                                         <button
                                             type="button"
                                             onMouseEnter={() =>
@@ -148,10 +159,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                             />
                                         </button>
 
-                                        {openDropdown ===
-                                            "categories" && (
+                                        {openDropdown === "categories" && (
                                             <div className="absolute left-0 top-full mt-2 w-[320px] bg-white border border-gray-200 rounded-2xl shadow-lg p-3 z-50">
-                                                {featuredCategories.length > 0 ? (
+                                                {featuredCategories.length >
+                                                0 ? (
                                                     <div className="space-y-1">
                                                         {featuredCategories.map(
                                                             (c: any) => (
@@ -217,12 +228,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                     </div>
 
                                     {/* Brands dropdown */}
-                                    {/* <div
-                                        className="relative"
-                                        onMouseLeave={() =>
-                                            setOpenDropdown(null)
-                                        }
-                                    >
+                                    {/* <div className="relative">
                                         <button
                                             type="button"
                                             onMouseEnter={() =>
@@ -246,7 +252,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
                                         {openDropdown === "brands" && (
                                             <div className="absolute left-0 top-full mt-2 w-[320px] bg-white border border-gray-200 rounded-2xl shadow-lg p-3 z-50">
-                                                {featuredBrands.length > 0 ? (
+                                                {featuredBrands.length >
+                                                0 ? (
                                                     <div className="space-y-1">
                                                         {featuredBrands.map(
                                                             (b: any) => (
@@ -257,9 +264,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                                                         b.slug,
                                                                     )}
                                                                     onClick={() =>
-                                                                        setOpenDropdown(
-                                                                            null,
-                                                                        )
+                                                                        setOpenDropdown(null)
                                                                     }
                                                                     className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors"
                                                                 >
@@ -268,16 +273,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                                                             src={getAssetUrl(
                                                                                 b.image,
                                                                             )}
-                                                                            alt={
-                                                                                b.title
-                                                                            }
+                                                                            alt={b.title}
                                                                             className="w-full h-full object-cover"
                                                                         />
                                                                     </div>
                                                                     <div className="text-sm text-gray-800 truncate">
-                                                                        {
-                                                                            b.title
-                                                                        }
+                                                                        {b.title}
                                                                     </div>
                                                                 </Link>
                                                             ),
@@ -297,9 +298,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                                                 "brands.index",
                                                             )}
                                                             onClick={() =>
-                                                                setOpenDropdown(
-                                                                    null,
-                                                                )
+                                                                setOpenDropdown(null)
                                                             }
                                                             className="text-sm font-medium text-gray-700 hover:text-gray-900"
                                                         >
@@ -388,7 +387,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 {/* Desktop navigation row (md+) */}
                 <div className="hidden md:flex lg:hidden bg-white/95 backdrop-blur border-t border-gray-100 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 transition-all duration-200">
                     <div
-                        ref={dropdownRef}
+                        ref={dropdownRefMd}
                         className="flex items-center gap-1 w-full"
                     >
                         <Link
@@ -405,10 +404,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                         </Link>
 
                         {/* Categories dropdown */}
-                        <div
-                            className="relative"
-                            onMouseLeave={() => setOpenDropdown(null)}
-                        >
+                        <div className="relative">
                             <button
                                 type="button"
                                 onMouseEnter={() =>
@@ -490,10 +486,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                         </div>
 
                         {/* Brands dropdown */}
-                        <div
-                            className="relative"
-                            onMouseLeave={() => setOpenDropdown(null)}
-                        >
+                        <div className="relative">
                             <button
                                 type="button"
                                 onMouseEnter={() => setOpenDropdown("brands")}
