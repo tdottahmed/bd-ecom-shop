@@ -109,17 +109,23 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                         .join("-") === currentIds,
             );
 
-            if (
-                existsIndex === -1 &&
-                (product.is_preorder || currentSelectionStock > 0)
-            ) {
-                // Add new item
-                const initialQty = 1;
-
-                setCartBatch((prev) => [
-                    ...prev,
-                    { variations: currentVariations, quantity: initialQty },
-                ]);
+            if (existsIndex === -1) {
+                if (product.is_preorder || currentSelectionStock > 0) {
+                    // Add new item
+                    const initialQty = 1;
+                    setCartBatch((prev) => [
+                        ...prev,
+                        { variations: currentVariations, quantity: initialQty },
+                    ]);
+                } else {
+                    // Provide clear feedback that it's out of stock
+                    toast.error("This combination is currently out of stock!");
+                    
+                    // Clear the last selected option so they aren't stuck on a 0 stock completion
+                    // We pop off the last one or just reset it. Since we don't know the order easily,
+                    // we can just reset the selection.
+                    setSelectedVariations({});
+                }
             }
         }
     }, [
@@ -222,33 +228,53 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                         parseFloat(String(variation.price)) !==
                                             product.sale_price;
 
+                                    const isOutOfStock =
+                                        !product.is_preorder &&
+                                        variation.stock !== null &&
+                                        variation.stock !== undefined &&
+                                        variation.stock <= 0;
+
                                     return (
                                         <button
                                             key={variation.id}
-                                            onClick={() =>
+                                            onClick={() => {
+                                                if (isOutOfStock) {
+                                                    toast.error("This specific option is out of stock.");
+                                                    return;
+                                                }
                                                 handleVariationSelect(
                                                     Number(attrId),
                                                     variation,
                                                 )
-                                            }
-                                            className={`relative py-2 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
+                                            }}
+                                            disabled={isOutOfStock}
+                                            className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                 variation.image ? "pl-2" : "pl-4"
                                             } ${
-                                                isSelected
-                                                    ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
-                                                    : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                                            } ${variation.image ? "rounded-lg" : "rounded-lg"}`}
+                                                isOutOfStock
+                                                    ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
+                                                    : isSelected
+                                                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
+                                                        : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                            } rounded-lg group`}
                                         >
                                             {variation.image && (
                                                 <img
                                                     src={getAssetUrl(variation.image)}
                                                     alt={variation.value}
-                                                    className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                    className={`w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
                                                 />
                                             )}
-                                            <span>{variation.value}</span>
+                                            <span className={`relative z-10 flex items-center gap-1.5 ${isOutOfStock ? 'text-slate-400' : ''}`}>
+                                                {variation.value}
+                                                {isOutOfStock && (
+                                                    <span className="text-[10px] uppercase tracking-wider font-extrabold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-sm border border-rose-100/50">
+                                                        Out of Stock
+                                                    </span>
+                                                )}
+                                            </span>
                                             {showPriceHint && (
-                                                <span className="text-xs opacity-70 font-normal ml-0.5">
+                                                <span className={`text-xs font-normal ml-0.5 relative z-10 ${isOutOfStock ? '' : 'opacity-70'}`}>
                                                     (
                                                     {formatPrice(
                                                         variation.price!,
@@ -256,10 +282,11 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                     )
                                                 </span>
                                             )}
-                                            {isSelected && (
+                                            {isSelected && !isOutOfStock && (
                                                 <Check
                                                     size={14}
                                                     strokeWidth={3}
+                                                    className="relative z-10"
                                                 />
                                             )}
                                         </button>
