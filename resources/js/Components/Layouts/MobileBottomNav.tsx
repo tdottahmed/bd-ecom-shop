@@ -51,22 +51,42 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             <div className="flex justify-around items-center">
                 {mobileMenuItems.map((item) => {
                     const isMore = item.key === "more";
-                    const href = item.route ? route(item.route) : "#";
 
                     return (
-                        <Link
-                            key={item.key}
-                            href={href}
-                            className={`flex flex-col items-center py-3 px-4 flex-1 transition-all ${
-                                isActive(item)
-                                    ? "text-[#2DE3A7]"
-                                    : "text-gray-300"
-                            }`}
-                            onClick={isMore ? handleMoreClick : undefined}
-                        >
-                            {item.icon}
-                            <span className="text-xs mt-1"> {item.label} </span>
-                        </Link>
+                        isMore ? (
+                            <button
+                                key={item.key}
+                                type="button"
+                                className={`flex flex-col items-center py-3 px-4 flex-1 transition-all ${
+                                    isActive(item)
+                                        ? "text-[#2DE3A7]"
+                                        : "text-gray-300"
+                                }`}
+                                onClick={handleMoreClick}
+                            >
+                                {item.icon}
+                                <span className="text-xs mt-1">
+                                    {" "}
+                                    {item.label}{" "}
+                                </span>
+                            </button>
+                        ) : (
+                            <Link
+                                key={item.key}
+                                href={route(item.route as string)}
+                                className={`flex flex-col items-center py-3 px-4 flex-1 transition-all ${
+                                    isActive(item)
+                                        ? "text-[#2DE3A7]"
+                                        : "text-gray-300"
+                                }`}
+                            >
+                                {item.icon}
+                                <span className="text-xs mt-1">
+                                    {" "}
+                                    {item.label}{" "}
+                                </span>
+                            </Link>
+                        )
                     );
                 })}
             </div>

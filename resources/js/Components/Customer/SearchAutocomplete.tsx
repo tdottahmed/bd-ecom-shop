@@ -44,9 +44,9 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
             }
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
         return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
     }, []);
 
     // Debounced search function
@@ -139,7 +139,9 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                 </div>
                 <input
                     ref={inputRef}
-                    type="text"
+                    id={isMobile ? "mobile-search" : "desktop-search"}
+                    name="search"
+                    type="search"
                     value={query}
                     onChange={(e) => handleInputChange(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -155,10 +157,14 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                     } transition duration-150 ease-in-out`}
                     placeholder="Search products..."
                     autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     autoFocus={isMobile}
                 />
                 {query && (
                     <button
+                        type="button"
                         onClick={handleClear}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                     >

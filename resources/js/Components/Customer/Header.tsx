@@ -88,7 +88,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 relative">
                             {/* Mobile Left: Menu & Messenger */}
-                            <div className="flex items-center gap-2 md:hidden">
+                            <div className="flex items-center gap-2 md:hidden relative z-10">
                                 <MobileMenuButton onClick={onMenuClick} />
                                 {messengerLink && <MessengerIcon />}
                             </div>
@@ -110,8 +110,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                             </div>
 
                             {/* Mobile Logo (Centered) */}
-                            <div className="absolute inset-x-0 flex justify-center md:hidden">
-                                <div className="w-full max-w-md mx-auto">
+                            <div className="absolute inset-x-0 flex justify-center md:hidden pointer-events-none">
+                                <div className="w-full max-w-md mx-auto pointer-events-auto">
                                     <Logo />
                                 </div>
                             </div>
@@ -226,89 +226,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                         )}
                                     </div>
 
-                                    {/* Brands dropdown */}
-                                    {/* <div className="relative">
-                                        <button
-                                            type="button"
-                                            onMouseEnter={() =>
-                                                setOpenDropdown("brands")
-                                            }
-                                            onClick={() =>
-                                                setOpenDropdown((prev) =>
-                                                    prev === "brands"
-                                                        ? null
-                                                        : "brands",
-                                                )
-                                            }
-                                            className="px-2 py-2 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors inline-flex items-center gap-2"
-                                        >
-                                            Brands
-                                            <ChevronDown
-                                                size={16}
-                                                className="text-gray-500"
-                                            />
-                                        </button>
-
-                                        {openDropdown === "brands" && (
-                                            <div className="absolute left-0 top-full mt-2 w-[320px] bg-white border border-gray-200 rounded-2xl shadow-lg p-3 z-50">
-                                                {featuredBrands.length >
-                                                0 ? (
-                                                    <div className="space-y-1">
-                                                        {featuredBrands.map(
-                                                            (b: any) => (
-                                                                <Link
-                                                                    key={b.id}
-                                                                    href={route(
-                                                                        "brands.show",
-                                                                        b.slug,
-                                                                    )}
-                                                                    onClick={() =>
-                                                                        setOpenDropdown(null)
-                                                                    }
-                                                                    className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors"
-                                                                >
-                                                                    <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                                        <Image
-                                                                            src={getAssetUrl(
-                                                                                b.image,
-                                                                            )}
-                                                                            alt={b.title}
-                                                                            className="w-full h-full object-cover"
-                                                                        />
-                                                                    </div>
-                                                                    <div className="text-sm text-gray-800 truncate">
-                                                                        {b.title}
-                                                                    </div>
-                                                                </Link>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-sm text-gray-500 p-2">
-                                                        No brands
-                                                    </div>
-                                                )}
-
-                                                {brands.length >
-                                                    featuredBrands.length && (
-                                                    <div className="mt-2">
-                                                        <Link
-                                                            href={route(
-                                                                "brands.index",
-                                                            )}
-                                                            onClick={() =>
-                                                                setOpenDropdown(null)
-                                                            }
-                                                            className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                                                        >
-                                                            View all brands
-                                                        </Link>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div> */}
-
                                     <Link
                                         href={route("pages.about")}
                                         className="px-2 py-2 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap"
@@ -330,7 +247,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                             </div>
 
                             {/* Mobile Right: Search, Login & Cart */}
-                            <div className="flex items-center gap-2 md:hidden">
+                            <div className="flex items-center gap-2 md:hidden relative z-10">
                                 <SearchToggle
                                     onClick={() => setIsMobileSearchOpen(true)}
                                 />

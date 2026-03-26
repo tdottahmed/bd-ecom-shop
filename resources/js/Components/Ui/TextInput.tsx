@@ -68,7 +68,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                     }
                     ${className}
                 `}
-                autoComplete={autoComplete}
+                autoComplete={autoComplete ?? "off"}
                 onChange={onChange}
                 step={step}
                 disabled={disabled}

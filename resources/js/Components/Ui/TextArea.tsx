@@ -64,7 +64,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     min-h-[100px]
                     ${className}
                 `}
-                autoComplete={autoComplete}
+                autoComplete={autoComplete ?? "off"}
                 onChange={onChange}
                 disabled={disabled}
             />

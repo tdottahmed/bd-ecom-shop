@@ -2,22 +2,51 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import { Product } from "@/types";
-import { ShoppingCart, Heart, Share2, ChevronRight, Check } from "lucide-react";
+import { ShoppingCart, ChevronRight, Check, ShieldCheck, Truck, PackageCheck, ChevronDown } from "lucide-react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
 import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "@/Components/Ui/QuantitySelector";
 import ProductVariationSelector from "@/Components/Customer/ProductVariationSelector";
+import ProductSlider from "@/Components/Customer/ProductSlider";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 
 interface ProductShowProps {
     product: Product;
-    related_products: Product[];
+    related_products?: Product[];
+    random_products?: Product[];
 }
+
+const ExpandableDescription = ({ htmlContent }: { htmlContent: string }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="relative mt-2">
+            <div 
+                className={`prose prose-slate prose-sm max-w-none text-slate-600 leading-relaxed font-medium transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? 'max-h-full' : 'max-h-[200px]'}`}
+                dangerouslySetInnerHTML={{ __html: htmlContent }}
+            />
+            {!isExpanded && (
+                <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+            )}
+            <div className={`mt-2 ${isExpanded ? '' : 'absolute bottom-0 left-0 w-full flex justify-center'}`}>
+                <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="inline-flex items-center px-6 py-2.5 rounded-full bg-slate-50 hover:bg-slate-100 font-bold text-indigo-600 transition-colors group border border-slate-100 shadow-sm"
+                >
+                    {isExpanded ? "Read Less" : "Read More"}
+                    <ChevronDown size={16} className={`ml-2 transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0 group-hover:translate-y-0.5'}`} />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 export default function ProductShow({
     product,
     related_products,
+    random_products,
 }: ProductShowProps) {
     const { cart, addToCart, updateQuantity, setIsOpen } = useCartStore();
     const cartItem = cart[String(product.id)];
@@ -72,264 +101,295 @@ export default function ProductShow({
         addToCart(product, quantity, variations);
     };
 
+    const displayProducts = (related_products && related_products.length > 0) 
+        ? related_products 
+        : (random_products && random_products.length > 0) 
+            ? random_products 
+            : [];
+
     return (
         <CustomerLayout>
             <Head title={product.name} />
 
-            <div className="bg-gray-50 py-4 md:py-8">
-                <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto">
-                    {/* Breadcrumbs */}
-                    <nav className="hidden md:flex items-center text-sm text-gray-500 mb-8">
-                        <Link href="/" className="hover:text-gray-900">
-                            Home
-                        </Link>
-                        <ChevronRight size={16} className="mx-2" />
-                        <Link
-                            href={route("products.index")}
-                            className="hover:text-gray-900"
-                        >
-                            Products
-                        </Link>
-                        {product.category && (
-                            <>
-                                <ChevronRight size={16} className="mx-2" />
-                                <Link
-                                    href={route(
-                                        "products.category",
-                                        product.category.slug,
-                                    )}
-                                    className="hover:text-gray-900"
-                                >
-                                    {product.category.title}
+            <div className="bg-slate-50 py-6 md:py-12 min-h-screen">
+                <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto space-y-12">
+                    
+                    {/* Main Product Container */}
+                    <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden">
+                        {/* Breadcrumbs */}
+                        <div className="border-b border-slate-100 px-6 py-4 md:px-10 md:py-5">
+                            <nav className="flex items-center text-sm text-slate-500">
+                                <Link href="/" className="hover:text-indigo-600 transition-colors">
+                                    Home
                                 </Link>
-                            </>
-                        )}
-                        <ChevronRight size={16} className="mx-2" />
-                        <span className="text-gray-900 font-medium truncate max-w-xs">
-                            {product.name}
-                        </span>
-                    </nav>
+                                <ChevronRight size={16} className="mx-2 text-slate-300" />
+                                <Link
+                                    href={route("products.index")}
+                                    className="hover:text-indigo-600 transition-colors"
+                                >
+                                    Products
+                                </Link>
+                                {product.category && (
+                                    <>
+                                        <ChevronRight size={16} className="mx-2 text-slate-300" />
+                                        <Link
+                                            href={route(
+                                                "products.category",
+                                                product.category.slug,
+                                            )}
+                                            className="hover:text-indigo-600 transition-colors"
+                                        >
+                                            {product.category.title}
+                                        </Link>
+                                    </>
+                                )}
+                                <ChevronRight size={16} className="mx-2 text-slate-300" />
+                                <span className="text-slate-900 font-medium truncate max-w-xs">
+                                    {product.name}
+                                </span>
+                            </nav>
+                        </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 p-4 md:p-6 lg:p-8">
-                            {/* Image Gallery */}
-                            <div className="space-y-4">
-                                <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden relative group">
-                                    <Image
-                                        src={getAssetUrl(
-                                            selectedImage || product.images[0],
-                                        )}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    {product.stock <= 0 &&
-                                        !product.is_preorder && (
-                                            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                                                <span className="bg-red-100 text-red-800 px-4 py-2 rounded-full font-bold text-lg">
-                                                    Out of Stock
-                                                </span>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 p-6 md:p-10 lg:p-12 items-start">
+                            
+                            {/* Left Column: Image Gallery & Description */}
+                            <div className="flex flex-col space-y-10 w-full max-w-2xl mx-auto lg:mx-0">
+                                {/* Image Gallery Element */}
+                                <div className="space-y-6">
+                                    <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
+                                        <Image
+                                            src={getAssetUrl(
+                                                selectedImage || product.images[0],
+                                            )}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                        {product.stock <= 0 &&
+                                            !product.is_preorder && (
+                                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+                                                    <span className="bg-rose-100 text-rose-800 px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-rose-200">
+                                                        Out of Stock
+                                                    </span>
+                                                </div>
+                                            )}
+                                    </div>
+                                    {product.images &&
+                                        product.images.length > 1 && (
+                                            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1">
+                                                {product.images.map(
+                                                    (image, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() =>
+                                                                setSelectedImage(
+                                                                    image,
+                                                                )
+                                                            }
+                                                            className={`relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 snap-start shadow-sm ${
+                                                                (selectedImage ||
+                                                                    product
+                                                                        .images[0]) ===
+                                                                image
+                                                                    ? "border-indigo-600 ring-4 ring-indigo-600/20 translate-y-[-2px]"
+                                                                    : "border-slate-200 hover:border-indigo-400 opacity-70 hover:opacity-100"
+                                                            }`}
+                                                        >
+                                                            <img
+                                                                src={getAssetUrl(
+                                                                    image,
+                                                                )}
+                                                                alt={`${product.name} thumbnail ${index + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </button>
+                                                    ),
+                                                )}
                                             </div>
                                         )}
                                 </div>
-                                {product.images &&
-                                    product.images.length > 1 && (
-                                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
-                                            {product.images.map(
-                                                (image, index) => (
-                                                    <button
-                                                        key={index}
-                                                        onClick={() =>
-                                                            setSelectedImage(
-                                                                image,
-                                                            )
-                                                        }
-                                                        className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all snap-start ${
-                                                            (selectedImage ||
-                                                                product
-                                                                    .images[0]) ===
-                                                            image
-                                                                ? "border-indigo-600 ring-2 ring-indigo-100"
-                                                                : "border-transparent hover:border-gray-200"
-                                                        }`}
-                                                    >
-                                                        <img
-                                                            src={getAssetUrl(
-                                                                image,
-                                                            )}
-                                                            alt={`${product.name} ${index + 1}`}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </button>
-                                                ),
-                                            )}
-                                        </div>
-                                    )}
+
+                                {/* Product Description Block (Moved to Left Column) */}
+                                <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex-grow">
+                                    <h3 className="text-xl font-extrabold text-slate-900 mb-5 pb-4 border-b border-slate-100 flex items-center">
+                                        <span className="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                                        Details & Features
+                                    </h3>
+                                    <ExpandableDescription htmlContent={(product.description || "")
+                                            .replace(/\\n/g, "<br/>")
+                                            .replace(/\n/g, "<br/>")} 
+                                    />
+                                </div>
                             </div>
 
-                            {/* Product Info */}
-                            <div className="flex flex-col">
-                                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                                    {product.name}
-                                </h1>
+                            {/* Right Column: Title, Price, Attributes */}
+                            <div className="flex flex-col h-full lg:sticky lg:top-8">
+                                <div className="mb-8">
+                                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight leading-tight">
+                                        {product.name}
+                                    </h1>
 
-                                <div className="flex flex-wrap items-baseline gap-3 mb-6">
-                                    {useMemo(() => {
-                                        if (
-                                            selectedVariationPrice !== null &&
-                                            selectedVariationPrice > 0
-                                        ) {
-                                            return (
-                                                <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                    ৳{selectedVariationPrice}
-                                                </span>
-                                            );
-                                        }
+                                    <div className="flex flex-wrap items-baseline gap-4 mt-6">
+                                        {useMemo(() => {
+                                            if (
+                                                selectedVariationPrice !== null &&
+                                                selectedVariationPrice > 0
+                                            ) {
+                                                return (
+                                                    <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                        ৳{selectedVariationPrice}
+                                                    </span>
+                                                );
+                                            }
 
-                                        // Check if base price is effectively 0 and we have variations with prices
-                                        if (
-                                            (!product.sale_price ||
-                                                Number(product.sale_price) ===
-                                                    0) &&
-                                            hasVariations &&
-                                            product.product_variations
-                                        ) {
-                                            const validPrices =
+                                            // Check if base price is effectively 0 and we have variations with prices
+                                            if (
+                                                (!product.sale_price ||
+                                                    Number(product.sale_price) ===
+                                                        0) &&
+                                                hasVariations &&
                                                 product.product_variations
-                                                    .map((v) =>
-                                                        v.price != null
-                                                            ? parseFloat(
-                                                                  String(
-                                                                      v.price,
-                                                                  ),
-                                                              )
-                                                            : 0,
-                                                    )
-                                                    .filter((p) => p > 0);
+                                            ) {
+                                                const validPrices =
+                                                    product.product_variations
+                                                        .map((v) =>
+                                                            v.price != null
+                                                                ? parseFloat(
+                                                                      String(
+                                                                          v.price,
+                                                                      ),
+                                                                  )
+                                                                : 0,
+                                                        )
+                                                        .filter((p) => p > 0);
 
-                                            if (validPrices.length > 0) {
-                                                const minPrice = Math.min(
-                                                    ...validPrices,
-                                                );
-                                                const maxPrice = Math.max(
-                                                    ...validPrices,
-                                                );
+                                                if (validPrices.length > 0) {
+                                                    const minPrice = Math.min(
+                                                        ...validPrices,
+                                                    );
+                                                    const maxPrice = Math.max(
+                                                        ...validPrices,
+                                                    );
 
-                                                if (minPrice === maxPrice) {
+                                                    if (minPrice === maxPrice) {
+                                                        return (
+                                                            <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                                ৳{minPrice}
+                                                            </span>
+                                                        );
+                                                    }
+
                                                     return (
-                                                        <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                            ৳{minPrice}
+                                                        <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                            ৳{minPrice} - ৳
+                                                            {maxPrice}
                                                         </span>
                                                     );
                                                 }
+                                            }
 
+                                            // Standard logic
+                                            if (
+                                                product.discounted_sale_price !=
+                                                    null &&
+                                                Number(
+                                                    product.discounted_sale_price,
+                                                ) < Number(product.sale_price)
+                                            ) {
                                                 return (
-                                                    <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                        ৳{minPrice} - ৳
-                                                        {maxPrice}
-                                                    </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-4xl font-extrabold text-emerald-600 drop-shadow-sm">
+                                                            ৳
+                                                            {
+                                                                product.discounted_sale_price
+                                                            }
+                                                        </span>
+                                                        <span className="text-2xl text-slate-400 line-through decoration-slate-300 font-medium">
+                                                            ৳{product.sale_price}
+                                                        </span>
+                                                        <span className="text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                            Sale
+                                                        </span>
+                                                    </div>
                                                 );
                                             }
-                                        }
 
-                                        // Standard logic
-                                        if (
-                                            product.discounted_sale_price !=
-                                                null &&
-                                            Number(
-                                                product.discounted_sale_price,
-                                            ) < Number(product.sale_price)
-                                        ) {
                                             return (
-                                                <>
-                                                    <span className="text-xl text-gray-500 line-through">
-                                                        ৳{product.sale_price}
-                                                    </span>
-                                                    <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                        ৳
-                                                        {
-                                                            product.discounted_sale_price
-                                                        }
-                                                    </span>
-                                                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                                                        Sale
-                                                    </span>
-                                                </>
+                                                <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                    ৳{product.sale_price || 0}
+                                                </span>
                                             );
-                                        }
-
-                                        return (
-                                            <span className="text-2xl md:text-3xl font-bold text-indigo-600">
-                                                ৳{product.sale_price || 0}
-                                            </span>
-                                        );
-                                    }, [
-                                        product,
-                                        selectedVariationPrice,
-                                        hasVariations,
-                                    ])}
+                                        }, [
+                                            product,
+                                            selectedVariationPrice,
+                                            hasVariations,
+                                        ])}
+                                    </div>
                                 </div>
 
                                 {/* Variation Selection OR Simple Add to Cart */}
-                                {hasVariations ? (
-                                    <div className="mt-4">
-                                        <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
-                                            Select Options
-                                        </h3>
-                                        <ProductVariationSelector
-                                            product={product}
-                                            onAddToCart={
-                                                handleVariationAddToCart
-                                            }
-                                            onVariationSelect={(
-                                                variation,
-                                                allSelected,
-                                            ) => {
-                                                const imageVariation =
-                                                    Object.values(
-                                                        allSelected,
-                                                    ).find((v) => v.image);
-                                                setSelectedImage(
-                                                    imageVariation?.image ||
-                                                        product.images?.[0] ||
-                                                        null,
-                                                );
-
-                                                // Find if they selected a price-overriding variation
-                                                const priceVariation =
-                                                    Object.values(
-                                                        allSelected,
-                                                    ).find(
-                                                        (v) =>
-                                                            v.price !== null &&
-                                                            v.price !==
-                                                                undefined &&
-                                                            parseFloat(
-                                                                String(v.price),
-                                                            ) > 0,
-                                                    );
-
-                                                if (
-                                                    priceVariation &&
-                                                    priceVariation.price
-                                                ) {
-                                                    setSelectedVariationPrice(
-                                                        parseFloat(
-                                                            String(
-                                                                priceVariation.price,
-                                                            ),
-                                                        ),
-                                                    );
-                                                } else {
-                                                    setSelectedVariationPrice(
-                                                        null,
-                                                    );
+                                <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-[0_2px_15px_rgba(15,23,42,0.02)]">
+                                    {hasVariations ? (
+                                        <div className="space-y-6">
+                                            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                                <h3 className="text-lg font-bold text-slate-900">
+                                                    Select Options
+                                                </h3>
+                                                <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Required</span>
+                                            </div>
+                                            <ProductVariationSelector
+                                                product={product}
+                                                onAddToCart={
+                                                    handleVariationAddToCart
                                                 }
-                                            }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="mt-auto space-y-6">
-                                        <div className="flex flex-col items-center sm:flex-row gap-4 sm:items-center sm:justify-center">
+                                                onVariationSelect={(
+                                                    variation,
+                                                    allSelected,
+                                                ) => {
+                                                    const imageVariation =
+                                                        Object.values(
+                                                            allSelected,
+                                                        ).find((v) => v.image);
+                                                    setSelectedImage(
+                                                        imageVariation?.image ||
+                                                            product.images?.[0] ||
+                                                            null,
+                                                    );
+
+                                                    // Find if they selected a price-overriding variation
+                                                    const priceVariation =
+                                                        Object.values(
+                                                            allSelected,
+                                                        ).find(
+                                                            (v) =>
+                                                                v.price !== null &&
+                                                                v.price !==
+                                                                    undefined &&
+                                                                parseFloat(
+                                                                    String(v.price),
+                                                                ) > 0,
+                                                        );
+
+                                                    if (
+                                                        priceVariation &&
+                                                        priceVariation.price
+                                                    ) {
+                                                        setSelectedVariationPrice(
+                                                            parseFloat(
+                                                                String(
+                                                                    priceVariation.price,
+                                                                ),
+                                                            ),
+                                                        );
+                                                    } else {
+                                                        setSelectedVariationPrice(
+                                                            null,
+                                                        );
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col sm:flex-row gap-5 items-center">
                                             <QuantitySelector
                                                 quantity={quantity}
                                                 onDecrease={() =>
@@ -350,10 +410,10 @@ export default function ProductShow({
                                                 size="lg"
                                             />
                                             <button
-                                                className={`w-full sm:flex-1 px-8 py-3.5 rounded-full font-bold text-sm uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:shadow-md ${
+                                                className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
                                                     isInCart
-                                                        ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200"
-                                                        : "bg-gray-900 hover:bg-gray-800 text-white shadow-gray-200"
+                                                        ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30"
+                                                        : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20"
                                                 }`}
                                                 disabled={
                                                     !product.is_preorder &&
@@ -364,7 +424,7 @@ export default function ProductShow({
                                                 {isInCart ? (
                                                     <>
                                                         <Check
-                                                            size={20}
+                                                            size={22}
                                                             strokeWidth={3}
                                                         />
                                                         Added to Cart
@@ -372,7 +432,8 @@ export default function ProductShow({
                                                 ) : (
                                                     <>
                                                         <ShoppingCart
-                                                            size={20}
+                                                            size={22}
+                                                            strokeWidth={2.5}
                                                         />
                                                         {product.is_preorder &&
                                                         product.stock <= 0
@@ -382,36 +443,50 @@ export default function ProductShow({
                                                 )}
                                             </button>
                                         </div>
+                                    )}
+
+                                    {/* Trust Badges section beneath Add to Cart */}
+                                    <div className="grid grid-cols-3 gap-3 mt-8 pt-8 border-t border-slate-200/60">
+                                        <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
+                                            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                                <ShieldCheck size={20} strokeWidth={2.5} />
+                                            </div>
+                                            <span className="text-[11px] uppercase tracking-wider font-bold text-slate-600">Secure<br/>Checkout</span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
+                                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                                <Truck size={20} strokeWidth={2.5} />
+                                            </div>
+                                            <span className="text-[11px] uppercase tracking-wider font-bold text-slate-600">Fast<br/>Delivery</span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
+                                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                                                <PackageCheck size={20} strokeWidth={2.5} />
+                                            </div>
+                                            <span className="text-[11px] uppercase tracking-wider font-bold text-slate-600">Easy<br/>Returns</span>
+                                        </div>
                                     </div>
-                                )}
-                                <div
-                                    className="prose prose-sm text-gray-600 mb-8 max-w-none"
-                                    dangerouslySetInnerHTML={{
-                                        __html: (product.description || "")
-                                            .replace(/\\n/g, "<br/>")
-                                            .replace(/\n/g, "<br/>"),
-                                    }}
-                                />
+                                </div>
 
                                 {/* Meta Info */}
-                                <div className="border-t border-gray-100 pt-6 mt-8 space-y-3 text-sm text-gray-500">
+                                <div className="flex flex-wrap items-center gap-4 pt-6 mt-8">
                                     {product.sku && (
-                                        <div className="flex justify-between">
-                                            <span>SKU:</span>
-                                            <span className="font-medium text-gray-900">
+                                        <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200/60 shadow-sm">
+                                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">SKU</span>
+                                            <span className="text-slate-900 text-sm font-bold">
                                                 {product.sku}
                                             </span>
                                         </div>
                                     )}
                                     {product.category && (
-                                        <div className="flex justify-between">
-                                            <span>Category: </span>
+                                        <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2.5 rounded-xl border border-indigo-100 shadow-sm">
+                                            <span className="text-indigo-400 text-xs font-bold uppercase tracking-wider">Category</span>
                                             <Link
                                                 href={route(
                                                     "products.category",
                                                     product.category.slug,
                                                 )}
-                                                className="font-medium text-indigo-600 hover:text-indigo-500"
+                                                className="text-indigo-700 hover:text-indigo-800 transition-colors text-sm font-bold"
                                             >
                                                 {product.category.title}
                                             </Link>
@@ -421,6 +496,20 @@ export default function ProductShow({
                             </div>
                         </div>
                     </div>
+
+                    {/* Related/Random Products Slider Section */}
+                    {displayProducts.length > 0 && (
+                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden box-border">
+                            <ProductSlider 
+                                products={displayProducts} 
+                                title={related_products && related_products.length > 0 ? "You Might Also Like" : "More Gorgeous Products"} 
+                            />
+                        </div>
+                    )}
+                    
+                    {/* Newsletter Section */}
+                    <NewsletterSection />
+                    
                 </div>
             </div>
         </CustomerLayout>
