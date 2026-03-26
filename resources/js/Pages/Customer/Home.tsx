@@ -5,6 +5,9 @@ import Hero from "@/Components/Customer/Hero";
 import CategorySlider from "@/Components/Customer/CategorySlider";
 import ProductGrid from "@/Components/Customer/ProductGrid";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
+import FeaturesSection from "@/Components/Customer/FeaturesSection";
+import PromoBanner from "@/Components/Customer/PromoBanner";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 import { Category, Product, PaginatedData } from "@/types";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProductFilters from "@/Components/Customer/ProductFilters";
@@ -93,12 +96,16 @@ const Home: React.FC<HomeProps> = ({
                         filters={filters}
                         currentUrl={currentUrl}
                     />
-                    <div className="space-y-6">
+                    <div className="space-y-8 md:space-y-12">
                         {/* Hero Section */}
                         <Hero
                             bannerImages={bannerImages}
                             bannerActive={bannerActive}
                         />
+
+                        {/* Features Section */}
+                        <FeaturesSection />
+
                         {/* Categories */}
                         <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
                             <CategorySlider
@@ -106,6 +113,10 @@ const Home: React.FC<HomeProps> = ({
                                 activeCategory={category}
                             />
                         </div>
+
+                        {/* Promo Banner */}
+                        <PromoBanner />
+
                         {/* Search / Filters & Products Section */}
                         <div
                             className="rounded-3xl border border-slate-100 bg-white py-4 md:py-6 shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl"
@@ -124,6 +135,9 @@ const Home: React.FC<HomeProps> = ({
                                 />
                             </div>
                         </div>
+                        
+                        {/* Newsletter Section */}
+                        <NewsletterSection />
                     </div>
                 </div>
             </div>
