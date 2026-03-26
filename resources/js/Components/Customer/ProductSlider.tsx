@@ -67,9 +67,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ products, title = "You Mi
                 className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-hide snap-x px-2 md:px-6 pb-8 pt-2"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-                {products.map((product) => (
+                {products.map((product, idx) => (
                     <div key={product.id} className="min-w-[260px] max-w-[280px] sm:min-w-[280px] sm:max-w-[300px] snap-start shrink-0 transition-transform duration-300 hover:-translate-y-2">
-                        <ProductCard product={product} />
+                        <ProductCard product={product} index={idx} />
                     </div>
                 ))}
             </div>

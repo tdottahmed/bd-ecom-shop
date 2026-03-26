@@ -8,11 +8,14 @@ import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "../Ui/QuantitySelector";
 import ProductVariationModal from "./ProductVariationModal";
+import ScrollReveal from "../Ui/ScrollReveal";
+
 interface ProductCardProps {
     product: Product;
+    index?: number;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
     const { cart, addToCart, removeFromCart, updateQuantity } = useCartStore();
 
     const hasVariations =
@@ -73,10 +76,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         }
     };
 
+    const staggerDelays = ['delay-0', 'delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-500'];
+    const delayClass = typeof index === 'number' ? staggerDelays[index % 6] : 'delay-0';
+
     return (
-        <div className="group bg-white rounded-xl border border-gray-300 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative">
-            {/* Badges */}
-            <div className="absolute top-3 left-3 z-10 flex gap-2">
+        <ScrollReveal animation="fade-up" duration="duration-700" delay={delayClass} className="h-full">
+            <div className="group bg-white rounded-xl border border-gray-300 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative">
+                {/* Badges */}
+                <div className="absolute top-3 left-3 z-10 flex gap-2">
                 {product.stock > 0 ? (
                     <span className="bg-green-300 text-green-900 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
                         <Check size={10} strokeWidth={4} />
@@ -250,7 +257,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     onAddToCart={handleVariationAddToCart}
                 />
             )}
-        </div>
+            </div>
+        </ScrollReveal>
     );
 };
 

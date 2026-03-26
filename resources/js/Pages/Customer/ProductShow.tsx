@@ -11,6 +11,7 @@ import QuantitySelector from "@/Components/Ui/QuantitySelector";
 import ProductVariationSelector from "@/Components/Customer/ProductVariationSelector";
 import ProductSlider from "@/Components/Customer/ProductSlider";
 import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import ScrollReveal from "@/Components/Ui/ScrollReveal";
 
 interface ProductShowProps {
     product: Product;
@@ -115,9 +116,10 @@ export default function ProductShow({
                 <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto space-y-12">
                     
                     {/* Main Product Container */}
-                    <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden">
-                        {/* Breadcrumbs */}
-                        <div className="border-b border-slate-100 px-6 py-4 md:px-10 md:py-5">
+                    <ScrollReveal animation="fade-up" delay="delay-0">
+                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden">
+                            {/* Breadcrumbs */}
+                            <div className="border-b border-slate-100 px-6 py-4 md:px-10 md:py-5">
                             <nav className="flex items-center text-sm text-slate-500">
                                 <Link href="/" className="hover:text-indigo-600 transition-colors">
                                     Home
@@ -496,19 +498,24 @@ export default function ProductShow({
                             </div>
                         </div>
                     </div>
+                    </ScrollReveal>
 
                     {/* Related/Random Products Slider Section */}
                     {displayProducts.length > 0 && (
-                        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden box-border">
-                            <ProductSlider 
-                                products={displayProducts} 
-                                title={related_products && related_products.length > 0 ? "You Might Also Like" : "More Gorgeous Products"} 
-                            />
-                        </div>
+                        <ScrollReveal animation="fade-up" delay="delay-100">
+                            <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.04)] border border-slate-100 overflow-hidden box-border">
+                                <ProductSlider 
+                                    products={displayProducts} 
+                                    title={related_products && related_products.length > 0 ? "You Might Also Like" : "More Gorgeous Products"} 
+                                />
+                            </div>
+                        </ScrollReveal>
                     )}
                     
                     {/* Newsletter Section */}
-                    <NewsletterSection />
+                    <ScrollReveal animation="fade-up" delay="delay-150">
+                        <NewsletterSection />
+                    </ScrollReveal>
                     
                 </div>
             </div>

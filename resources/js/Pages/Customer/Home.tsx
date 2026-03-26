@@ -8,6 +8,7 @@ import FilterSidebar from "@/Components/Customer/FilterSidebar";
 import FeaturesSection from "@/Components/Customer/FeaturesSection";
 import PromoBanner from "@/Components/Customer/PromoBanner";
 import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, Product, PaginatedData } from "@/types";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProductFilters from "@/Components/Customer/ProductFilters";
@@ -104,40 +105,50 @@ const Home: React.FC<HomeProps> = ({
                         />
 
                         {/* Features Section */}
-                        <FeaturesSection />
+                        <ScrollReveal animation="fade-up" delay="delay-100">
+                            <FeaturesSection />
+                        </ScrollReveal>
 
                         {/* Categories */}
-                        <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
-                            <CategorySlider
-                                categories={categories}
-                                activeCategory={category}
-                            />
-                        </div>
-
-                        {/* Promo Banner */}
-                        <PromoBanner />
-
-                        {/* Search / Filters & Products Section */}
-                        <div
-                            className="rounded-3xl border border-slate-100 bg-white py-4 md:py-6 shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl"
-                            id="products-section"
-                        >
-                            <ProductFilters
-                                sort={sort}
-                                setSort={setSort}
-                                setIsFilterOpen={setIsFilterOpen}
-                                filters={filters}
-                            />
-                            <div className="mt-3 md:mt-4">
-                                <ProductGrid
-                                    productsByCategory={productsByCategory}
-                                    filters={filters}
+                        <ScrollReveal animation="fade-up" delay="delay-150">
+                            <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
+                                <CategorySlider
+                                    categories={categories}
+                                    activeCategory={category}
                                 />
                             </div>
-                        </div>
+                        </ScrollReveal>
+
+                        {/* Promo Banner */}
+                        <ScrollReveal animation="fade-up" delay="delay-200">
+                            <PromoBanner />
+                        </ScrollReveal>
+
+                        {/* Search / Filters & Products Section */}
+                        <ScrollReveal animation="fade-up" delay="delay-0">
+                            <div
+                                className="rounded-3xl border border-slate-100 bg-white py-4 md:py-6 shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                                id="products-section"
+                            >
+                                <ProductFilters
+                                    sort={sort}
+                                    setSort={setSort}
+                                    setIsFilterOpen={setIsFilterOpen}
+                                    filters={filters}
+                                />
+                                <div className="mt-3 md:mt-4">
+                                    <ProductGrid
+                                        productsByCategory={productsByCategory}
+                                        filters={filters}
+                                    />
+                                </div>
+                            </div>
+                        </ScrollReveal>
                         
                         {/* Newsletter Section */}
-                        <NewsletterSection />
+                        <ScrollReveal animation="fade-up" delay="delay-200">
+                            <NewsletterSection />
+                        </ScrollReveal>
                     </div>
                 </div>
             </div>
