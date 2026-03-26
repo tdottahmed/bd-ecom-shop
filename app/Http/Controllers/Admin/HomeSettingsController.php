@@ -58,7 +58,7 @@ class HomeSettingsController extends Controller
             'promo_badge' => 'nullable|string|max:60',
             'promo_title' => 'nullable|string|max:120',
             'promo_description' => 'nullable|string|max:300',
-            'promo_bg_image' => 'nullable|string|max:255',
+            'promo_bg_image' => 'nullable',
             'promo_primary_cta_text' => 'nullable|string|max:40',
             'promo_secondary_cta_text' => 'nullable|string|max:40',
 
@@ -72,6 +72,19 @@ class HomeSettingsController extends Controller
             'brands_subtitle' => 'nullable|string|max:220',
             'brands_cta_text' => 'nullable|string|max:40',
         ]);
+
+        if ($request->hasFile('promo_bg_image')) {
+            $request->validate([
+                'promo_bg_image' => 'image|max:4096',
+            ]);
+            $data['promo_bg_image'] = $request
+                ->file('promo_bg_image')
+                ->store('settings/home', 'public');
+        } elseif (isset($data['promo_bg_image']) && is_string($data['promo_bg_image'])) {
+            $data['promo_bg_image'] = trim($data['promo_bg_image']);
+        } else {
+            $data['promo_bg_image'] = get_setting('home_promo_bg_image', '');
+        }
 
         Setting::updateOrCreate(['key' => 'home_features_enabled'], ['value' => $data['features_enabled'] ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'home_features_title'], ['value' => $data['features_title'] ?? '']);

@@ -6,6 +6,7 @@ import SecondaryButton from "@/Components/Actions/SecondaryButton";
 import TextInput from "@/Components/Ui/TextInput";
 import TextArea from "@/Components/Ui/TextArea";
 import Checkbox from "@/Components/Ui/Checkbox";
+import ImageUploader from "@/Components/Ui/ImageUploader";
 import { Head, useForm } from "@inertiajs/react";
 import React from "react";
 import { Trash2, Plus } from "lucide-react";
@@ -27,7 +28,7 @@ type HomeSettings = {
     promo_badge: string;
     promo_title: string;
     promo_description: string;
-    promo_bg_image: string;
+    promo_bg_image: string | File | null;
     promo_primary_cta_text: string;
     promo_secondary_cta_text: string;
 
@@ -92,6 +93,7 @@ export default function Index({ settings }: { settings: HomeSettings }) {
         e.preventDefault();
         post(route("admin.home-settings.update"), {
             preserveScroll: true,
+            forceFormData: true,
         });
     };
 
@@ -99,7 +101,7 @@ export default function Index({ settings }: { settings: HomeSettings }) {
         <Master title="Home Settings" head={<Header title="Home Settings" showUserMenu={true} />}>
             <Head title="Home Settings" />
 
-            <form onSubmit={onSubmit} className="p-2 md:p-6 max-w-6xl mx-auto space-y-6">
+            <form onSubmit={onSubmit} className="p-2 md:p-6 max-w-8xl mx-auto space-y-6">
                 <Card>
                     <CardHeader>
                         <CardTitle>Home page sections</CardTitle>
@@ -310,13 +312,33 @@ export default function Index({ settings }: { settings: HomeSettings }) {
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-gray-300">Background image</label>
-                                <TextInput
-                                    id="promo_bg_image"
-                                    name="promo_bg_image"
-                                    value={data.promo_bg_image}
-                                    onChange={(e) => setData("promo_bg_image", e.target.value)}
-                                    placeholder="/images/banner-1.jpg or https://..."
+                                <ImageUploader
+                                    label="Background image"
+                                    inputId="promo_bg_image"
+                                    multiple={false}
+                                    maxFiles={1}
+                                    value={
+                                        data.promo_bg_image instanceof File
+                                            ? data.promo_bg_image
+                                            : null
+                                    }
+                                    existingImages={
+                                        typeof data.promo_bg_image === "string" &&
+                                        data.promo_bg_image.trim() !== ""
+                                            ? [data.promo_bg_image]
+                                            : []
+                                    }
+                                    onChange={(file) =>
+                                        setData(
+                                            "promo_bg_image",
+                                            file instanceof File ? file : null,
+                                        )
+                                    }
+                                    onRemoveExisting={() =>
+                                        setData("promo_bg_image", "")
+                                    }
+                                    accept="image/*"
+                                    error={errors.promo_bg_image}
                                 />
                             </div>
                         </div>

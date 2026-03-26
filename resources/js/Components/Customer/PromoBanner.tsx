@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRight, Sparkles, Clock, ShoppingBag } from "lucide-react";
 import { router } from "@inertiajs/react";
+import { getAssetUrl } from "@/Utils/helpers";
 
 type PromoBannerProps = {
     enabled?: boolean;
@@ -22,6 +23,19 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
     secondaryCtaText = "Explore Offers",
 }) => {
     if (!enabled) return null;
+    const resolvedBgImage = (() => {
+        const raw = String(bgImage ?? "").trim();
+        if (!raw) return "/images/banner-1.jpg";
+
+        // Keep public theme assets as direct URLs.
+        if (raw.startsWith("/images/") || raw.startsWith("images/")) {
+            return raw.startsWith("/") ? raw : `/${raw}`;
+        }
+
+        // Resolve uploaded/remote paths via helper.
+        return getAssetUrl(raw);
+    })();
+
     // Meaningful e-commerce element: Countdown Timer
     const [timeLeft, setTimeLeft] = useState({
         days: 2,
@@ -85,7 +99,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
             {/* Background Image with Overlay */}
             <div 
                 className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
-                style={{ backgroundImage: `url('${bgImage}')` }}
+                style={{ backgroundImage: `url('${resolvedBgImage}')` }}
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 md:via-slate-900/80 to-slate-900/40 lg:to-transparent"></div>
             </div>
