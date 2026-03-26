@@ -4,6 +4,7 @@ import { Head, Link } from "@inertiajs/react";
 import Card from "@/Components/Ui/Card";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 
 type Brand = {
     id: number;
@@ -57,6 +58,9 @@ export default function Brands({ brands }: Props) {
                         </Link>
                     ))}
                 </div>
+            </div>
+            <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                <NewsletterSection />
             </div>
         </CustomerLayout>
     );

@@ -1,6 +1,7 @@
 import React from "react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import { Head } from "@inertiajs/react";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 
 type Page = {
     title: string;
@@ -15,28 +16,30 @@ interface Props {
 export default function PageView({ page }: Props) {
     return (
         <CustomerLayout>
-        <Head title= { page.title } />
+            <Head title={page.title} />
 
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12" >
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10" >
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900" >
-                    { page.title }
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                        {page.title}
                     </h1>
 
-                    < div className = "prose prose-slate max-w-none mt-6" >
-                    {
-                        page.content ? (
+                    <div className="prose prose-slate max-w-none mt-6">
+                        {page.content ? (
                             <div
-                                dangerouslySetInnerHTML= {{ __html: page.content }
-}
+                                dangerouslySetInnerHTML={{
+                                    __html: page.content,
+                                }}
                             />
                         ) : (
-    <p>This page has no content yet.</p>
+                            <p>This page has no content yet.</p>
                         )}
-</div>
-    </div>
-    </div>
-    </CustomerLayout>
+                    </div>
+                </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                <NewsletterSection />
+            </div>
+        </CustomerLayout>
     );
 }
-

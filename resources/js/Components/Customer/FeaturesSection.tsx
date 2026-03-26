@@ -82,7 +82,7 @@ const FeaturesSection: React.FC<{
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                 {safeItems.map((feature, index) => {
                     const Icon =
                         (feature.icon && ICONS[feature.icon]) || Truck;
@@ -92,20 +92,20 @@ const FeaturesSection: React.FC<{
                     return (
                         <div
                             key={index}
-                            className="group flex items-center p-5 sm:p-6 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-all duration-300 ease-out hover:-translate-y-1"
+                            className="group flex flex-col sm:flex-row items-center p-4 sm:p-5 lg:p-6 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-all duration-300 ease-out hover:-translate-y-1 text-center sm:text-left"
                         >
                             <div
-                                className={`flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center ${colors.bgColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
+                                className={`flex-shrink-0 w-12 h-12 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center ${colors.bgColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
                             >
                                 <Icon
-                                    className={`w-7 h-7 ${colors.iconColor}`}
+                                    className={`w-6 h-6 sm:w-6 sm:h-6 lg:w-7 lg:h-7 ${colors.iconColor}`}
                                 />
                             </div>
-                            <div className="ml-4">
-                                <h3 className="text-base font-semibold text-slate-800">
+                            <div className="mt-3 sm:mt-0 sm:ml-4 flex-1">
+                                <h3 className="text-sm font-semibold text-slate-800 lg:text-base leading-tight">
                                     {feature.title || "Feature"}
                                 </h3>
-                                <p className="text-sm text-slate-500 mt-1">
+                                <p className="text-[11px] sm:text-xs lg:text-sm text-slate-500 mt-1 md:mt-1.5 leading-snug">
                                     {feature.description || ""}
                                 </p>
                             </div>

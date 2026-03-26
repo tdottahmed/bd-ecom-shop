@@ -7,6 +7,7 @@ import ProductFilters from "@/Components/Customer/ProductFilters";
 import Pagination from "@/Components/Ui/Pagination";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, PaginatedData, Product } from "@/types";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 
 interface ProductListProps {
     products: PaginatedData<Product>;
@@ -163,6 +164,9 @@ const ProductList: React.FC<ProductListProps> = ({
                         </div>
                     </ScrollReveal>
                 </div>
+            </div>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                <NewsletterSection />
             </div>
         </CustomerLayout>
     );

@@ -4,6 +4,7 @@ import { Head, Link } from "@inertiajs/react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
 import ProductCard from "@/Components/Customer/ProductCard";
+import NewsletterSection from "@/Components/Customer/NewsletterSection";
 
 type Brand = {
     id: number;
@@ -66,14 +67,18 @@ export default function BrandPage({ brand, products }: Props) {
                                             ? "bg-gray-900 text-white border-gray-900"
                                             : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
                                     } ${!l.url ? "opacity-50 pointer-events-none" : ""}`}
-                                    dangerouslySetInnerHTML={{ __html: l.label }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: l.label,
+                                    }}
                                 />
                             ))}
                         </div>
                     </div>
                 )}
             </div>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                <NewsletterSection />
+            </div>
         </CustomerLayout>
     );
 }
-
