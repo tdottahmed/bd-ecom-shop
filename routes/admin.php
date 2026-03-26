@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\HomeSettingsController;
+use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -56,6 +57,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
   Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
   Route::resource('pages', PageController::class)->except(['show']);
+  Route::get('newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index'])->name('newsletter-subscriptions.index');
+  Route::post('newsletter-subscriptions/{newsletterSubscription}/toggle-status', [NewsletterSubscriptionController::class, 'toggleStatus'])->name('newsletter-subscriptions.toggle-status');
+  Route::delete('newsletter-subscriptions/{newsletterSubscription}', [NewsletterSubscriptionController::class, 'destroy'])->name('newsletter-subscriptions.destroy');
 
   // Order Management
   Route::get('orders/bulk-details', [OrderController::class, 'bulkDetails'])->name('orders.bulk-details');

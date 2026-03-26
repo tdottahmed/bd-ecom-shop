@@ -13,7 +13,11 @@ interface ProductFiltersProps {
         in_stock?: string;
         is_preorder?: string;
         stock_out?: string;
+        category_id?: string;
+        brand_id?: string;
     };
+    categories?: { id: number; title: string; slug: string }[];
+    brands?: { id: number; title: string; slug: string }[];
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -21,6 +25,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     setSort,
     setIsFilterOpen,
     filters,
+    categories = [],
+    brands = [],
 }) => {
     return (
         <div className="bg-white border-b border-gray-200">
@@ -32,29 +38,19 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     {/* Sort and Filter Controls */}
                     <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
                         {/* Sort Dropdown */}
-                        <div className="relative hidden sm:block flex-1 sm:flex-initial min-w-[160px]">
+                        <div className="relative hidden sm:block flex-1 sm:flex-initial min-w-[150px]">
                             <select
                                 value={sort}
                                 onChange={(e) => setSort(e.target.value)}
                                 className="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 pr-8"
                             >
                                 <option value="latest"> Latest </option>
-                                <option value="price_low">
-                                    Price: Low to High
-                                </option>
-                                <option value="price_high">
-                                    Price: High to Low
-                                </option>
+                                <option value="price_low">Price: Low to High</option>
+                                <option value="price_high">Price: High to Low</option>
                                 <option value="name"> Name: A - Z </option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg
-                                    className="fill-current h-4 w-4"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                </svg>
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
 
@@ -77,6 +73,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     filters.min_price ||
                     filters.max_price ||
                     filters.in_stock ||
+                    filters.category_id ||
+                    filters.brand_id ||
                     (filters.sort && filters.sort !== "latest")) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                         {filters.search && (
@@ -97,6 +95,16 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                         {filters.in_stock === "true" && (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
                                 In Stock Only
+                            </span>
+                        )}
+                        {filters.category_id && categories.length > 0 && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                                Category: {categories.find(c => c.id.toString() === filters.category_id)?.title || filters.category_id}
+                            </span>
+                        )}
+                        {filters.brand_id && brands.length > 0 && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                                Brand: {brands.find(b => b.id.toString() === filters.brand_id)?.title || filters.brand_id}
                             </span>
                         )}
                         {filters.sort && filters.sort !== "latest" && (

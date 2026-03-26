@@ -15,106 +15,144 @@ const NewsletterSection: React.FC<NewsletterSectionProps> = ({
     placeholder = "Enter your best email...",
 }) => {
     const [email, setEmail] = useState("");
-    const [status, setStatus] = useState<"idle" | "loading" | "success">(
-        "idle",
-    );
+    const [status, setStatus] = useState<
+        "idle" | "loading" | "success" | "error"
+    >("idle");
+    const [message, setMessage] = useState("");
 
     if (!enabled) return null;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email.trim()) return;
 
-        setStatus("loading");
-        setTimeout(() => {
+        try {
+            setStatus("loading");
+            setMessage("");
+
+            const response = await fetch(route("newsletter.subscribe"), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-TOKEN":
+                        (
+                            document.querySelector(
+                                'meta[name="csrf-token"]',
+                            ) as HTMLMetaElement | null
+                        )?.content || "",
+                },
+                body: JSON.stringify({ email: email.trim() }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Subscription failed.");
+            }
+
             setStatus("success");
+            setMessage("You're officially on the list!");
             setTimeout(() => {
                 setStatus("idle");
                 setEmail("");
-            }, 4000);
-        }, 1500);
+                setMessage("");
+            }, 3500);
+        } catch {
+            setStatus("error");
+            setMessage("Could not subscribe right now. Please try again.");
+        }
     };
 
     return (
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 text-white shadow-2xl py-16 px-6 sm:px-12 md:py-24 text-center group isolation-auto">
-            {/* Cinematic Background Elements */}
-            <div className="absolute top-0 left-1/4 w-[30rem] h-[30rem] bg-indigo-500/20 rounded-full mix-blend-screen filter blur-[100px] opacity-60 -translate-y-1/2 transition-opacity duration-1000 group-hover:opacity-100 animate-[pulse_8s_ease-in-out_infinite]" />
-            <div className="absolute bottom-0 right-1/4 w-[30rem] h-[30rem] bg-fuchsia-500/20 rounded-full mix-blend-screen filter blur-[100px] opacity-60 translate-y-1/2 transition-opacity duration-1000 group-hover:opacity-100" />
+        <div className="relative overflow-hidden rounded-2xl bg-slate-900 text-white shadow-[0_20px_50px_rgba(15,23,42,0.2)] px-4 py-5 sm:px-6 sm:py-6 group">
+            {/* Compact glow accents */}
+            <div className="pointer-events-none absolute -top-24 -left-20 h-48 w-48 rounded-full bg-indigo-500/25 blur-3xl transition-opacity duration-500 group-hover:opacity-90" />
+            <div className="pointer-events-none absolute -bottom-20 -right-20 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl transition-opacity duration-500 group-hover:opacity-90" />
 
-            {/* Subtle Grid Overlay */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTAgMGgyeDRWMGgtNHptMCAwaDR2NEgwdi00eiIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAxKSIvPjwvc3ZnPg==')] opacity-[0.2]" />
-
-            <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-                {/* Icon */}
-                <div className="w-20 h-20 mb-10 relative">
-                    <div className="absolute inset-0 bg-indigo-500/30 rounded-full blur-xl animate-pulse" />
-                    <div className="relative w-full h-full bg-slate-800/80 backdrop-blur-md rounded-[1.5rem] border border-white/10 shadow-xl flex items-center justify-center -rotate-6 transition-all duration-500 hover:rotate-6 hover:scale-110">
-                        <Mail className="w-10 h-10 text-indigo-400" />
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+                {/* Left: compact content */}
+                <div className="flex items-start gap-3 min-w-0 lg:w-1/2">
+                    <div className="h-11 w-11 shrink-0 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-indigo-300" />
+                    </div>
+                    <div className="min-w-0">
+                        <h2 className="text-xl sm:text-2xl font-bold leading-tight">
+                            {title}
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-300 line-clamp-2">
+                            {description}
+                        </p>
                     </div>
                 </div>
 
-                <h2 className="text-3xl md:text-5xl font-extrabold mb-5 tracking-tight">
-                    {title}
-                </h2>
-                <p className="text-slate-300 text-base md:text-xl mb-12 max-w-lg mx-auto font-light leading-relaxed">
-                    {description}
-                </p>
-
-                <div className="w-full max-w-md mx-auto relative h-[64px] transition-all duration-500">
-                    {status === "success" ? (
-                        <div className="absolute inset-0 flex items-center justify-center gap-3 bg-emerald-500/20 border border-emerald-500/50 rounded-full text-emerald-400 font-bold px-6 text-lg animate-[fadeInDown_0.5s_ease-out]">
-                            <Sparkles className="w-6 h-6" />
-                            <span>You're officially on the list!</span>
-                        </div>
-                    ) : (
-                        <form
-                            onSubmit={handleSubmit}
-                            className="absolute inset-0 w-full animate-[fadeInUp_0.5s_ease-out]"
-                        >
-                            <div className="relative flex items-center h-full">
-                                <input
-                                    id="newsletter_email"
-                                    name="newsletter_email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder={placeholder}
-                                    autoComplete="email"
-                                    className="w-full h-full pl-6 pr-[120px] rounded-full border border-white/10 bg-white/5 backdrop-blur-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:bg-white/10 transition-all duration-300 shadow-inner"
-                                    required
-                                    disabled={status === "loading"}
-                                />
-                                <button
-                                    type="submit"
-                                    className={`absolute right-1.5 top-1.5 bottom-1.5 px-6 rounded-full font-bold text-sm tracking-wide flex items-center justify-center transition-all duration-300 ${
-                                        status === "loading"
-                                            ? "bg-indigo-500/50 text-white cursor-not-allowed"
-                                            : "bg-white text-slate-900 hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                                    }`}
-                                    disabled={status === "loading" || !email.trim()}
+                {/* Right: compact form/status */}
+                <div className="lg:w-1/2">
+                    <div className="w-full relative h-[50px]">
+                        {status === "success" || status === "error" ? (
+                            <div
+                                className={`absolute inset-0 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold px-4 animate-[fadeInDown_0.4s_ease-out] ${
+                                    status === "error"
+                                        ? "bg-rose-500/20 border border-rose-500/50 text-rose-300"
+                                        : "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"
+                                }`}
+                            >
+                                {status === "success" && (
+                                    <Sparkles className="w-4 h-4" />
+                                )}
+                                <span
+                                    className={
+                                        status === "error"
+                                            ? "text-rose-300"
+                                            : undefined
+                                    }
                                 >
-                                    {status === "loading" ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>
-                                            <span className="hidden sm:inline-block mr-2 uppercase text-[12px]">
-                                                Subscribe
-                                            </span>
-                                            <ArrowRight className="w-4 h-4 hidden sm:inline-block" />
-                                            <span className="sm:hidden uppercase text-[12px]">
-                                                Sub
-                                            </span>
-                                        </>
-                                    )}
-                                </button>
+                                    {message}
+                                </span>
                             </div>
-                        </form>
-                    )}
-                </div>
+                        ) : (
+                            <form
+                                onSubmit={handleSubmit}
+                                className="absolute inset-0 w-full animate-[fadeInUp_0.4s_ease-out]"
+                            >
+                                <div className="relative flex items-center h-full">
+                                    <input
+                                        id="newsletter_email"
+                                        name="newsletter_email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder={placeholder}
+                                        autoComplete="email"
+                                        className="w-full h-full pl-4 pr-[115px] rounded-xl border border-white/15 bg-white/10 backdrop-blur-xl text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:bg-white/15 transition-all duration-300 text-sm"
+                                        required
+                                        disabled={status === "loading"}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className={`absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-lg font-semibold text-xs tracking-wide flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                                            status === "loading"
+                                                ? "bg-indigo-500/50 text-white cursor-not-allowed"
+                                                : "bg-white text-slate-900 hover:bg-slate-100 active:scale-[0.98] shadow"
+                                        }`}
+                                        disabled={status === "loading" || !email.trim()}
+                                    >
+                                        {status === "loading" ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <span className="uppercase">Subscribe</span>
+                                                <ArrowRight className="w-3.5 h-3.5" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
 
-                <p className="text-slate-400/80 text-xs md:text-sm mt-8 font-medium tracking-wide">
-                    We guard your inbox passionately. Unsubscribe anytime.
-                </p>
+                    <p className="mt-2 text-[11px] text-slate-400">
+                        No spam. Unsubscribe anytime.
+                    </p>
+                </div>
             </div>
 
             <style>{`

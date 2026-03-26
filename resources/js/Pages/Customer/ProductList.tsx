@@ -19,13 +19,19 @@ interface ProductListProps {
         in_stock?: string;
         is_preorder?: string;
         stock_out?: string;
+        category_id?: string;
+        brand_id?: string;
     };
+    categories?: Category[];
+    brands?: { id: number; title: string; slug: string }[];
 }
 
 const ProductList: React.FC<ProductListProps> = ({
     products,
     category,
     filters = {},
+    categories = [],
+    brands = [],
 }) => {
     const title = category
         ? `${category.title} - Paikari World`
@@ -66,6 +72,22 @@ const ProductList: React.FC<ProductListProps> = ({
         ? route("products.category", category.slug)
         : route("products.index");
 
+    const handleApplyFilters = (params: Record<string, string>) => {
+        let targetUrl = currentUrl;
+        
+        if (params.category_id) {
+            const selectedCat = categories?.find(c => c.id.toString() === params.category_id);
+            if (selectedCat) {
+                targetUrl = route("products.category", selectedCat.slug);
+                delete params.category_id;
+            }
+        } else if (currentUrl.includes('/category/')) {
+            targetUrl = route("products.index");
+        }
+        
+        router.visit(targetUrl, { data: params, preserveState: true, preserveScroll: true });
+    };
+
     return (
         <CustomerLayout>
             <Head title={title} />
@@ -82,7 +104,9 @@ const ProductList: React.FC<ProductListProps> = ({
                     isOpen={isFilterOpen}
                     onClose={() => setIsFilterOpen(false)}
                     filters={filters}
-                    currentUrl={currentUrl}
+                    categories={categories}
+                    brands={brands}
+                    onApply={handleApplyFilters}
                 />
 
                 <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-16 pt-8 sm:px-6 lg:px-8">

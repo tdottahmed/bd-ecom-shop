@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Page;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -65,6 +66,12 @@ class HandleInertiaRequests extends Middleware
                 'youtube' => get_setting('social_youtube'),
                 'tiktok' => get_setting('social_tiktok'),
             ],
+            'footerPages' => fn() => Page::query()
+                ->where('is_published', true)
+                ->whereNotIn('slug', ['about-us', 'contact-us'])
+                ->orderBy('title')
+                ->select('title', 'slug')
+                ->get(),
         ];
     }
 }

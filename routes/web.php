@@ -11,6 +11,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\NewsletterSubscriptionController;
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');
@@ -29,6 +30,7 @@ Route::get('api/categories/{category}/products', [CustomerController::class, 'ca
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
+Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

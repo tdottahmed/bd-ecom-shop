@@ -80,6 +80,7 @@ class CustomerController extends Controller
     {
         $websiteSettings = \App\Models\WebsiteSetting::first();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
         $bannerSettings = $this->getBannerSettings();
 
         $productsByCategory = $categories->map(function (Category $cat) use ($request) {
@@ -92,6 +93,7 @@ class CustomerController extends Controller
         return Inertia::render('Customer/Home', [
             'productsByCategory' => $productsByCategory,
             'categories' => $categories,
+            'brands' => $brands,
             'website_settings' => $websiteSettings,
             'bannerImages' => $bannerSettings["bannerImages"],
             'bannerActive' => $bannerSettings["bannerActive"],
@@ -111,10 +113,15 @@ class CustomerController extends Controller
     public function category(Request $request, string $category)
     {
         $categoryModel = Category::where('slug', $category)->firstOrFail();
+        $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
+        
         $products = $this->filterProducts($request, $categoryModel->id, 16);
 
         return Inertia::render('Customer/ProductList', [
             'category' => $categoryModel,
+            'categories' => $categories,
+            'brands' => $brands,
             'products' => $products,
             'filters' => [
                 'search' => $request->input('search'),
@@ -124,15 +131,22 @@ class CustomerController extends Controller
                 'in_stock' => $request->input('in_stock'),
                 'stock_out' => $request->input('stock_out'),
                 'is_preorder' => $request->input('is_preorder'),
+                'category_id' => $request->input('category_id'),
+                'brand_id' => $request->input('brand_id'),
             ],
         ]);
     }
 
     public function products(Request $request)
     {
+        $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
+        $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
+
         $products = $this->filterProducts($request, null, 16);
 
         return Inertia::render('Customer/ProductList', [
+            'categories' => $categories,
+            'brands' => $brands,
             'products' => $products,
             'filters' => [
                 'search' => $request->input('search'),
@@ -142,6 +156,8 @@ class CustomerController extends Controller
                 'in_stock' => $request->input('in_stock'),
                 'stock_out' => $request->input('stock_out'),
                 'is_preorder' => $request->input('is_preorder'),
+                'category_id' => $request->input('category_id'),
+                'brand_id' => $request->input('brand_id'),
             ],
         ]);
     }
@@ -154,6 +170,8 @@ class CustomerController extends Controller
         // Filter by category if provided
         if ($categoryId) {
             $query->where('category_id', $categoryId);
+        } elseif ($requestCatId = $request->input('category_id')) {
+            $query->where('category_id', $requestCatId);
         }
 
         // Filter by brand if provided

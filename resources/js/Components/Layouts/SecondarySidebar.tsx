@@ -14,6 +14,7 @@ import {
     Tag,
     Search,
     Sparkles,
+    Mail,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -109,6 +110,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <FileText size={18} />,
         route: "admin.pages.index",
         urlPattern: "/admin/pages",
+    },
+    {
+        key: "newsletter_subscriptions",
+        label: "Newsletter",
+        icon: <Mail size={18} />,
+        route: "admin.newsletter-subscriptions.index",
+        urlPattern: "/admin/newsletter-subscriptions",
     },
 ];
 

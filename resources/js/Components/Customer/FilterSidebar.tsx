@@ -11,20 +11,28 @@ interface FilterSidebarProps {
         max_price?: string;
         sort?: string;
         in_stock?: string;
+        category_id?: string;
+        brand_id?: string;
     };
-    currentUrl: string;
+    categories?: { id: number; title: string; slug: string }[];
+    brands?: { id: number; title: string; slug: string }[];
+    onApply: (params: Record<string, string>) => void;
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
     isOpen,
     onClose,
     filters,
-    currentUrl,
+    categories = [],
+    brands = [],
+    onApply,
 }) => {
     const [minPrice, setMinPrice] = useState(filters.min_price || "");
     const [maxPrice, setMaxPrice] = useState(filters.max_price || "");
     const [sort, setSort] = useState(filters.sort || "latest");
     const [inStock, setInStock] = useState(filters.in_stock === "true");
+    const [categoryId, setCategoryId] = useState(filters.category_id || "");
+    const [brandId, setBrandId] = useState(filters.brand_id || "");
 
     const applyFilters = () => {
         const params: Record<string, string> = {};
@@ -34,13 +42,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         if (maxPrice) params.max_price = maxPrice;
         if (sort !== "latest") params.sort = sort;
         if (inStock) params.in_stock = "true";
+        if (categoryId) params.category_id = categoryId;
+        if (brandId) params.brand_id = brandId;
 
-        router.visit(currentUrl, {
-            data: params,
-            preserveState: true,
-            preserveScroll: true,
-        });
-
+        onApply(params);
         onClose();
     };
 
@@ -49,13 +54,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         setMaxPrice("");
         setSort("latest");
         setInStock(false);
+        setCategoryId("");
+        setBrandId("");
 
-        router.visit(currentUrl, {
-            data: filters.search ? { search: filters.search } : {},
-            preserveState: true,
-            preserveScroll: true,
-        });
-
+        onApply(filters.search ? { search: filters.search } : {});
         onClose();
     };
 

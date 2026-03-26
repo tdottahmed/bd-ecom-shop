@@ -34,7 +34,10 @@ interface HomeProps {
         in_stock?: string;
         is_preorder?: string;
         stock_out?: string;
+        category_id?: string;
+        brand_id?: string;
     };
+    brands?: { id: number; title: string; slug: string }[];
 }
 
 const Home: React.FC<HomeProps> = ({
@@ -45,6 +48,7 @@ const Home: React.FC<HomeProps> = ({
     homeContent,
     filters = {},
     category,
+    brands = [],
 }) => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [sort, setSort] = useState(filters.sort || "latest");
@@ -82,6 +86,22 @@ const Home: React.FC<HomeProps> = ({
         ? route("products.category", category.slug)
         : route("home");
 
+    const handleApplyFilters = (params: Record<string, string>) => {
+        let targetUrl = currentUrl;
+        
+        if (params.category_id) {
+            const selectedCat = categories?.find(c => c.id.toString() === params.category_id);
+            if (selectedCat) {
+                targetUrl = route("products.category", selectedCat.slug);
+                delete params.category_id;
+            }
+        } else if (currentUrl.includes('/category/')) {
+            targetUrl = route("products.index");
+        }
+        
+        router.visit(targetUrl, { data: params, preserveState: true, preserveScroll: true });
+    };
+
     return (
         <CustomerLayout>
             <Head title={category ? category.title : "Home"} />
@@ -98,7 +118,9 @@ const Home: React.FC<HomeProps> = ({
                         isOpen={isFilterOpen}
                         onClose={() => setIsFilterOpen(false)}
                         filters={filters}
-                        currentUrl={currentUrl}
+                        categories={categories}
+                        brands={brands}
+                        onApply={handleApplyFilters}
                     />
                     <div className="space-y-8 md:space-y-12">
                         {/* Hero Section */}
@@ -124,8 +146,12 @@ const Home: React.FC<HomeProps> = ({
                                 title={homeContent?.promo?.title}
                                 description={homeContent?.promo?.description}
                                 bgImage={homeContent?.promo?.bgImage}
-                                primaryCtaText={homeContent?.promo?.primaryCtaText}
-                                secondaryCtaText={homeContent?.promo?.secondaryCtaText}
+                                primaryCtaText={
+                                    homeContent?.promo?.primaryCtaText
+                                }
+                                secondaryCtaText={
+                                    homeContent?.promo?.secondaryCtaText
+                                }
                             />
                         </ScrollReveal>
 
@@ -159,24 +185,27 @@ const Home: React.FC<HomeProps> = ({
                                 </div>
                             </div>
                         </ScrollReveal>
-                        
-                        {/* Newsletter Section */}
-                        <ScrollReveal animation="fade-up" delay="delay-200">
-                            <NewsletterSection
-                                enabled={homeContent?.newsletter?.enabled}
-                                title={homeContent?.newsletter?.title}
-                                description={homeContent?.newsletter?.description}
-                                placeholder={homeContent?.newsletter?.placeholder}
-                            />
-                        </ScrollReveal>
 
-                         {/* Features Section */}
+                        {/* Features Section */}
                         <ScrollReveal animation="fade-up" delay="delay-100">
                             <FeaturesSection
                                 enabled={homeContent?.features?.enabled}
                                 title={homeContent?.features?.title}
                                 subtitle={homeContent?.features?.subtitle}
                                 items={homeContent?.features?.items}
+                            />
+                        </ScrollReveal>
+                        {/* Newsletter Section */}
+                        <ScrollReveal animation="fade-up" delay="delay-200">
+                            <NewsletterSection
+                                enabled={homeContent?.newsletter?.enabled}
+                                title={homeContent?.newsletter?.title}
+                                description={
+                                    homeContent?.newsletter?.description
+                                }
+                                placeholder={
+                                    homeContent?.newsletter?.placeholder
+                                }
                             />
                         </ScrollReveal>
                     </div>
