@@ -40,6 +40,42 @@ class CustomerController extends Controller
         ];
     }
 
+    private function getHomeContent(): array
+    {
+        $featuresItems = json_decode(get_setting('home_features_items', '[]'), true);
+        if (!is_array($featuresItems)) $featuresItems = [];
+
+        return [
+            'features' => [
+                'enabled' => get_setting('home_features_enabled', '1') === '1',
+                'title' => get_setting('home_features_title', 'Why shop with us'),
+                'subtitle' => get_setting('home_features_subtitle', 'Fast delivery, secure payments, and great support.'),
+                'items' => $featuresItems,
+            ],
+            'promo' => [
+                'enabled' => get_setting('home_promo_enabled', '1') === '1',
+                'badge' => get_setting('home_promo_badge', 'Premium Collection'),
+                'title' => get_setting('home_promo_title', 'Elevate Your Lifestyle'),
+                'description' => get_setting('home_promo_description', 'Discover our exclusive range of high-quality products and the best deals of the season.'),
+                'bgImage' => get_setting('home_promo_bg_image', '/images/banner-1.jpg'),
+                'primaryCtaText' => get_setting('home_promo_primary_cta_text', 'Shop Collection'),
+                'secondaryCtaText' => get_setting('home_promo_secondary_cta_text', 'Explore Offers'),
+            ],
+            'newsletter' => [
+                'enabled' => get_setting('home_newsletter_enabled', '1') === '1',
+                'title' => get_setting('home_newsletter_title', 'Join the Inner Circle'),
+                'description' => get_setting('home_newsletter_description', 'Subscribe for exclusive early access to major sales, new collection drops, and styling tips.'),
+                'placeholder' => get_setting('home_newsletter_placeholder', 'Enter your best email...'),
+            ],
+            'brands' => [
+                'enabled' => get_setting('home_brands_enabled', '1') === '1',
+                'title' => get_setting('home_brands_title', 'Shop by Brand'),
+                'subtitle' => get_setting('home_brands_subtitle', 'Discover authentic products from brands you already love.'),
+                'ctaText' => get_setting('home_brands_cta_text', 'View all brands'),
+            ],
+        ];
+    }
+
     public function index(Request $request)
     {
         $websiteSettings = \App\Models\WebsiteSetting::first();
@@ -59,6 +95,7 @@ class CustomerController extends Controller
             'website_settings' => $websiteSettings,
             'bannerImages' => $bannerSettings["bannerImages"],
             'bannerActive' => $bannerSettings["bannerActive"],
+            'homeContent' => $this->getHomeContent(),
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),
@@ -74,24 +111,11 @@ class CustomerController extends Controller
     public function category(Request $request, string $category)
     {
         $categoryModel = Category::where('slug', $category)->firstOrFail();
-        $products = $this->filterProducts($request, $categoryModel->id, 8);
+        $products = $this->filterProducts($request, $categoryModel->id, 16);
 
-        $websiteSettings = \App\Models\WebsiteSetting::first();
-        $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
-        $bannerSettings = $this->getBannerSettings();
-
-        $productsByCategory = [[
+        return Inertia::render('Customer/ProductList', [
             'category' => $categoryModel,
             'products' => $products,
-        ]];
-
-        return Inertia::render('Customer/Home', [
-            'category' => $categoryModel,
-            'productsByCategory' => $productsByCategory,
-            'categories' => $categories,
-            'website_settings' => $websiteSettings,
-            'bannerImages' => $bannerSettings["bannerImages"],
-            'bannerActive' => $bannerSettings["bannerActive"],
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),
@@ -106,23 +130,10 @@ class CustomerController extends Controller
 
     public function products(Request $request)
     {
-        $websiteSettings = \App\Models\WebsiteSetting::first();
-        $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
-        $bannerSettings = $this->getBannerSettings();
+        $products = $this->filterProducts($request, null, 16);
 
-        $productsByCategory = $categories->map(function (Category $cat) use ($request) {
-            return [
-                'category' => $cat,
-                'products' => $this->filterProducts($request, $cat->id, 8),
-            ];
-        });
-
-        return Inertia::render('Customer/Home', [
-            'productsByCategory' => $productsByCategory,
-            'categories' => $categories,
-            'website_settings' => $websiteSettings,
-            'bannerImages' => $bannerSettings["bannerImages"],
-            'bannerActive' => $bannerSettings["bannerActive"],
+        return Inertia::render('Customer/ProductList', [
+            'products' => $products,
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),

@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Head, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import ProductCard from "@/Components/Customer/ProductCard";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
+import ProductFilters from "@/Components/Customer/ProductFilters";
+import Pagination from "@/Components/Ui/Pagination";
+import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, PaginatedData, Product } from "@/types";
-import { Search, SlidersHorizontal } from "lucide-react";
 
 interface ProductListProps {
     products: PaginatedData<Product>;
@@ -16,6 +18,7 @@ interface ProductListProps {
         sort?: string;
         in_stock?: string;
         is_preorder?: string;
+        stock_out?: string;
     };
 }
 
@@ -29,30 +32,35 @@ const ProductList: React.FC<ProductListProps> = ({
         : "All Products - Paikari World";
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState(filters.search || "");
+    const [sort, setSort] = useState(filters.sort || "latest");
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (sort !== (filters.sort || "latest")) {
+                const params: Record<string, string> = {};
+                if (filters.search) params.search = filters.search;
+                if (filters.min_price) params.min_price = filters.min_price;
+                if (filters.max_price) params.max_price = filters.max_price;
+                if (sort && sort !== "latest") params.sort = sort;
+                if (filters.in_stock) params.in_stock = filters.in_stock;
+                if (filters.is_preorder) params.is_preorder = filters.is_preorder;
+                if (filters.stock_out) params.stock_out = filters.stock_out;
 
-        const currentUrl = category
-            ? route("products.category", category.slug)
-            : route("products.index");
+                const currentUrl = category
+                    ? route("products.category", category.slug)
+                    : route("products.index");
 
-        const params: Record<string, string> = {};
-        if (searchQuery) params.search = searchQuery;
-        if (filters.min_price) params.min_price = filters.min_price;
-        if (filters.max_price) params.max_price = filters.max_price;
-        if (filters.sort && filters.sort !== "latest")
-            params.sort = filters.sort;
-        if (filters.in_stock) params.in_stock = filters.in_stock;
-        if (filters.is_preorder) params.is_preorder = filters.is_preorder;
+                router.visit(currentUrl, {
+                    data: params,
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                });
+            }
+        }, 500);
 
-        router.visit(currentUrl, {
-            data: params,
-            preserveState: true,
-            preserveScroll: false,
-        });
-    };
+        return () => clearTimeout(timeoutId);
+    }, [sort, filters, category]);
 
     const currentUrl = category
         ? route("products.category", category.slug)
@@ -62,158 +70,75 @@ const ProductList: React.FC<ProductListProps> = ({
         <CustomerLayout>
             <Head title={title} />
 
-            <FilterSidebar
-                isOpen={isFilterOpen}
-                onClose={() => setIsFilterOpen(false)}
-                filters={filters}
-                currentUrl={currentUrl}
-            />
+            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+                {/* Background accents */}
+                <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-40 blur-3xl" />
+                </div>
+                <div className="pointer-events-none absolute -bottom-32 left-0 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-indigo-300/25 blur-3xl" />
 
-            <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        {/* <div>
-                            <h1 className="text-3xl font-extrabold text-gray-900">
+                <FilterSidebar
+                    isOpen={isFilterOpen}
+                    onClose={() => setIsFilterOpen(false)}
+                    filters={filters}
+                    currentUrl={currentUrl}
+                />
+
+                <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+                    {/* Header Layout */}
+                    <ScrollReveal animation="fade-up" delay="delay-100">
+                        <div className="text-center mb-6 mt-4">
+                            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
                                 {category ? category.title : "All Products"}
                             </h1>
                             {category && (
-                                <p className="mt-2 text-sm text-gray-500">
-                                    Browse our collection of {category.title}
+                                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                                    Browse our premium collection of {category.title}
                                 </p>
                             )}
-                        </div> */}
+                        </div>
+                    </ScrollReveal>
 
-                        {/* Search and Filter Controls */}
-                        <div className="flex gap-2 items-center">
-                            <form
-                                onSubmit={handleSearch}
-                                className="flex-1 sm:flex-initial"
-                            >
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) =>
-                                            setSearchQuery(e.target.value)
-                                        }
-                                        placeholder="Search products..."
-                                        className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                    <Search
-                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                        size={18}
-                                    />
+                    {/* Filters & Grid Container */}
+                    <ScrollReveal animation="fade-up" delay="delay-150">
+                        <div className="rounded-3xl border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl overflow-hidden">
+                            <ProductFilters
+                                sort={sort}
+                                setSort={setSort}
+                                setIsFilterOpen={setIsFilterOpen}
+                                filters={filters}
+                            />
+                            
+                            <div className="p-4 sm:p-6 lg:p-8">
+                                {products.data?.length ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
+                                        {products.data.map((product) => (
+                                            <ProductCard key={product.id} product={product} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                                        <div className="rounded-full bg-indigo-50 p-6 mb-4">
+                                            <svg className="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-medium text-gray-900">No products found</h3>
+                                        <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria to find what you're looking for.</p>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Pagination Component */}
+                            {products.last_page > 1 && (
+                                <div className="border-t border-gray-100 overflow-hidden">
+                                    <Pagination data={products} preserveScroll={true} />
                                 </div>
-                            </form>
-                            <button
-                                onClick={() => setIsFilterOpen(true)}
-                                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-                            >
-                                <SlidersHorizontal size={18} />
-                                <span className="hidden sm:inline">
-                                    {" "}
-                                    Filters{" "}
-                                </span>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    const params: Record<string, string> = {};
-                                    if (searchQuery)
-                                        params.search = searchQuery;
-                                    if (filters.min_price)
-                                        params.min_price = filters.min_price;
-                                    if (filters.max_price)
-                                        params.max_price = filters.max_price;
-                                    if (
-                                        filters.sort &&
-                                        filters.sort !== "latest"
-                                    )
-                                        params.sort = filters.sort;
-                                    if (filters.in_stock)
-                                        params.in_stock = filters.in_stock;
-
-                                    // Toggle preorder
-                                    if (filters.is_preorder === "true") {
-                                        delete params.is_preorder;
-                                    } else {
-                                        params.is_preorder = "true";
-                                    }
-
-                                    router.visit(currentUrl, {
-                                        data: params,
-                                        preserveState: true,
-                                        preserveScroll: false,
-                                    });
-                                }}
-                                className={`px-4 py-2 border rounded-lg transition-colors flex items-center gap-2 ${
-                                    filters.is_preorder === "true"
-                                        ? "bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700"
-                                        : "border-gray-300 hover:bg-gray-50"
-                                }`}
-                            >
-                                <span className="hidden sm:inline">
-                                    {" "}
-                                    Preorder{" "}
-                                </span>
-                                <span className="sm:hidden"> Pre </span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Active Filters Display */}
-                    {(filters.search ||
-                        filters.min_price ||
-                        filters.max_price ||
-                        filters.in_stock ||
-                        (filters.sort && filters.sort !== "latest")) && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            {filters.search && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                                    Search: {filters.search}
-                                </span>
-                            )}
-                            {filters.min_price && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                                    Min: ৳{filters.min_price}
-                                </span>
-                            )}
-                            {filters.max_price && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                                    Max: ৳{filters.max_price}
-                                </span>
-                            )}
-                            {filters.in_stock === "true" && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                                    In Stock Only
-                                </span>
-                            )}
-                            {filters.sort && filters.sort !== "latest" && (
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
-                                    Sort:{" "}
-                                    {filters.sort === "price_low"
-                                        ? "Price Low to High"
-                                        : filters.sort === "price_high"
-                                        ? "Price High to Low"
-                                        : "Name A-Z"}
-                                </span>
                             )}
                         </div>
-                    )}
+                    </ScrollReveal>
                 </div>
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {products.data?.length ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {products.data.map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center text-gray-500 py-12">
-                        No products found.
-                    </div>
-                )}
             </div>
         </CustomerLayout>
     );

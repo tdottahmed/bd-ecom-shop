@@ -12,6 +12,7 @@ import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, Product, PaginatedData } from "@/types";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProductFilters from "@/Components/Customer/ProductFilters";
+import BrandsShowcaseSection from "@/Components/Customer/BrandsShowcaseSection";
 
 interface CategoryProductsSection {
     category: Category;
@@ -23,6 +24,7 @@ interface HomeProps {
     productsByCategory: CategoryProductsSection[];
     bannerImages?: string[];
     bannerActive?: boolean;
+    homeContent?: any;
     category?: Category;
     filters?: {
         search?: string;
@@ -40,6 +42,7 @@ const Home: React.FC<HomeProps> = ({
     productsByCategory = [],
     bannerImages,
     bannerActive,
+    homeContent,
     filters = {},
     category,
 }) => {
@@ -103,12 +106,6 @@ const Home: React.FC<HomeProps> = ({
                             bannerImages={bannerImages}
                             bannerActive={bannerActive}
                         />
-
-                        {/* Features Section */}
-                        <ScrollReveal animation="fade-up" delay="delay-100">
-                            <FeaturesSection />
-                        </ScrollReveal>
-
                         {/* Categories */}
                         <ScrollReveal animation="fade-up" delay="delay-150">
                             <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
@@ -121,7 +118,25 @@ const Home: React.FC<HomeProps> = ({
 
                         {/* Promo Banner */}
                         <ScrollReveal animation="fade-up" delay="delay-200">
-                            <PromoBanner />
+                            <PromoBanner
+                                enabled={homeContent?.promo?.enabled}
+                                badge={homeContent?.promo?.badge}
+                                title={homeContent?.promo?.title}
+                                description={homeContent?.promo?.description}
+                                bgImage={homeContent?.promo?.bgImage}
+                                primaryCtaText={homeContent?.promo?.primaryCtaText}
+                                secondaryCtaText={homeContent?.promo?.secondaryCtaText}
+                            />
+                        </ScrollReveal>
+
+                        {/* Brands showcase */}
+                        <ScrollReveal animation="fade-up" delay="delay-200">
+                            <BrandsShowcaseSection
+                                enabled={homeContent?.brands?.enabled}
+                                title={homeContent?.brands?.title}
+                                subtitle={homeContent?.brands?.subtitle}
+                                ctaText={homeContent?.brands?.ctaText}
+                            />
                         </ScrollReveal>
 
                         {/* Search / Filters & Products Section */}
@@ -147,7 +162,22 @@ const Home: React.FC<HomeProps> = ({
                         
                         {/* Newsletter Section */}
                         <ScrollReveal animation="fade-up" delay="delay-200">
-                            <NewsletterSection />
+                            <NewsletterSection
+                                enabled={homeContent?.newsletter?.enabled}
+                                title={homeContent?.newsletter?.title}
+                                description={homeContent?.newsletter?.description}
+                                placeholder={homeContent?.newsletter?.placeholder}
+                            />
+                        </ScrollReveal>
+
+                         {/* Features Section */}
+                        <ScrollReveal animation="fade-up" delay="delay-100">
+                            <FeaturesSection
+                                enabled={homeContent?.features?.enabled}
+                                title={homeContent?.features?.title}
+                                subtitle={homeContent?.features?.subtitle}
+                                items={homeContent?.features?.items}
+                            />
                         </ScrollReveal>
                     </div>
                 </div>

@@ -13,6 +13,7 @@ import {
     Layers,
     Tag,
     Search,
+    Sparkles,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -58,6 +59,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Globe size={18} />,
         route: "admin.website.index",
         urlPattern: "/admin/website",
+    },
+    {
+        key: "home_settings",
+        label: "Home Settings",
+        icon: <Sparkles size={18} />,
+        route: "admin.home-settings.index",
+        urlPattern: "/admin/home-settings",
     },
     {
         key: "users",

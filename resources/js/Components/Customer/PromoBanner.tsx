@@ -1,8 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Clock, ShoppingBag } from 'lucide-react';
-import { router } from '@inertiajs/react';
+import React, { useState, useEffect } from "react";
+import { ArrowRight, Sparkles, Clock, ShoppingBag } from "lucide-react";
+import { router } from "@inertiajs/react";
 
-const PromoBanner: React.FC = () => {
+type PromoBannerProps = {
+    enabled?: boolean;
+    badge?: string;
+    title?: string;
+    description?: string;
+    bgImage?: string;
+    primaryCtaText?: string;
+    secondaryCtaText?: string;
+};
+
+const PromoBanner: React.FC<PromoBannerProps> = ({
+    enabled = true,
+    badge = "Premium Collection",
+    title = "Elevate Your Lifestyle",
+    description = "Discover our exclusive range of high-quality products. Uncompromising elegance, offering the best deals of the season.",
+    bgImage = "/images/banner-1.jpg",
+    primaryCtaText = "Shop Collection",
+    secondaryCtaText = "Explore Offers",
+}) => {
+    if (!enabled) return null;
     // Meaningful e-commerce element: Countdown Timer
     const [timeLeft, setTimeLeft] = useState({
         days: 2,
@@ -66,7 +85,7 @@ const PromoBanner: React.FC = () => {
             {/* Background Image with Overlay */}
             <div 
                 className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105"
-                style={{ backgroundImage: "url('/images/banner-1.jpg')" }}
+                style={{ backgroundImage: `url('${bgImage}')` }}
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 md:via-slate-900/80 to-slate-900/40 lg:to-transparent"></div>
             </div>
@@ -76,18 +95,15 @@ const PromoBanner: React.FC = () => {
                 <div className="w-full lg:w-3/5 flex flex-col items-start text-left">
                     <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-xs sm:text-sm font-semibold mb-6 backdrop-blur-md border border-amber-500/20 uppercase tracking-wider shadow-sm">
                         <Sparkles className="w-4 h-4" />
-                        <span>Premium Collection</span>
+                        <span>{badge}</span>
                     </div>
                     
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-lg">
-                        Elevate Your <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 drop-shadow-none">
-                            Lifestyle
-                        </span>
+                        {title}
                     </h2>
                     
                     <p className="text-slate-300 text-lg md:text-xl font-light mb-8 max-w-lg leading-relaxed drop-shadow-md">
-                        Discover our exclusive range of high-quality products. Uncompromising elegance, offering the best deals of the season.
+                        {description}
                     </p>
 
                     {/* Countdown Timer */}
@@ -120,13 +136,13 @@ const PromoBanner: React.FC = () => {
                         >
                             <span className="absolute inset-0 w-full h-full bg-white/30 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                             <ShoppingBag className="w-5 h-5 mr-2" />
-                            Shop Collection
+                            {primaryCtaText}
                         </button>
                         <a
                             href="#products-section"
                             className="group inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white bg-white/5 border border-white/20 backdrop-blur-md rounded-xl hover:bg-white/15 hover:border-white/30 transition-all duration-300 w-full sm:w-auto shadow-lg hover:shadow-xl hover:-translate-y-1"
                         >
-                            Explore Offers
+                            {secondaryCtaText}
                             <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                         </a>
                     </div>
