@@ -25,7 +25,7 @@ interface Props {
 export default function PageForm({ page }: Props) {
     const isEdit = !!page?.id;
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         title: page?.title ?? "",
         slug: page?.slug ?? "",
         content: page?.content ?? "",
@@ -39,14 +39,16 @@ export default function PageForm({ page }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(
-            isEdit
-                ? route("admin.pages.update", page!.id)
-                : route("admin.pages.store"),
-            {
+        
+        if (isEdit) {
+            put(route("admin.pages.update", page!.id), {
                 preserveScroll: true,
-            },
-        );
+            });
+        } else {
+            post(route("admin.pages.store"), {
+                preserveScroll: true,
+            });
+        }
     };
 
     return (
