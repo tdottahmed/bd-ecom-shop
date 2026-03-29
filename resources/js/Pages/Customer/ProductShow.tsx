@@ -152,10 +152,10 @@ export default function ProductShow({
                             </nav>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 p-6 md:p-10 lg:p-12 items-start">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-10 lg:p-12 items-start">
                             
                             {/* Left Column: Image Gallery & Description */}
-                            <div className="flex flex-col space-y-10 w-full max-w-2xl mx-auto lg:mx-0">
+                            <div className="flex flex-col space-y-10 w-full max-w-4xl mx-auto lg:mx-0">
                                 {/* Image Gallery Element */}
                                 <div className="space-y-6">
                                     <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
