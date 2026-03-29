@@ -113,7 +113,7 @@ export default function ProductShow({
             <Head title={product.name} />
 
             <div className="bg-slate-50 py-6 md:py-12 min-h-screen">
-                <div className="max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto space-y-12">
+                <div className="max-w-full px-4 sm:px-6 lg:px-8 mx-auto space-y-12">
                     
                     {/* Main Product Container */}
                     <ScrollReveal animation="fade-up" delay="delay-0">

@@ -50,7 +50,8 @@ const ProductList: React.FC<ProductListProps> = ({
                 if (filters.max_price) params.max_price = filters.max_price;
                 if (sort && sort !== "latest") params.sort = sort;
                 if (filters.in_stock) params.in_stock = filters.in_stock;
-                if (filters.is_preorder) params.is_preorder = filters.is_preorder;
+                if (filters.is_preorder)
+                    params.is_preorder = filters.is_preorder;
                 if (filters.stock_out) params.stock_out = filters.stock_out;
 
                 const currentUrl = category
@@ -75,18 +76,24 @@ const ProductList: React.FC<ProductListProps> = ({
 
     const handleApplyFilters = (params: Record<string, string>) => {
         let targetUrl = currentUrl;
-        
+
         if (params.category_id) {
-            const selectedCat = categories?.find(c => c.id.toString() === params.category_id);
+            const selectedCat = categories?.find(
+                (c) => c.id.toString() === params.category_id,
+            );
             if (selectedCat) {
                 targetUrl = route("products.category", selectedCat.slug);
                 delete params.category_id;
             }
-        } else if (currentUrl.includes('/category/')) {
+        } else if (currentUrl.includes("/category/")) {
             targetUrl = route("products.index");
         }
-        
-        router.visit(targetUrl, { data: params, preserveState: true, preserveScroll: true });
+
+        router.visit(targetUrl, {
+            data: params,
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -110,7 +117,7 @@ const ProductList: React.FC<ProductListProps> = ({
                     onApply={handleApplyFilters}
                 />
 
-                <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+                <div className="relative mx-auto flex max-w-full flex-col gap-6 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
                     {/* Header Layout */}
                     <ScrollReveal animation="fade-up" delay="delay-100">
                         <div className="text-center mb-6 mt-4">
@@ -119,7 +126,8 @@ const ProductList: React.FC<ProductListProps> = ({
                             </h1>
                             {category && (
                                 <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-                                    Browse our premium collection of {category.title}
+                                    Browse our premium collection of{" "}
+                                    {category.title}
                                 </p>
                             )}
                         </div>
@@ -134,38 +142,61 @@ const ProductList: React.FC<ProductListProps> = ({
                                 setIsFilterOpen={setIsFilterOpen}
                                 filters={filters}
                             />
-                            
+
                             <div className="p-4 sm:p-6 lg:p-8">
                                 {products.data?.length ? (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
                                         {products.data.map((product) => (
-                                            <ProductCard key={product.id} product={product} />
+                                            <ProductCard
+                                                key={product.id}
+                                                product={product}
+                                            />
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-24 text-center">
                                         <div className="rounded-full bg-indigo-50 p-6 mb-4">
-                                            <svg className="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            <svg
+                                                className="h-12 w-12 text-indigo-400"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                                />
                                             </svg>
                                         </div>
-                                        <h3 className="text-lg font-medium text-gray-900">No products found</h3>
-                                        <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria to find what you're looking for.</p>
+                                        <h3 className="text-lg font-medium text-gray-900">
+                                            No products found
+                                        </h3>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Try adjusting your search or filter
+                                            criteria to find what you're looking
+                                            for.
+                                        </p>
                                     </div>
                                 )}
                             </div>
-                            
+
                             {/* Pagination Component */}
                             {products.last_page > 1 && (
                                 <div className="border-t border-gray-100 overflow-hidden">
-                                    <Pagination data={products} preserveScroll={true} />
+                                    <Pagination
+                                        data={products}
+                                        preserveScroll={true}
+                                    />
                                 </div>
                             )}
                         </div>
                     </ScrollReveal>
                 </div>
             </div>
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <NewsletterSection />
             </div>
         </CustomerLayout>

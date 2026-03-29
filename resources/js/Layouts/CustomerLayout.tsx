@@ -39,7 +39,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     }, [setIsOpen]);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 font-inter antialiased">
             <Head>
                 <title>{seo?.defaultTitle || "Home"}</title>
                 {seo?.defaultDescription && (

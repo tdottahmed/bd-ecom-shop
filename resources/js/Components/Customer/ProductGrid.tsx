@@ -44,7 +44,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             initial[category.id] = {
                 products: p?.data ?? [],
                 nextPage:
-                    p && p.current_page < p.last_page ? p.current_page + 1 : null,
+                    p && p.current_page < p.last_page
+                        ? p.current_page + 1
+                        : null,
             };
         });
         return initial;
@@ -59,7 +61,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             next[category.id] = {
                 products: p?.data ?? [],
                 nextPage:
-                    p && p.current_page < p.last_page ? p.current_page + 1 : null,
+                    p && p.current_page < p.last_page
+                        ? p.current_page + 1
+                        : null,
             };
         });
         setSections(next);
@@ -84,7 +88,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
         try {
             const res = await fetch(
-                `/api/categories/${encodeURIComponent(category.slug)}/products?${params.toString()}`
+                `/api/categories/${encodeURIComponent(category.slug)}/products?${params.toString()}`,
             );
             const json = await res.json();
             const newProducts = (json.data ?? []) as Product[];
@@ -98,7 +102,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 return {
                     ...prev,
                     [category.id]: {
-                        products: [...(current?.products ?? []), ...newProducts],
+                        products: [
+                            ...(current?.products ?? []),
+                            ...newProducts,
+                        ],
                         nextPage,
                         loading: false,
                     },
@@ -115,7 +122,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (!productsByCategory?.length) return null;
 
     return (
-        <div className="max-w-7xl mx-auto px-2 md:px-6 lg:px-8 py-2 md:py-4 lg:py-6">
+        <div className="max-w-full mx-auto px-2 md:px-6 lg:px-8 py-2 md:py-4 lg:py-6">
             <div className="space-y-10 md:space-y-12">
                 {productsByCategory.map(({ category }) => {
                     const section = sections[category.id];
@@ -134,7 +141,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                                     {category.title}
                                 </h2>
                                 <Link
-                                    href={route("products.category", category.slug)}
+                                    href={route(
+                                        "products.category",
+                                        category.slug,
+                                    )}
                                     className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 shrink-0"
                                 >
                                     View all
@@ -150,7 +160,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                                 </div>
                             ) : (
                                 <>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                                         {products.map((product, idx) => (
                                             <ProductCard
                                                 key={product.id}

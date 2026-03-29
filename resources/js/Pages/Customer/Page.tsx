@@ -18,7 +18,7 @@ export default function PageView({ page }: Props) {
         <CustomerLayout>
             <Head title={page.title} />
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                         {page.title}
@@ -37,7 +37,7 @@ export default function PageView({ page }: Props) {
                     </div>
                 </div>
             </div>
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <NewsletterSection />
             </div>
         </CustomerLayout>

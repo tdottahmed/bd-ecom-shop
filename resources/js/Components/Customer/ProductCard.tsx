@@ -13,9 +13,36 @@ import ScrollReveal from "../Ui/ScrollReveal";
 interface ProductCardProps {
     product: Product;
     index?: number;
+    variant?: "default" | "luxury";
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
+function getPrimaryPriceLabel(product: Product): string {
+    const hasDiscount =
+        product.discounted_sale_price != null &&
+        Number(product.discounted_sale_price) < Number(product.sale_price);
+    if (product.product_variations && product.product_variations.length > 0) {
+        const prices = product.product_variations
+            .map((v) => (v.price ? parseFloat(String(v.price)) : 0))
+            .filter((p) => p > 0);
+        if (prices.length > 0) {
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            return minPrice !== maxPrice
+                ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
+                : formatPrice(minPrice);
+        }
+    }
+    const effectivePrice = hasDiscount
+        ? Number(product.discounted_sale_price)
+        : product.sale_price;
+    return formatPrice(effectivePrice);
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({
+    product,
+    index,
+    variant = "default",
+}) => {
     const { cart, addToCart, removeFromCart, updateQuantity } = useCartStore();
 
     const hasVariations =

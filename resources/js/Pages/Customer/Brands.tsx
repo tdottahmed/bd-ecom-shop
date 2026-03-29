@@ -22,7 +22,7 @@ export default function Brands({ brands }: Props) {
         <CustomerLayout>
             <Head title="Brands" />
 
-            <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <div className="flex items-end justify-between gap-3">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -59,7 +59,7 @@ export default function Brands({ brands }: Props) {
                     ))}
                 </div>
             </div>
-            <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <NewsletterSection />
             </div>
         </CustomerLayout>

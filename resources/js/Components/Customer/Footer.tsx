@@ -86,7 +86,7 @@ export default function Footer() {
 
     return (
         <footer className="bg-white border-t border-gray-100 pt-12 pb-6 mt-auto">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-14 mb-12">
                     <div className="flex flex-col space-y-6">
                         <Link href="/" className="inline-block">

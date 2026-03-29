@@ -23,7 +23,7 @@ export default function BrandPage({ brand, products }: Props) {
         <CustomerLayout>
             <Head title={brand.title} />
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <Image
@@ -76,7 +76,7 @@ export default function BrandPage({ brand, products }: Props) {
                     </div>
                 )}
             </div>
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <NewsletterSection />
             </div>
         </CustomerLayout>

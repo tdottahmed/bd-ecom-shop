@@ -10,7 +10,6 @@ import PromoBanner from "@/Components/Customer/PromoBanner";
 import NewsletterSection from "@/Components/Customer/NewsletterSection";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, Product, PaginatedData } from "@/types";
-import { Search, SlidersHorizontal } from "lucide-react";
 import ProductFilters from "@/Components/Customer/ProductFilters";
 import BrandsShowcaseSection from "@/Components/Customer/BrandsShowcaseSection";
 
@@ -105,32 +104,32 @@ const Home: React.FC<HomeProps> = ({
     return (
         <CustomerLayout>
             <Head title={category ? category.title : "Home"} />
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
-                {/* Background accents */}
-                <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-40 blur-3xl" />
-                </div>
-                <div className="pointer-events-none absolute -bottom-32 left-0 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-indigo-300/25 blur-3xl" />
+            <div className="relative min-h-screen bg-luxury-page text-slate-900">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-[min(60vh,520px)] bg-gradient-to-b from-white/40 to-transparent" />
 
-                <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-10 pt-4 sm:px-6 sm:pt-6 lg:px-10 lg:pt-10">
-                    <FilterSidebar
-                        isOpen={isFilterOpen}
-                        onClose={() => setIsFilterOpen(false)}
-                        filters={filters}
-                        categories={categories}
-                        brands={brands}
-                        onApply={handleApplyFilters}
-                    />
-                    <div className="space-y-8 md:space-y-12">
-                        {/* Hero Section */}
+                <FilterSidebar
+                    isOpen={isFilterOpen}
+                    onClose={() => setIsFilterOpen(false)}
+                    filters={filters}
+                    categories={categories}
+                    brands={brands}
+                    onApply={handleApplyFilters}
+                />
+
+                <div className="relative w-full px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-6 lg:px-10 lg:pt-8">
+                    <ScrollReveal animation="fade-up" delay="delay-0">
                         <Hero
                             bannerImages={bannerImages}
                             bannerActive={bannerActive}
                         />
-                        {/* Categories */}
+                    </ScrollReveal>
+                </div>
+
+                <div className="relative mx-auto flex max-w-full flex-col gap-6 px-4 pb-10 sm:px-6 lg:px-10">
+                    <div className="space-y-8 md:space-y-12">
+                        {/* Categories — bento */}
                         <ScrollReveal animation="fade-up" delay="delay-150">
-                            <div className="rounded-2xl border border-slate-100 bg-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur-lg">
+                            <div className="overflow-hidden rounded-[24px] border border-white/40 bg-white/50 shadow-luxury backdrop-blur-xl">
                                 <CategorySlider
                                     categories={categories}
                                     activeCategory={category}
@@ -168,7 +167,7 @@ const Home: React.FC<HomeProps> = ({
                         {/* Search / Filters & Products Section */}
                         <ScrollReveal animation="fade-up" delay="delay-0">
                             <div
-                                className="rounded-3xl border border-slate-100 bg-white py-4 md:py-6 shadow-[0_22px_55px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                                className="rounded-[24px] border border-white/50 bg-white/85 py-4 shadow-luxury backdrop-blur-xl md:py-6"
                                 id="products-section"
                             >
                                 <ProductFilters
