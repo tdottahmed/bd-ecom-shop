@@ -51,7 +51,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
     };
 
     return (
-        <section className="relative w-full h-[540px] md:h-[min(700px,85vh)] overflow-hidden rounded-[20px] bg-zinc-900 group">
+        <section className="relative w-full h-[400px] sm:h-[460px] md:h-[min(600px,80vh)] lg:h-[min(680px,85vh)] overflow-hidden rounded-[16px] md:rounded-[20px] bg-zinc-900 group">
             {/* Background Image Slider */}
             <div className="absolute inset-0 z-0">
                 {displayImages.map((image, index) => (
@@ -80,29 +80,73 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
                 <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
             </div>
 
+            {/* Custom Animations */}
+            <style>{`
+                @keyframes fadeInUpHero {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fade-in-up-hero {
+                    opacity: 0;
+                    animation: fadeInUpHero 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+            `}</style>
+
             {/* Central Content - Minimalist Editorial Style */}
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 md:px-12 pointer-events-none">
                 <div 
-                    className={`flex flex-col items-center max-w-3xl transform transition-all duration-1000 delay-100 ease-out pointer-events-auto ${
-                        isMounted ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-                    }`}
+                    key={currentSlide} // Forces React to re-trigger the entrance animation on every slide change
+                    className="flex flex-col items-center max-w-4xl pointer-events-auto w-full"
                 >
-                    <span className="mb-4 text-xs font-semibold tracking-[0.3em] text-white/90 uppercase drop-shadow-md">
+                    {/* Subtitle */}
+                    <span 
+                        className="mb-3 md:mb-5 text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase animate-fade-in-up-hero text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-400"
+                        style={{ 
+                            animationDelay: '150ms', 
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.8))'
+                        }}
+                    >
                         {content?.subtitle || "True by Malaysia"}
                     </span>
-                    <h1 className="mb-6 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-xl">
+                    
+                    {/* Title */}
+                    <h1 
+                        className="mb-5 md:mb-8 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem] font-extrabold tracking-tight leading-[1.1] md:leading-[1.05] animate-fade-in-up-hero text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-100 to-zinc-400"
+                        style={{ 
+                            animationDelay: '300ms', 
+                            filter: 'drop-shadow(0px 4px 24px rgba(0,0,0,0.7)) drop-shadow(0px 2px 4px rgba(0,0,0,0.9))'
+                        }}
+                    >
                         {content?.title || "Elevate Your Lifestyle"}
                     </h1>
-                    <p className="mb-10 text-sm sm:text-base md:text-lg font-light leading-relaxed text-white/90 drop-shadow-md max-w-2xl">
+                    
+                    {/* Description */}
+                    <p 
+                        className="mb-8 md:mb-12 text-sm sm:text-base md:text-lg font-medium leading-relaxed text-zinc-50 max-w-2xl px-4 sm:px-0 animate-fade-in-up-hero"
+                        style={{ 
+                            animationDelay: '450ms', 
+                            textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,1)' 
+                        }}
+                    >
                         {content?.description || "Discover our curated collection of premium essentials designed for the modern home. Immerse yourself in uncompromising quality and timeless aesthetics."}
                     </p>
                     
-                    <Link
-                        href={content?.button_link || route("products.index")}
-                        className="group relative inline-flex items-center justify-center bg-white px-10 py-4 text-xs sm:text-sm font-bold tracking-[0.15em] text-black transition-transform duration-300 hover:scale-105 uppercase"
-                    >
-                        {content?.button_text || "Shop New Arrivals"}
-                    </Link>
+                    {/* Premium Standard Button */}
+                    <div className="animate-fade-in-up-hero" style={{ animationDelay: '600ms' }}>
+                        <Link
+                            href={content?.button_link || route("products.index")}
+                            className="group inline-flex items-center justify-center gap-3 bg-slate-900 px-8 py-4 md:px-12 md:py-5 text-[11px] sm:text-xs md:text-sm font-extrabold tracking-[0.2em] text-white transition-all duration-300 hover:bg-slate-800 hover:shadow-[0_12px_30px_rgba(15,23,42,0.4)] hover:-translate-y-1 uppercase rounded-full shadow-xl"
+                        >
+                            <span>{content?.button_text || "Shop New Arrivals"}</span>
+                            <ChevronRight size={16} strokeWidth={3} className="transition-transform duration-300 group-hover:translate-x-1" />
+                        </Link>
+                    </div>
                 </div>
             </div>
 
@@ -112,22 +156,22 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
                     <button
                         type="button"
                         onClick={prevSlide}
-                        className="absolute left-4 md:left-8 top-1/2 z-40 -translate-y-1/2 p-2 text-white/60 hover:text-white transition-all opacity-0 group-hover:opacity-100 hover:-translate-x-1"
+                        className="absolute left-2 md:left-8 top-1/2 z-40 -translate-y-1/2 p-2 text-white/50 hover:text-white transition-all opacity-100 md:opacity-0 group-hover:opacity-100 hover:-translate-x-1"
                         aria-label="Previous slide"
                     >
-                        <ChevronLeft size={40} strokeWidth={1} />
+                        <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
                     </button>
                     <button
                         type="button"
                         onClick={nextSlide}
-                        className="absolute right-4 md:right-8 top-1/2 z-40 -translate-y-1/2 p-2 text-white/60 hover:text-white transition-all opacity-0 group-hover:opacity-100 hover:translate-x-1"
+                        className="absolute right-2 md:right-8 top-1/2 z-40 -translate-y-1/2 p-2 text-white/50 hover:text-white transition-all opacity-100 md:opacity-0 group-hover:opacity-100 hover:translate-x-1"
                         aria-label="Next slide"
                     >
-                        <ChevronRight size={40} strokeWidth={1} />
+                        <ChevronRight className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
                     </button>
                     
                     {/* Minimalist Progress Indicators */}
-                    <div className="absolute bottom-8 left-1/2 z-40 flex -translate-x-1/2 gap-3">
+                    <div className="absolute bottom-6 md:bottom-8 left-1/2 z-40 flex -translate-x-1/2 gap-2 md:gap-3">
                         {displayImages.map((_, index) => (
                             <button
                                 key={index}
@@ -136,7 +180,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
                                 className="py-2 px-1 group"
                                 aria-label={`Slide ${index + 1}`}
                             >
-                                <div className={`h-[2px] w-8 md:w-12 transition-all duration-300 ${
+                                <div className={`h-[2px] w-6 sm:w-8 md:w-12 transition-all duration-300 ${
                                     index === currentSlide ? "bg-white" : "bg-white/40 group-hover:bg-white/80"
                                 }`} />
                             </button>

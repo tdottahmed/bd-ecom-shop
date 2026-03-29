@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link } from "@inertiajs/react";
-import { ArrowRight, LayoutGrid } from "lucide-react";
+import { ArrowLeft, ArrowRight, LayoutGrid } from "lucide-react";
 import { Category } from "@/types";
 import Image from "../Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
@@ -10,149 +10,142 @@ interface CategorySliderProps {
     activeCategory?: Category;
 }
 
-const glassCard =
-    "relative overflow-hidden rounded-[24px] border border-white/30 bg-white/70 shadow-luxury backdrop-blur-[15px] transition-all duration-500 ease-out hover:scale-[1.02] hover:shadow-luxury-lg";
-
 const CategorySlider: React.FC<CategorySliderProps> = ({
     categories,
     activeCategory,
 }) => {
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollContainerRef.current) {
+            const { current } = scrollContainerRef;
+            const scrollAmount = current.clientWidth * 0.7;
+            current.scrollBy({
+                left: direction === "left" ? -scrollAmount : scrollAmount,
+                behavior: "smooth",
+            });
+        }
+    };
+
     if (!categories || categories.length === 0) {
         return (
-            <div className="px-4 py-8 md:px-8">
+            <div className="p-8 md:p-12 text-center">
                 <Link
                     href={route("products.index")}
-                    className={`${glassCard} flex min-h-[200px] items-center justify-center gap-3 p-8`}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-zinc-900 text-white font-semibold transition-all hover:bg-zinc-800 hover:-translate-y-1 hover:shadow-xl"
                 >
-                    <LayoutGrid className="h-8 w-8 text-[#6366f1]" />
-                    <span className="font-display text-xl font-bold text-black">
-                        All Products
-                    </span>
-                    <ArrowRight className="h-6 w-6 text-[#6366f1]" />
+                    <LayoutGrid className="h-5 w-5" />
+                    <span>Browse All Products</span>
                 </Link>
             </div>
         );
     }
 
-    const [first, second] = categories;
-
     return (
-        <div className="px-4 py-6 md:px-8 md:py-8">
-            <div className="mb-6 flex items-end justify-between gap-4">
+        <div className="px-5 py-8 md:px-10 md:py-10">
+            {/* Header */}
+            <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
-                    <h2 className="font-display text-2xl font-extrabold tracking-tight text-black md:text-3xl">
-                        Shop by category
+                    <h2 className="font-display text-2xl font-extrabold tracking-tight text-zinc-900 md:text-4xl">
+                        Shop by Category
                     </h2>
-                    <p className="mt-1 text-sm font-medium text-slate-600">
-                        Curated essentials in a glance
+                    <p className="mt-2 text-sm text-zinc-600 font-medium">
+                        Explore our curated collections
                     </p>
                 </div>
-                <Link
-                    href={route("products.index")}
-                    className="hidden items-center gap-1 text-sm font-bold text-[#6366f1] transition-colors hover:text-indigo-700 sm:inline-flex"
-                >
-                    View all
-                    <ArrowRight className="h-4 w-4" />
-                </Link>
+                
+                {/* Desktop controls */}
+                <div className="hidden items-center gap-2 md:flex">
+                    <button 
+                        onClick={() => scroll("left")}
+                        className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-600 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white active:scale-95"
+                        aria-label="Scroll left"
+                    >
+                        <ArrowLeft size={20} strokeWidth={1.5} />
+                    </button>
+                    <button 
+                        onClick={() => scroll("right")}
+                        className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-600 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white active:scale-95"
+                        aria-label="Scroll right"
+                    >
+                        <ArrowRight size={20} strokeWidth={1.5} />
+                    </button>
+                </div>
             </div>
 
-            <div className="grid min-h-[320px] grid-cols-1 gap-4 md:min-h-[400px] md:grid-cols-2 md:grid-rows-2">
-                <Link
-                    href={route("products.category", first.slug)}
-                    className={`${glassCard} md:row-span-2 flex min-h-[280px] flex-col md:min-h-0`}
-                    style={{ animationDelay: "0ms" }}
+            {/* Slider */}
+            <div className="relative -mx-5 px-5 md:-mx-10 md:px-10">
+                <div 
+                    ref={scrollContainerRef}
+                    className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 scrollbar-hide md:gap-5"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    <div className="relative flex flex-1 flex-col p-6 md:p-8">
-                        <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                            Featured
-                        </span>
-                        <h3 className="font-display mt-2 text-2xl font-extrabold text-black md:text-3xl">
-                            {first.title}
-                        </h3>
-                        <div className="relative mt-6 flex flex-1 items-end justify-center md:mt-8">
-                            <div className="relative aspect-square w-[min(100%,220px)] overflow-hidden rounded-2xl bg-white/50 shadow-inner">
-                                <Image
-                                    src={getAssetUrl(first.image)}
-                                    alt={first.title}
-                                    className="h-full w-full object-contain object-center p-3"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    {activeCategory?.id === first.id && (
-                        <span className="absolute right-4 top-4 rounded-full bg-[#6366f1] px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
-                            Active
-                        </span>
-                    )}
-                </Link>
-
-                {second ? (
-                    <Link
-                        href={route("products.category", second.slug)}
-                        className={`${glassCard} flex min-h-[160px] flex-row items-center gap-4 p-5 md:min-h-0`}
-                        style={{ animationDelay: "80ms" }}
-                    >
-                        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100/80 sm:h-28 sm:w-28">
-                            <Image
-                                src={getAssetUrl(second.image)}
-                                alt={second.title}
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <h3 className="font-display text-lg font-bold text-black sm:text-xl">
-                                {second.title}
-                            </h3>
-                            <p className="mt-1 text-xs font-medium text-slate-500">
-                                Explore collection
-                            </p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 shrink-0 text-[#6366f1]" />
-                    </Link>
-                ) : (
-                    <div
-                        className={`${glassCard} flex min-h-[160px] items-center justify-center p-6 md:min-h-0`}
-                    >
-                        <p className="text-center text-sm font-medium text-slate-500">
-                            More categories coming soon
-                        </p>
-                    </div>
-                )}
-
-                <Link
-                    href={route("products.index")}
-                    className={`group ${glassCard} flex min-h-[140px] items-center justify-between gap-4 p-6 md:min-h-0`}
-                    style={{ animationDelay: "160ms" }}
-                >
-                    <div>
-                        <h3 className="font-display text-lg font-extrabold text-black sm:text-xl">
-                            All Products
-                        </h3>
-                        <p className="mt-1 text-xs font-medium text-slate-600">
-                            Browse the full catalog
-                        </p>
-                    </div>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black text-white shadow-luxury transition-transform duration-300 group-hover:scale-110 group-hover:shadow-[0_0_28px_rgba(99,102,241,0.35)]">
-                        <ArrowRight className="h-5 w-5" />
-                    </div>
-                </Link>
-            </div>
-
-            {categories.length > 2 && (
-                <div className="mt-4 flex flex-wrap gap-3 md:mt-6">
-                    {categories.slice(2).map((cat, i) => (
+                    {categories.map((cat, index) => (
                         <Link
                             key={cat.id}
                             href={route("products.category", cat.slug)}
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/60 px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm backdrop-blur-sm transition-all hover:border-[#6366f1]/40 hover:shadow-md"
-                            style={{ animationDelay: `${200 + i * 40}ms` }}
+                            className="group relative flex w-[150px] shrink-0 snap-start flex-col overflow-hidden rounded-[16px] bg-white sm:w-[200px] md:w-[280px] md:rounded-[24px] shadow-sm hover:shadow-xl transition-shadow duration-500 border border-zinc-100/50"
                         >
-                            <span className="h-2 w-2 rounded-full bg-[#6366f1]" />
-                            {cat.title}
+                            <div className="relative aspect-[4/5] w-full overflow-hidden bg-zinc-100">
+                                <Image
+                                    src={getAssetUrl(cat.image)}
+                                    alt={cat.title}
+                                    className="h-full w-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-110"
+                                />
+                                {/* Overlay gradient */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/90 via-zinc-900/10 to-transparent opacity-80" />
+                            </div>
+
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 lg:p-7">
+                                <h3 className="font-display text-lg font-bold tracking-wide text-white sm:text-xl md:text-2xl drop-shadow-md">
+                                    {cat.title}
+                                </h3>
+                                
+                                <div className="mt-2 md:mt-3 flex items-center justify-between pointer-events-none">
+                                    <span className="hidden text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white/90 uppercase drop-shadow-sm transition-transform duration-500 group-hover:translate-x-1 sm:block">
+                                        Explore
+                                    </span>
+                                    <div className="flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:bg-white group-hover:text-zinc-900">
+                                        <ArrowRight size={14} strokeWidth={2} className="md:w-4 md:h-4" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {activeCategory?.id === cat.id && (
+                                <div className="absolute top-3 right-3 md:top-4 md:right-4 rounded-full border border-white/20 bg-white/10 px-2 py-1 md:px-3 md:py-1.5 backdrop-blur-md shadow-sm">
+                                    <span className="text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-white drop-shadow-sm">
+                                        Active
+                                    </span>
+                                </div>
+                            )}
                         </Link>
                     ))}
+
+                    {/* View All Collection Card */}
+                    <Link
+                        href={route("products.index")}
+                        className="group relative flex w-[150px] shrink-0 snap-start flex-col justify-center overflow-hidden rounded-[16px] md:rounded-[24px] border-2 border-dashed border-zinc-300/60 bg-white/40 p-4 md:p-6 backdrop-blur-sm sm:w-[200px] md:w-[280px] transition-all hover:bg-white/80 hover:border-zinc-400 hover:shadow-lg"
+                    >
+                        <div className="flex flex-col items-center text-center">
+                            <div className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-zinc-900 text-white shadow-xl transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl mb-4 md:mb-6">
+                                <LayoutGrid size={20} strokeWidth={1.5} className="md:w-6 md:h-6" />
+                            </div>
+                            <h3 className="font-display text-lg font-extrabold text-zinc-900 sm:text-xl md:text-2xl">
+                                View All
+                            </h3>
+                            <p className="mt-1 md:mt-2 text-[11px] md:text-sm font-medium text-zinc-500 px-1 md:px-4">
+                                Browse our entire catalog
+                            </p>
+                        </div>
+                    </Link>
+                    
+                    {/* Spacer block to fix trailing padding cutoff on mobile overflow */}
+                    <div className="w-1 shrink-0 md:hidden" />
                 </div>
-            )}
+            </div>
+
+            {/* Global style to hide scrollbar */}
+            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
         </div>
     );
 };

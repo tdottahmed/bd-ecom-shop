@@ -275,7 +275,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                 <div className="mt-2 text-sm">
                                     <div className="flex gap-4 mb-6">
                                         {/* Product Thumbnail */}
-                                        <div className="w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
+                                        <div className="relative w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
                                             {modalImage ? (
                                                 <img
                                                     src={getAssetUrl(
@@ -293,8 +293,17 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                     className="w-full h-full object-cover bg-white"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
                                                     No Image
+                                                </div>
+                                            )}
+
+                                            {/* Out of Stock Overlay matching ProductShow */}
+                                            {(!product.is_preorder && ((isAllSelected && currentSelectionStock <= 0) || (!isAllSelected && product.stock <= 0))) && (
+                                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+                                                    <span className="bg-rose-100 text-rose-800 px-1.5 py-1 rounded text-[9px] sm:text-[10px] font-bold shadow-sm border border-rose-200 text-center leading-tight uppercase tracking-wider">
+                                                        Out of<br/>Stock
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
@@ -361,53 +370,61 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                     {group.variations.map(
                                                         (variation) => {
                                                             const isSelected =
-                                                                selectedVariations[
-                                                                    Number(
-                                                                        attrId,
-                                                                    )
-                                                                ]?.id ===
-                                                                variation.id;
+                                                                selectedVariations[Number(attrId)]
+                                                                    ?.id === variation.id;
                                                             // Show price hint in pill if it differs?
                                                             const showPriceHint =
                                                                 variation.price &&
-                                                                parseFloat(
-                                                                    String(
-                                                                        variation.price,
-                                                                    ),
-                                                                ) !==
+                                                                parseFloat(String(variation.price)) !==
                                                                     product.sale_price;
+
+                                                            const isOutOfStock =
+                                                                !product.is_preorder &&
+                                                                variation.stock !== null &&
+                                                                variation.stock !== undefined &&
+                                                                variation.stock <= 0;
 
                                                             return (
                                                                 <button
-                                                                    key={
-                                                                        variation.id
-                                                                    }
-                                                                    onClick={() =>
+                                                                    key={variation.id}
+                                                                    onClick={() => {
+                                                                        if (isOutOfStock) {
+                                                                            toast.error("This specific option is out of stock.");
+                                                                            return;
+                                                                        }
                                                                         handleVariationSelect(
-                                                                            Number(
-                                                                                attrId,
-                                                                            ),
+                                                                            Number(attrId),
                                                                             variation,
-                                                                        )
-                                                                    }
-                                                                    className={`relative py-2 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
+                                                                        );
+                                                                    }}
+                                                                    disabled={isOutOfStock}
+                                                                    className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                                         variation.image ? "pl-2" : "pl-4"
                                                                     } ${
-                                                                        isSelected
-                                                                            ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
-                                                                            : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                                                                    } ${variation.image ? "rounded-lg" : "rounded-lg"}`}
+                                                                        isOutOfStock
+                                                                            ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
+                                                                            : isSelected
+                                                                                ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
+                                                                                : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                                    } rounded-lg group`}
                                                                 >
                                                                     {variation.image && (
                                                                         <img
                                                                             src={getAssetUrl(variation.image)}
                                                                             alt={variation.value}
-                                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                                            className={`w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
                                                                         />
                                                                     )}
-                                                                    <span>{variation.value}</span>
+                                                                    <span className={`relative z-10 flex items-center gap-1.5 ${isOutOfStock ? 'text-slate-400' : ''}`}>
+                                                                        {variation.value}
+                                                                        {isOutOfStock && (
+                                                                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-sm border border-rose-100/50">
+                                                                                Out of Stock
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
                                                                     {showPriceHint && (
-                                                                        <span className="text-xs opacity-70 font-normal ml-0.5">
+                                                                        <span className={`text-xs font-normal ml-0.5 relative z-10 ${isOutOfStock ? '' : 'opacity-70'}`}>
                                                                             (
                                                                             {formatPrice(
                                                                                 variation.price!,
@@ -415,14 +432,11 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                             )
                                                                         </span>
                                                                     )}
-                                                                    {isSelected && (
+                                                                    {isSelected && !isOutOfStock && (
                                                                         <Check
-                                                                            size={
-                                                                                14
-                                                                            }
-                                                                            strokeWidth={
-                                                                                3
-                                                                            }
+                                                                            size={14}
+                                                                            strokeWidth={3}
+                                                                            className="relative z-10"
                                                                         />
                                                                     )}
                                                                 </button>
