@@ -19,6 +19,12 @@ type FeatureItem = {
 };
 
 type HomeSettings = {
+    hero_subtitle: string;
+    hero_title: string;
+    hero_description: string;
+    hero_button_text: string;
+    hero_button_link: string;
+
     features_enabled: boolean;
     features_title: string;
     features_subtitle: string;
@@ -121,6 +127,85 @@ export default function Index({ settings }: { settings: HomeSettings }) {
                             <PrimaryButton type="submit" disabled={processing} loading={processing}>
                                 Save changes
                             </PrimaryButton>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Hero Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Hero section</CardTitle>
+                        <CardDescription>
+                            Controls the primary text content for the Hero slider on Home.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm text-gray-300">Subtitle</label>
+                                <TextInput
+                                    id="hero_subtitle"
+                                    name="hero_subtitle"
+                                    value={data.hero_subtitle}
+                                    onChange={(e) => setData("hero_subtitle", e.target.value)}
+                                />
+                                {errors.hero_subtitle && (
+                                    <div className="text-xs text-red-400 mt-1">{errors.hero_subtitle}</div>
+                                )}
+                            </div>
+                            <div>
+                                <label className="text-sm text-gray-300">Title</label>
+                                <TextInput
+                                    id="hero_title"
+                                    name="hero_title"
+                                    value={data.hero_title}
+                                    onChange={(e) => setData("hero_title", e.target.value)}
+                                />
+                                {errors.hero_title && (
+                                    <div className="text-xs text-red-400 mt-1">{errors.hero_title}</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-300">Description</label>
+                            <TextArea
+                                id="hero_description"
+                                name="hero_description"
+                                value={data.hero_description}
+                                rows={3}
+                                onChange={(e) => setData("hero_description", e.target.value)}
+                            />
+                            {errors.hero_description && (
+                                <div className="text-xs text-red-400 mt-1">{errors.hero_description}</div>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm text-gray-300">Button text</label>
+                                <TextInput
+                                    id="hero_button_text"
+                                    name="hero_button_text"
+                                    value={data.hero_button_text}
+                                    onChange={(e) => setData("hero_button_text", e.target.value)}
+                                />
+                                {errors.hero_button_text && (
+                                    <div className="text-xs text-red-400 mt-1">{errors.hero_button_text}</div>
+                                )}
+                            </div>
+                            <div>
+                                <label className="text-sm text-gray-300">Button link</label>
+                                <TextInput
+                                    id="hero_button_link"
+                                    name="hero_button_link"
+                                    value={data.hero_button_link}
+                                    onChange={(e) => setData("hero_button_link", e.target.value)}
+                                />
+                                {errors.hero_button_link && (
+                                    <div className="text-xs text-red-400 mt-1">{errors.hero_button_link}</div>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

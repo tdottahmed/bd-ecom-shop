@@ -16,6 +16,12 @@ class HomeSettingsController extends Controller
 
         return Inertia::render('Admin/Settings/Home/Index', [
             'settings' => [
+                'hero_subtitle' => get_setting('home_hero_subtitle', 'True by Malaysia'),
+                'hero_title' => get_setting('home_hero_title', 'Elevate Your Lifestyle'),
+                'hero_description' => get_setting('home_hero_description', 'Discover our curated collection of premium essentials designed for the modern home. Immerse yourself in uncompromising quality and timeless aesthetics.'),
+                'hero_button_text' => get_setting('home_hero_button_text', 'Shop New Arrivals'),
+                'hero_button_link' => get_setting('home_hero_button_link', '/products'),
+
                 'features_enabled' => get_setting('home_features_enabled', '1') === '1',
                 'features_title' => get_setting('home_features_title', 'Why shop with us'),
                 'features_subtitle' => get_setting('home_features_subtitle', 'Fast delivery, secure payments, and great support.'),
@@ -45,6 +51,12 @@ class HomeSettingsController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
+            'hero_subtitle' => 'nullable|string|max:120',
+            'hero_title' => 'nullable|string|max:120',
+            'hero_description' => 'nullable|string|max:300',
+            'hero_button_text' => 'nullable|string|max:40',
+            'hero_button_link' => 'nullable|string|max:255',
+
             'features_enabled' => 'required|boolean',
             'features_title' => 'nullable|string|max:120',
             'features_subtitle' => 'nullable|string|max:220',
@@ -85,6 +97,12 @@ class HomeSettingsController extends Controller
         } else {
             $data['promo_bg_image'] = get_setting('home_promo_bg_image', '');
         }
+
+        Setting::updateOrCreate(['key' => 'home_hero_subtitle'], ['value' => $data['hero_subtitle'] ?? '']);
+        Setting::updateOrCreate(['key' => 'home_hero_title'], ['value' => $data['hero_title'] ?? '']);
+        Setting::updateOrCreate(['key' => 'home_hero_description'], ['value' => $data['hero_description'] ?? '']);
+        Setting::updateOrCreate(['key' => 'home_hero_button_text'], ['value' => $data['hero_button_text'] ?? '']);
+        Setting::updateOrCreate(['key' => 'home_hero_button_link'], ['value' => $data['hero_button_link'] ?? '']);
 
         Setting::updateOrCreate(['key' => 'home_features_enabled'], ['value' => $data['features_enabled'] ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'home_features_title'], ['value' => $data['features_title'] ?? '']);

@@ -46,6 +46,13 @@ class CustomerController extends Controller
         if (!is_array($featuresItems)) $featuresItems = [];
 
         return [
+            'hero' => [
+                'subtitle' => get_setting('home_hero_subtitle', 'True by Malaysia'),
+                'title' => get_setting('home_hero_title', 'Elevate Your Lifestyle'),
+                'description' => get_setting('home_hero_description', 'Discover our curated collection of premium essentials designed for the modern home. Immerse yourself in uncompromising quality and timeless aesthetics.'),
+                'button_text' => get_setting('home_hero_button_text', 'Shop New Arrivals'),
+                'button_link' => get_setting('home_hero_button_link', '/products'),
+            ],
             'features' => [
                 'enabled' => get_setting('home_features_enabled', '1') === '1',
                 'title' => get_setting('home_features_title', 'Why shop with us'),

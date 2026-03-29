@@ -7,9 +7,16 @@ import Image from "../Ui/Image";
 interface HeroProps {
     bannerImages?: string[];
     bannerActive?: boolean;
+    content?: {
+        subtitle?: string;
+        title?: string;
+        description?: string;
+        button_text?: string;
+        button_link?: string;
+    };
 }
 
-const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false }) => {
+const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -81,20 +88,20 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false }) => {
                     }`}
                 >
                     <span className="mb-4 text-xs font-semibold tracking-[0.3em] text-white/90 uppercase drop-shadow-md">
-                        True by Malaysia
+                        {content?.subtitle || "True by Malaysia"}
                     </span>
                     <h1 className="mb-6 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-xl">
-                        Elevate Your Lifestyle
+                        {content?.title || "Elevate Your Lifestyle"}
                     </h1>
                     <p className="mb-10 text-sm sm:text-base md:text-lg font-light leading-relaxed text-white/90 drop-shadow-md max-w-2xl">
-                        Discover our curated collection of premium essentials designed for the modern home. Immerse yourself in uncompromising quality and timeless aesthetics.
+                        {content?.description || "Discover our curated collection of premium essentials designed for the modern home. Immerse yourself in uncompromising quality and timeless aesthetics."}
                     </p>
                     
                     <Link
-                        href={route("products.index")}
+                        href={content?.button_link || route("products.index")}
                         className="group relative inline-flex items-center justify-center bg-white px-10 py-4 text-xs sm:text-sm font-bold tracking-[0.15em] text-black transition-transform duration-300 hover:scale-105 uppercase"
                     >
-                        Shop New Arrivals
+                        {content?.button_text || "Shop New Arrivals"}
                     </Link>
                 </div>
             </div>

@@ -121,6 +121,7 @@ const Home: React.FC<HomeProps> = ({
                         <Hero
                             bannerImages={bannerImages}
                             bannerActive={bannerActive}
+                            content={homeContent?.hero}
                         />
                     </ScrollReveal>
                 </div>
