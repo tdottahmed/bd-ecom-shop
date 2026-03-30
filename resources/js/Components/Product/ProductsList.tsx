@@ -1,64 +1,64 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import { Edit2, Eye, Package, TrendingUp } from "lucide-react";
+import { Edit2, Eye, Package, TrendingUp, Layers } from "lucide-react";
 import { getAssetUrl, formatPrice } from "@/Utils/helpers";
-import { Product } from "@/types";
-import Image from "../Ui/Image";
+import { Product, ProductVariation } from "@/types";
 
 interface ProductsListProps {
     products: Product[];
     isLoading?: boolean;
 }
 
-const ProductsList: React.FC<ProductsListProps> = ({
-    products,
-    isLoading = false,
-}) => {
-    if (isLoading) {
-        return (
-            <div className="space-y-3">
-                {[...Array(5)].map((_, index) => (
-                    <div
-                        key={index}
-                        className="bg-gray-800 rounded-lg border border-gray-700 p-4 animate-pulse"
-                    >
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function variantStock(variations: ProductVariation[]): number {
+    return variations.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+}
+
+function variantPriceRange(variations: ProductVariation[]): { min: number; max: number } | null {
+    const prices = variations.map((v) => Number(v.price) || 0).filter((p) => p > 0);
+    if (!prices.length) return null;
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
+function stockStyle(stock: number) {
+    if (stock > 15) return { color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" };
+    if (stock > 5)  return { color: "text-amber-400",  bg: "bg-amber-400/10",  border: "border-amber-400/20"  };
+    return              { color: "text-red-400",    bg: "bg-red-400/10",    border: "border-red-400/20"    };
+}
+
+// ── skeleton ──────────────────────────────────────────────────────────────────
+
+const Skeleton = () => (
+    <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+            <div key={i} className="bg-[#0E1614] border border-[#1E2826] rounded-lg p-4 animate-pulse">
+                <div className="flex gap-4">
+                    <div className="w-24 h-24 bg-[#1E2826] rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-3">
+                        <div className="h-5 bg-[#1E2826] rounded w-2/3" />
+                        <div className="h-4 bg-[#1E2826] rounded w-1/2" />
                         <div className="flex gap-4">
-                            <div className="w-24 h-24 bg-gray-700 rounded-lg flex-shrink-0">
-                                {" "}
-                            </div>
-                            <div className="flex-1 space-y-3">
-                                <div className="h-5 bg-gray-700 rounded w-2/3">
-                                    {" "}
-                                </div>
-                                <div className="h-4 bg-gray-700 rounded w-1/2">
-                                    {" "}
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="h-4 bg-gray-700 rounded w-20">
-                                        {" "}
-                                    </div>
-                                    <div className="h-4 bg-gray-700 rounded w-20">
-                                        {" "}
-                                    </div>
-                                </div>
-                            </div>
+                            <div className="h-4 bg-[#1E2826] rounded w-20" />
+                            <div className="h-4 bg-[#1E2826] rounded w-20" />
                         </div>
                     </div>
-                ))}
+                </div>
             </div>
-        );
-    }
+        ))}
+    </div>
+);
+
+// ── main ──────────────────────────────────────────────────────────────────────
+
+const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false }) => {
+    if (isLoading) return <Skeleton />;
 
     if (products.length === 0) {
         return (
-            <div className="text-center py-12 px-4 bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-700">
-                <div className="text-gray-300 text-5xl mb-3">📦</div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                    No products yet
-                </h3>
-                <p className="text-gray-400 text-sm mb-6">
-                    Start by adding your first product to the inventory
-                </p>
+            <div className="text-center py-12 bg-[#0E1614] rounded-lg border-2 border-dashed border-[#1E2826]">
+                <Package size={40} className="text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-400 font-medium">No products found</p>
             </div>
         );
     }
@@ -72,126 +72,122 @@ const ProductsList: React.FC<ProductsListProps> = ({
     );
 };
 
-interface ProductListItemProps {
-    product: Product;
-}
+// ── list item ─────────────────────────────────────────────────────────────────
 
-const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
-    const profit = product.sale_price - product.purchase_price;
-    const profitPercentage = ((profit / product.purchase_price) * 100).toFixed(
-        1
-    );
+const ProductListItem: React.FC<{ product: Product }> = ({ product }) => {
+    const isVariant = product.product_type === "variant";
+    const variations = product.product_variations ?? [];
 
-    const getStockVariant = (stock: number) => {
-        if (stock > 15)
-            return {
-                color: "text-emerald-400",
-                bg: "bg-emerald-400/10",
-                border: "border-emerald-400/20",
-            };
-        if (stock > 5)
-            return {
-                color: "text-amber-400",
-                bg: "bg-amber-400/10",
-                border: "border-amber-400/20",
-            };
-        return {
-            color: "text-red-400",
-            bg: "bg-red-400/10",
-            border: "border-red-400/20",
-        };
-    };
+    const stock = isVariant ? variantStock(variations) : (product.stock || 0);
+    const st = stockStyle(stock);
 
-    const stockVariant = getStockVariant(product.stock);
+    const priceRange = isVariant ? variantPriceRange(variations) : null;
+    const profit = !isVariant ? product.sale_price - product.purchase_price : null;
+    const profitPct =
+        profit !== null && product.purchase_price > 0
+            ? ((profit / product.purchase_price) * 100).toFixed(1)
+            : null;
 
     return (
-        <div className="bg-[#0E1614] border border-[#1E2826] rounded-lg hover:border-[#2DE3A7]/30 transition-all duration-200 overflow-hidden group">
+        <div className="bg-[#0E1614] border border-[#1E2826] rounded-lg hover:border-[#2DE3A7]/30 transition-all duration-200 overflow-hidden">
             <div className="p-4">
                 <div className="flex gap-4">
-                    {/* Product Image */}
-                    <div className="relative w-24 h-24 bg-[#0F1A18] rounded-lg overflow-hidden flex-shrink-0">
+                    {/* Image */}
+                    <div className="relative w-24 h-24 bg-[#0F1A18] rounded-lg overflow-hidden shrink-0">
                         <img
-                            src={
-                                product.images && product.images.length > 0
-                                    ? getAssetUrl(product.images[0])
-                                    : "/placeholder.png"
-                            }
+                            src={product.images?.length ? getAssetUrl(product.images[0]) : "/placeholder.png"}
                             alt={product.name}
                             className="w-full h-full object-cover"
                         />
-                        {/* Profit Badge */}
-                        <div className="absolute top-1 left-1 bg-[#2DE3A7] text-[#0C1311] px-1.5 py-0.5 rounded text-xs font-bold">
-                            +{profitPercentage} %
-                        </div>
+                        {isVariant ? (
+                            <div className="absolute top-1 left-1 flex items-center gap-1 bg-[#0C1311]/80 border border-[#2DE3A7]/40 text-[#2DE3A7] px-1.5 py-0.5 rounded text-[10px] font-bold">
+                                <Layers size={9} />
+                                {variations.length}v
+                            </div>
+                        ) : profitPct !== null ? (
+                            <div className="absolute top-1 left-1 bg-[#2DE3A7] text-[#0C1311] px-1.5 py-0.5 rounded text-[10px] font-bold">
+                                +{profitPct}%
+                            </div>
+                        ) : null}
                     </div>
 
-                    {/* Product Info */}
+                    {/* Body */}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4 mb-2">
                             <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-white text-base mb-1 line-clamp-1">
-                                    {product.name}
-                                </h3>
-                                {product.sku && (
-                                    <p className="text-xs text-gray-500">
-                                        SKU: {product.sku}
-                                    </p>
-                                )}
+                                <h3 className="font-semibold text-white text-base line-clamp-1">{product.name}</h3>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    {product.category && (
+                                        <span className="text-xs text-gray-500">{product.category.title}</span>
+                                    )}
+                                    {isVariant && (
+                                        <span className="text-[10px] font-semibold text-[#2DE3A7] bg-[#2DE3A7]/10 border border-[#2DE3A7]/20 px-1.5 py-0.5 rounded">
+                                            VARIANT
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-
-                            {/* Stock Badge */}
-                            <div
-                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${stockVariant.bg} ${stockVariant.color} ${stockVariant.border} border whitespace-nowrap`}
-                            >
-                                <Package size={12} />
-                                <span> {product.stock} in stock </span>
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap border ${st.bg} ${st.color} ${st.border}`}>
+                                <Package size={11} />
+                                {stock} in stock
                             </div>
                         </div>
 
-                        {/* Pricing Grid */}
+                        {/* Pricing grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                            {/* Purchase Price */}
+                            {/* Cost */}
                             <div className="bg-[#0C1311] rounded-lg px-3 py-2 border border-[#1E2826]">
-                                <div className="text-xs text-gray-500 mb-0.5">
-                                    Cost
-                                </div>
-                                <div className="text-sm font-medium text-gray-300">
-                                    {formatPrice(product.purchase_price)}
-                                </div>
+                                <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide">Cost</p>
+                                <p className="text-sm font-medium text-gray-300">
+                                    {product.purchase_price > 0
+                                        ? formatPrice(product.purchase_price)
+                                        : <span className="text-gray-600">—</span>}
+                                </p>
                             </div>
 
-                            {/* Sale Price */}
+                            {/* Price / range */}
                             <div className="bg-[#0C1311] rounded-lg px-3 py-2 border border-[#1E2826]">
-                                <div className="text-xs text-gray-500 mb-0.5">
-                                    Price
-                                </div>
-                                <div className="text-sm font-semibold text-[#2DE3A7]">
-                                    {formatPrice(product.sale_price)}
-                                </div>
+                                <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide">
+                                    {isVariant ? "Price Range" : "Price"}
+                                </p>
+                                <p className="text-sm font-semibold text-[#2DE3A7]">
+                                    {isVariant
+                                        ? priceRange
+                                            ? priceRange.min === priceRange.max
+                                                ? formatPrice(priceRange.min)
+                                                : `${formatPrice(priceRange.min)} – ${formatPrice(priceRange.max)}`
+                                            : <span className="text-gray-600 font-normal text-xs">No price set</span>
+                                        : formatPrice(product.sale_price)}
+                                </p>
                             </div>
 
-                            {/* Profit */}
+                            {/* Profit (single) / Variant count (variant) */}
                             <div className="bg-[#0C1311] rounded-lg px-3 py-2 border border-[#1E2826]">
-                                <div className="text-xs text-gray-500 mb-0.5 flex items-center gap-1">
-                                    <TrendingUp size={10} />
-                                    Profit
-                                </div>
-                                <div className="text-sm font-bold text-[#2DE3A7]">
-                                    {formatPrice(profit)}
-                                </div>
+                                <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide flex items-center gap-1">
+                                    {isVariant
+                                        ? <><Layers size={9} /> Variants</>
+                                        : <><TrendingUp size={9} /> Profit</>}
+                                </p>
+                                <p className="text-sm font-bold text-[#2DE3A7]">
+                                    {isVariant
+                                        ? `${variations.length} option${variations.length !== 1 ? "s" : ""}`
+                                        : profit !== null
+                                            ? formatPrice(profit)
+                                            : <span className="text-gray-600">—</span>}
+                                </p>
                             </div>
 
-                            {/* Category */}
-                            {product.category && (
-                                <div className="bg-[#0C1311] rounded-lg px-3 py-2 border border-[#1E2826]">
-                                    <div className="text-xs text-gray-500 mb-0.5">
-                                        Category
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-300 truncate">
-                                        {product.category.title}
-                                    </div>
-                                </div>
-                            )}
+                            {/* Discounted price or brand */}
+                            <div className="bg-[#0C1311] rounded-lg px-3 py-2 border border-[#1E2826]">
+                                <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide">
+                                    {product.has_discount ? "Offer Price" : "Brand"}
+                                </p>
+                                <p className="text-sm font-medium truncate">
+                                    {product.has_discount && product.discounted_sale_price
+                                        ? <span className="text-amber-400">{formatPrice(product.discounted_sale_price)}</span>
+                                        : <span className="text-gray-300">{product.brand?.title ?? <span className="text-gray-600">—</span>}</span>}
+                                </p>
+                            </div>
                         </div>
 
                         {/* Actions */}
@@ -200,15 +196,15 @@ const ProductListItem: React.FC<ProductListItemProps> = ({ product }) => {
                                 href={route("admin.product.show", product.id)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E2826] text-gray-300 rounded-lg text-sm hover:bg-[#2A3633] hover:text-white transition-colors border border-[#2A3633]"
                             >
-                                <Eye size={14} />
-                                <span> View </span>
+                                <Eye size={13} />
+                                View
                             </Link>
                             <Link
                                 href={route("admin.product.edit", product.id)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2DE3A7]/10 text-[#2DE3A7] rounded-lg text-sm hover:bg-[#2DE3A7]/20 transition-colors border border-[#2DE3A7]/30"
                             >
-                                <Edit2 size={14} />
-                                <span> Edit </span>
+                                <Edit2 size={13} />
+                                Edit
                             </Link>
                         </div>
                     </div>

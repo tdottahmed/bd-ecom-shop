@@ -110,6 +110,7 @@ export interface Order {
 // Main Product interface
 export interface Product {
     id: number;
+    product_type?: 'single' | 'variant';
     name: string;
     slug: string;
     description: string;
@@ -134,6 +135,11 @@ export interface Product {
     discount_type?: "flat" | "percentage" | null;
     discount_value?: number | null;
     discounted_sale_price?: number | null;
+    short_description?: string | null;
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string | null;
+    og_image?: string | null;
     created_at: string;
     updated_at: string;
 }

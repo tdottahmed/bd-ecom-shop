@@ -98,16 +98,29 @@ class ProductController extends Controller
         // Paginate results
         $products = $query->paginate(15)->withQueryString();
 
-        // Get all products for stats (without pagination)
-        // We can use aggregate queries for better performance
+        // Stats: aggregate single and variant products separately for accuracy
+        $singleStats = DB::table('products')
+            ->where('product_type', 'single')
+            ->selectRaw('COALESCE(SUM(stock), 0) as stock, COALESCE(SUM(stock * purchase_price), 0) as buy_value, COALESCE(SUM(stock * sale_price), 0) as sell_value')
+            ->first();
+
+        $variantStats = DB::table('product_variations as pv')
+            ->join('products as p', 'pv.product_id', '=', 'p.id')
+            ->where('p.product_type', 'variant')
+            ->selectRaw('COALESCE(SUM(pv.stock), 0) as stock, COALESCE(SUM(pv.stock * p.purchase_price), 0) as buy_value, COALESCE(SUM(pv.stock * pv.price), 0) as sell_value')
+            ->first();
+
+        $totalBuy  = ($singleStats->buy_value  ?? 0) + ($variantStats->buy_value  ?? 0);
+        $totalSell = ($singleStats->sell_value ?? 0) + ($variantStats->sell_value ?? 0);
+
         $stats = [
-            'total' => Product::count(),
-            'checkouts' => \App\Models\Order::count(),
-            'stock' => Product::sum('stock'),
-            'buy_value' => Product::select(DB::raw('SUM(stock * purchase_price) as total'))->value('total') ?? 0,
-            'sell_value' => Product::select(DB::raw('SUM(stock * sale_price) as total'))->value('total') ?? 0,
+            'total'      => Product::count(),
+            'checkouts'  => \App\Models\Order::count(),
+            'stock'      => (int) (($singleStats->stock ?? 0) + ($variantStats->stock ?? 0)),
+            'buy_value'  => (float) $totalBuy,
+            'sell_value' => (float) $totalSell,
+            'profit'     => (float) ($totalSell - $totalBuy),
         ];
-        $stats['profit'] = $stats['sell_value'] - $stats['buy_value'];
 
         $categories = Category::select(['id', 'title'])->get();
         $brands = Brand::select(['id', 'title'])->get();
@@ -160,10 +173,16 @@ class ProductController extends Controller
                 );
             }
             $qtyPriceData = $this->processQtyPrices($request);
+            $ogImagePath = null;
+            if ($request->hasFile('og_image')) {
+                $ogImagePath = FileUpload::uploadImage($request->file('og_image'), 'products/seo');
+            }
             $product = Product::create([
+                'product_type' => $request->product_type,
                 'name' => $request->name,
                 'slug' => $request->slug,
                 'description' => $request->description,
+                'short_description' => $request->short_description ?: null,
                 'purchase_price' => $request->purchase_price,
                 'sale_price' => $request->sale_price,
                 'stock' => $request->stock,
@@ -176,6 +195,10 @@ class ProductController extends Controller
                 'discount_type' => $request->discount_type ?: null,
                 'discount_value' => $request->discount_value !== null && $request->discount_value !== '' ? (float) $request->discount_value : null,
                 'discounted_sale_price' => $this->getDiscountedSalePrice($request),
+                'meta_title' => $request->meta_title ?: null,
+                'meta_description' => $request->meta_description ?: null,
+                'meta_keywords' => $request->meta_keywords ?: null,
+                'og_image' => $ogImagePath,
             ]);
 
             if ($request->has('variations') && !empty($request->variations)) {
@@ -263,10 +286,25 @@ class ProductController extends Controller
 
             $qtyPriceData = $this->processQtyPrices($request);
 
+            $ogImagePath = $product->og_image;
+            if ($request->hasFile('og_image')) {
+                if ($ogImagePath) {
+                    FileUpload::deleteImages([$ogImagePath]);
+                }
+                $ogImagePath = FileUpload::uploadImage($request->file('og_image'), 'products/seo');
+            } elseif ($request->input('delete_og_image')) {
+                if ($ogImagePath) {
+                    FileUpload::deleteImages([$ogImagePath]);
+                }
+                $ogImagePath = null;
+            }
+
             $product->update([
+                'product_type' => $request->product_type,
                 'name' => $request->name,
                 'slug' => $request->slug,
                 'description' => $request->description,
+                'short_description' => $request->short_description ?: null,
                 'purchase_price' => $request->purchase_price,
                 'sale_price' => $request->sale_price,
                 'stock' => $request->stock,
@@ -279,6 +317,10 @@ class ProductController extends Controller
                 'discount_type' => $request->discount_type ?: null,
                 'discount_value' => $request->discount_value !== null && $request->discount_value !== '' ? (float) $request->discount_value : null,
                 'discounted_sale_price' => $this->getDiscountedSalePrice($request),
+                'meta_title' => $request->meta_title ?: null,
+                'meta_description' => $request->meta_description ?: null,
+                'meta_keywords' => $request->meta_keywords ?: null,
+                'og_image' => $ogImagePath,
             ]);
             // Handle Variations Update (Sync Logic)
             if ($request->has('variations')) {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "@inertiajs/react";
-import { Trash2Icon, ArrowLeftIcon } from "lucide-react";
+import { Trash2Icon, ArrowLeftIcon, SaveIcon, LoaderCircleIcon } from "lucide-react";
 import Master from "@/Layouts/Master";
 import Header from "@/Components/Layouts/Header";
 import PrimaryButton from "@/Components/Actions/PrimaryButton";
@@ -10,6 +10,8 @@ import { EditPageProps } from "@/types";
 import GeneralInformation from "./Partials/Create/GeneralInformation";
 import PricingInventory from "./Partials/Create/PricingInventory";
 import ImagesVariations from "./Partials/Create/ImagesVariations";
+import SeoFields from "./Partials/Create/SeoFields";
+import ProductTypeSelector from "./Partials/Create/ProductTypeSelector";
 
 interface QtyPrice {
     id: string;
@@ -49,7 +51,7 @@ export default function Edit({
             try {
                 const parsed = JSON.parse(product.images);
                 return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
+            } catch {
                 return [];
             }
         }
@@ -64,6 +66,7 @@ export default function Edit({
         errors,
         delete: destroy,
     } = useForm({
+        product_type: (product.product_type ?? "single") as "single" | "variant",
         name: product.name || "",
         slug: product.slug || "",
         category_id: product.category_id?.toString() || "",
@@ -73,23 +76,32 @@ export default function Edit({
         purchase_price: product.purchase_price?.toString() || "",
         sale_price: product.sale_price?.toString() || "",
         stock: product.stock?.toString() || "",
-        is_preorder: product.is_preorder || false,
         has_discount: !!(
-            product.has_discount ||
-            product.discounted_sale_price != null
+            product.has_discount || product.discounted_sale_price != null
         ),
         discount_type: product.discount_type ?? "",
-        discount_value: product.discount_value != null ? String(product.discount_value) : "",
-        discounted_sale_price: product.discounted_sale_price != null ? String(product.discounted_sale_price) : null,
+        discount_value:
+            product.discount_value != null
+                ? String(product.discount_value)
+                : "",
+        discounted_sale_price:
+            product.discounted_sale_price != null
+                ? String(product.discounted_sale_price)
+                : null,
 
         qty_prices: (product.qty_price || []).map((qp: any) => ({
-            id: Math.random().toString(), // Add temporary ID for frontend key
+            id: Math.random().toString(),
             qty: qp.qty.toString(),
             qty_price: qp.price.toString(),
         })) as QtyPrice[],
 
         variations: (product.product_variations || []).map((v: any) => ({
-            id: v.id?.toString() || "temp_" + Date.now().toString() + "_" + Math.random().toString(36).substring(2),
+            id:
+                v.id?.toString() ||
+                "temp_" +
+                    Date.now().toString() +
+                    "_" +
+                    Math.random().toString(36).substring(2),
             attribute_id:
                 v.product_attribute_id?.toString() ||
                 v.attribute_id?.toString(),
@@ -102,6 +114,13 @@ export default function Edit({
 
         images: [] as File[],
         deleted_images: [] as string[],
+
+        short_description: product.short_description ?? "",
+        meta_title: product.meta_title ?? "",
+        meta_description: product.meta_description ?? "",
+        meta_keywords: product.meta_keywords ?? "",
+        og_image: null as File | null,
+        delete_og_image: false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -131,77 +150,113 @@ export default function Edit({
             title={`Edit ${product.name}`}
             head={<Header title={`Edit ${product.name}`} showUserMenu={true} />}
         >
-            <form onSubmit={handleSubmit}>
-                <div className="lg:p-6 p-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-full">
+                {/* Content — pb ensures last card isn't hidden under sticky bar */}
+                <div className="flex-1 p-4 lg:p-6 pb-24 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <h1 className="text-2xl font-bold text-white">
                                 Edit Product
                             </h1>
-                            <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                Update product information and pricing
+                            <p className="text-sm text-gray-500 mt-1">
+                                {product.name}
                             </p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                            <DangerButton
-                                type="button"
-                                variant="outline"
-                                onClick={() => setShowDeleteDialog(true)}
-                                disabled={processing || processingDelete}
-                                className="w-full sm:w-auto order-2 sm:order-1"
-                            >
-                                <Trash2Icon size={16} className="mr-2" />
-                                Delete Product
-                            </DangerButton>
+                        <DangerButton
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowDeleteDialog(true)}
+                            disabled={processing || processingDelete}
+                            className="w-full sm:w-auto"
+                        >
+                            <Trash2Icon size={15} className="mr-2" />
+                            Delete Product
+                        </DangerButton>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        {/* Main column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <ProductTypeSelector
+                                value={data.product_type}
+                                onChange={(type) => {
+                                    setData("product_type", type);
+                                    if (type === "single") setData("variations", []);
+                                }}
+                            />
+                            <GeneralInformation
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                categories={categories}
+                                brands={brands}
+                            />
+                            <ImagesVariations
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                attributes={attributes}
+                                productType={data.product_type}
+                                existingImages={existingImages}
+                                onRemoveExisting={handleRemoveExistingImage}
+                            />
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="space-y-6">
+                            <PricingInventory
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                settings={settings}
+                                productType={data.product_type}
+                            />
+                            <SeoFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                existingOgImage={product.og_image}
+                            />
                         </div>
                     </div>
                 </div>
 
-                <GeneralInformation
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    categories={categories}
-                    brands={brands}
-                />
-
-                <PricingInventory
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    settings={settings}
-                />
-
-                <ImagesVariations
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    attributes={attributes}
-                    existingImages={existingImages}
-                    onRemoveExisting={handleRemoveExistingImage}
-                />
-
-                <div className="pt-6 pb-6">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:justify-end">
-                            <PrimaryButton
-                                type="submit"
-                                size="sm"
-                                disabled={processing}
-                                className="w-full sm:w-auto lg:w-auto justify-center"
-                            >
-                                {processing ? "Updating..." : "Update Product"}
-                            </PrimaryButton>
-                            <PrimaryButton
-                                as="link"
-                                href={route("admin.products.index")}
-                                variant="outline"
-                                className="w-full sm:w-auto lg:w-auto justify-center"
-                            >
-                                <ArrowLeftIcon size={16} className="mr-2" />{" "}
-                                Back to Products
-                            </PrimaryButton>
-                        </div>
+                {/* Sticky action bar — bleeds through main's padding via negative margins */}
+                <div
+                    className="sticky bottom-0 -mx-4 -mb-4 lg:-mx-6 lg:-mb-6 z-30
+                                bg-[#0E1614]/90 backdrop-blur-md
+                                border-t border-[#1E2826]
+                                shadow-[0_-8px_24px_rgba(0,0,0,0.4)]
+                                px-4 lg:px-6 py-3"
+                >
+                    <div className="flex items-center justify-end gap-3">
+                        <PrimaryButton
+                            as="link"
+                            href={route("admin.products.index")}
+                            variant="outline"
+                            className="justify-center"
+                        >
+                            <ArrowLeftIcon size={15} className="mr-2" />
+                            Back
+                        </PrimaryButton>
+                        <PrimaryButton
+                            type="submit"
+                            size="sm"
+                            disabled={processing}
+                            className="min-w-36 justify-center"
+                        >
+                            {processing ? (
+                                <>
+                                    <LoaderCircleIcon className="size-4 animate-spin" />
+                                    Updating...
+                                </>
+                            ) : (
+                                <>
+                                    <SaveIcon className="size-4" />
+                                    Update Product
+                                </>
+                            )}
+                        </PrimaryButton>
                     </div>
                 </div>
             </form>

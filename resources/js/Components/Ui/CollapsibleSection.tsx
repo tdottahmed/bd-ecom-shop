@@ -17,6 +17,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         <div className="border border-gray-700 rounded-lg">
             {/* Header */}
             <button
+                type="button"
                 onClick={() => setOpen(!open)}
                 className="w-full flex justify-between items-center px-4 py-3
                            text-left font-medium text-gray-200

@@ -7,8 +7,9 @@ import { CreatePageProps } from "@/types";
 import GeneralInformation from "./Partials/Create/GeneralInformation";
 import PricingInventory from "./Partials/Create/PricingInventory";
 import ImagesVariations from "./Partials/Create/ImagesVariations";
+import SeoFields from "./Partials/Create/SeoFields";
+import ProductTypeSelector from "./Partials/Create/ProductTypeSelector";
 
-// Interfaces (kept for type safety in useForm, though used in children too)
 interface QtyPrice {
     id: string;
     qty: string;
@@ -45,23 +46,26 @@ export default function Create({
         description: "",
         purchase_price: "",
         sale_price: "",
-
         stock: "",
-        is_preorder: false,
         has_discount: false,
         discount_type: "",
         discount_value: "",
         discounted_sale_price: null as string | null,
         qty_prices: [] as QtyPrice[],
+        product_type: "single" as "single" | "variant",
         images: [] as File[],
         variations: [] as Variation[],
+        short_description: "",
+        meta_title: "",
+        meta_description: "",
+        meta_keywords: "",
+        og_image: null as File | null,
+        delete_og_image: false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route("admin.product.store"), {
-            forceFormData: true,
-        });
+        post(route("admin.product.store"), { forceFormData: true });
     };
 
     return (
@@ -69,36 +73,70 @@ export default function Create({
             title="Create Product"
             head={<Header title="Create Product" showUserMenu={true} />}
         >
-            <form onSubmit={handleSubmit}>
-                <GeneralInformation
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    categories={categories}
-                    brands={brands}
-                />
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-full">
+                {/* Content — pb ensures last card isn't hidden under sticky bar */}
+                <div className="flex-1 p-4 lg:p-6 pb-24 space-y-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">Create Product</h1>
+                        <p className="text-sm text-gray-500 mt-1">Fill in the details below to add a new product.</p>
+                    </div>
 
-                <PricingInventory
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    settings={settings}
-                />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        {/* Main column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <ProductTypeSelector
+                                value={data.product_type}
+                                onChange={(type) => {
+                                    setData("product_type", type);
+                                    if (type === "single") setData("variations", []);
+                                }}
+                            />
+                            <GeneralInformation
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                categories={categories}
+                                brands={brands}
+                            />
+                            <ImagesVariations
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                attributes={attributes}
+                                productType={data.product_type}
+                            />
+                        </div>
 
-                <ImagesVariations
-                    data={data}
-                    setData={setData}
-                    errors={errors}
-                    attributes={attributes}
-                />
+                        {/* Sidebar */}
+                        <div className="space-y-6">
+                            <PricingInventory
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                settings={settings}
+                                productType={data.product_type}
+                            />
+                            <SeoFields
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                            />
+                        </div>
+                    </div>
+                </div>
 
-                <div className="lg:p-6 pt-6 pb-6">
-                    <div className="flex flex-col sm:flex-row justify-end gap-3">
+                {/* Sticky action bar — bleeds through main's padding via negative margins */}
+                <div className="sticky bottom-0 -mx-4 -mb-4 lg:-mx-6 lg:-mb-6 z-30
+                                bg-[#0E1614]/90 backdrop-blur-md
+                                border-t border-[#1E2826]
+                                shadow-[0_-8px_24px_rgba(0,0,0,0.4)]
+                                px-4 lg:px-6 py-3">
+                    <div className="flex justify-end">
                         <PrimaryButton
-                            size="sm"
                             type="submit"
+                            size="sm"
                             disabled={processing}
-                            className="w-full sm:w-auto justify-center"
+                            className="min-w-36 justify-center"
                         >
                             {processing ? "Creating..." : "Create Product"}
                         </PrimaryButton>

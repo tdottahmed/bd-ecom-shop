@@ -19,6 +19,7 @@ class ProductRequest extends FormRequest
         }
 
         return [
+            'product_type' => 'required|in:single,variant',
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:products,slug,' . ($productId ?? 'NULL'),
             'description' => 'required|string',
@@ -47,6 +48,12 @@ class ProductRequest extends FormRequest
             'discount_type' => 'nullable|in:flat,percentage',
             'discount_value' => 'nullable|numeric|min:0',
             'discounted_sale_price' => 'nullable|numeric|min:0',
+            'short_description' => 'nullable|string|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'og_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'delete_og_image' => 'nullable|boolean',
         ];
     }
 
