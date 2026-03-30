@@ -12,14 +12,17 @@ class CourierController extends Controller
     {
         return Inertia::render('Admin/Settings/Courier/Index', [
             'credentials' => [
-                'pathao_user' => env('PATHAO_USER'),
-                'pathao_password' => env('PATHAO_PASSWORD'),
-                'steadfast_user' => env('STEADFAST_USER'),
-                'steadfast_password' => env('STEADFAST_PASSWORD'),
-                'steadfast_api_key' => env('STEADFAST_API_KEY'),
+                'pathao_user'          => env('PATHAO_USER'),
+                'pathao_password'      => env('PATHAO_PASSWORD'),
+                'pathao_client_id'     => env('PATHAO_CLIENT_ID'),
+                'pathao_client_secret' => env('PATHAO_CLIENT_SECRET'),
+                'pathao_store_id'      => env('PATHAO_STORE_ID'),
+                'steadfast_user'       => env('STEADFAST_USER'),
+                'steadfast_password'   => env('STEADFAST_PASSWORD'),
+                'steadfast_api_key'    => env('STEADFAST_API_KEY'),
                 'steadfast_secret_key' => env('STEADFAST_SECRET_KEY'),
-                'redx_phone' => env('REDX_PHONE'),
-                'redx_password' => env('REDX_PASSWORD'),
+                'redx_phone'           => env('REDX_PHONE'),
+                'redx_password'        => env('REDX_PASSWORD'),
             ]
         ]);
     }
@@ -27,17 +30,23 @@ class CourierController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
-            'pathao_user' => 'nullable|string',
-            'pathao_password' => 'nullable|string',
-            'steadfast_user' => 'nullable|string',
-            'steadfast_password' => 'nullable|string',
-            'steadfast_api_key' => 'nullable|string',
+            'pathao_user'          => 'nullable|string',
+            'pathao_password'      => 'nullable|string',
+            'pathao_client_id'     => 'nullable|string',
+            'pathao_client_secret' => 'nullable|string',
+            'pathao_store_id'      => 'nullable|string',
+            'steadfast_user'       => 'nullable|string',
+            'steadfast_password'   => 'nullable|string',
+            'steadfast_api_key'    => 'nullable|string',
             'steadfast_secret_key' => 'nullable|string',
-            'redx_phone' => 'nullable|string',
-            'redx_password' => 'nullable|string',
+            'redx_phone'           => 'nullable|string',
+            'redx_password'        => 'nullable|string',
         ]);
 
         $this->updateEnv($data);
+
+        // Clear cached Pathao token whenever credentials change
+        \Illuminate\Support\Facades\Cache::forget('pathao_access_token');
 
         return back()->with('success', 'Courier credentials updated successfully.');
     }
@@ -47,16 +56,19 @@ class CourierController extends Controller
         $path = base_path('.env');
         if (file_exists($path)) {
             $env = file_get_contents($path);
-            
+
             $replacements = [
-                'PATHAO_USER' => $data['pathao_user'] ?? '',
-                'PATHAO_PASSWORD' => $data['pathao_password'] ?? '',
-                'STEADFAST_USER' => $data['steadfast_user'] ?? '',
-                'STEADFAST_PASSWORD' => $data['steadfast_password'] ?? '',
-                'STEADFAST_API_KEY' => $data['steadfast_api_key'] ?? '',
+                'PATHAO_USER'          => $data['pathao_user'] ?? '',
+                'PATHAO_PASSWORD'      => $data['pathao_password'] ?? '',
+                'PATHAO_CLIENT_ID'     => $data['pathao_client_id'] ?? '',
+                'PATHAO_CLIENT_SECRET' => $data['pathao_client_secret'] ?? '',
+                'PATHAO_STORE_ID'      => $data['pathao_store_id'] ?? '',
+                'STEADFAST_USER'       => $data['steadfast_user'] ?? '',
+                'STEADFAST_PASSWORD'   => $data['steadfast_password'] ?? '',
+                'STEADFAST_API_KEY'    => $data['steadfast_api_key'] ?? '',
                 'STEADFAST_SECRET_KEY' => $data['steadfast_secret_key'] ?? '',
-                'REDX_PHONE' => $data['redx_phone'] ?? '',
-                'REDX_PASSWORD' => $data['redx_password'] ?? '',
+                'REDX_PHONE'           => $data['redx_phone'] ?? '',
+                'REDX_PASSWORD'        => $data['redx_password'] ?? '',
             ];
 
             foreach ($replacements as $key => $value) {

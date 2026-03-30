@@ -18,6 +18,12 @@ class Order extends Model
         'subtotal',
         'total',
         'status',
+        'courier',
+        'consignment_id',
+        'tracking_code',
+        'pathao_city_id',
+        'pathao_zone_id',
+        'pathao_area_id',
     ];
 
     public function items()

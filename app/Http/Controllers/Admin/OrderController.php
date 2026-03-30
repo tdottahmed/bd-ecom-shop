@@ -39,47 +39,37 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,unreachable,preparing,shipping,completed,cancelled,returned',
+            'status'           => 'required|in:pending,unreachable,preparing,shipping,completed,cancelled,returned',
             'create_consignment' => 'nullable|boolean',
-            'name' => 'required_if:create_consignment,true|string|max:255',
-            'address' => 'required_if:create_consignment,true|string|max:255',
-            'phone' => 'required_if:create_consignment,true|string|max:20',
+            'courier'          => 'nullable|in:steadfast,pathao',
+            'name'             => 'required_if:create_consignment,true|string|max:255',
+            'address'          => 'required_if:create_consignment,true|string|max:255',
+            'phone'            => 'required_if:create_consignment,true|string|max:20',
+            'note'             => 'nullable|string|max:500',
+            'pathao_city_id'   => 'required_if:courier,pathao|nullable|integer',
+            'pathao_zone_id'   => 'required_if:courier,pathao|nullable|integer',
+            'pathao_area_id'   => 'required_if:courier,pathao|nullable|integer',
         ]);
 
         if ($request->create_consignment) {
-            // Update Order Details
+            // Sync editable customer fields
             $order->update([
-                'customer_name' => $request->name,
+                'customer_name'    => $request->name,
                 'customer_address' => $request->address,
-                'customer_phone' => $request->phone,
+                'customer_phone'   => $request->phone,
             ]);
 
-            // Create Consignment
-            try {
-                $courierData = [
-                    'invoice' => (string) $order->id,
-                    'recipient_name' => $order->customer_name,
-                    'recipient_phone' => $order->customer_phone,
-                    'recipient_address' => $order->customer_address,
-                    'cod_amount' => $order->total, // Assuming COD amount is total
-                    'note' => $order->note ?? 'Order #' . $order->id,
-                ];
+            $courier = $request->courier ?? 'steadfast';
+            $note    = $request->note ?? 'Order #' . $order->id;
 
-                $response = \SteadFast\SteadFastCourierLaravelPackage\Facades\SteadfastCourier::placeOrder($courierData);
+            if ($courier === 'pathao') {
+                $error = $this->createPathaoConsignment($order, $request, $note);
+            } else {
+                $error = $this->createSteadfastConsignment($order, $note);
+            }
 
-                if (isset($response['status']) && $response['status'] == 200) {
-                    // Consignment created successfully
-                    // Maybe save consignment_id or tracking_code if available in response
-                    // $response['consignment']['consignment_id']
-                } else {
-
-                    if (isset($response['message'])) {
-                        return redirect()->back()->with('error', 'Steadfast Error: ' . json_encode($response['message']));
-                    }
-                    return redirect()->back()->with('error', 'Failed to create consignment with Steadfast.');
-                }
-            } catch (\Exception $e) {
-                return redirect()->back()->with('error', 'Steadfast Exception: ' . $e->getMessage());
+            if ($error) {
+                return redirect()->back()->with('error', $error);
             }
         }
 
@@ -168,6 +158,79 @@ class OrderController extends Controller
             'orders' => $orders,
         ]);
     }
+    // ── Private courier helpers ───────────────────────────────────────────────
+
+    private function createSteadfastConsignment(Order $order, string $note): ?string
+    {
+        try {
+            $response = \SteadFast\SteadFastCourierLaravelPackage\Facades\SteadfastCourier::placeOrder([
+                'invoice'          => (string) $order->id,
+                'recipient_name'   => $order->customer_name,
+                'recipient_phone'  => $order->customer_phone,
+                'recipient_address'=> $order->customer_address,
+                'cod_amount'       => $order->total,
+                'note'             => $note,
+            ]);
+
+            if (isset($response['status']) && $response['status'] == 200) {
+                $consignment = $response['consignment'] ?? [];
+                $order->update([
+                    'courier'        => 'steadfast',
+                    'consignment_id' => $consignment['consignment_id'] ?? null,
+                    'tracking_code'  => $consignment['tracking_code'] ?? null,
+                ]);
+                return null;
+            }
+
+            $msg = is_array($response['message'] ?? null)
+                ? json_encode($response['message'])
+                : ($response['message'] ?? 'Unknown error');
+
+            return 'Steadfast Error: ' . $msg;
+        } catch (\Exception $e) {
+            return 'Steadfast Exception: ' . $e->getMessage();
+        }
+    }
+
+    private function createPathaoConsignment(Order $order, \Illuminate\Http\Request $request, string $note): ?string
+    {
+        try {
+            $pathao   = app(\App\Services\PathaoService::class);
+            $response = $pathao->createOrder([
+                'merchant_order_id'  => (string) $order->id,
+                'recipient_name'     => $order->customer_name,
+                'recipient_phone'    => $order->customer_phone,
+                'recipient_address'  => $order->customer_address,
+                'recipient_city'     => (int) $request->pathao_city_id,
+                'recipient_zone'     => (int) $request->pathao_zone_id,
+                'recipient_area'     => (int) $request->pathao_area_id,
+                'amount_to_collect'  => $order->total,
+                'special_instruction'=> $note,
+                'item_description'   => 'Order #' . $order->id,
+            ]);
+
+            $code = $response['code'] ?? null;
+
+            if ($code === 200 || isset($response['data']['consignment_id'])) {
+                $order->update([
+                    'courier'        => 'pathao',
+                    'consignment_id' => $response['data']['consignment_id'] ?? null,
+                    'pathao_city_id' => $request->pathao_city_id,
+                    'pathao_zone_id' => $request->pathao_zone_id,
+                    'pathao_area_id' => $request->pathao_area_id,
+                ]);
+                return null;
+            }
+
+            $msg = $response['message'] ?? 'Unknown Pathao error';
+            return 'Pathao Error: ' . (is_array($msg) ? json_encode($msg) : $msg);
+        } catch (\Exception $e) {
+            return 'Pathao Exception: ' . $e->getMessage();
+        }
+    }
+
+    // ── Fraud check ───────────────────────────────────────────────────────────
+
     public function checkFraud(Order $order, \App\Services\CourierFraudCheckerService $fraudChecker)
     {
         $result = $fraudChecker->check($order->customer_phone);

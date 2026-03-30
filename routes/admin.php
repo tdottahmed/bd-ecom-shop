@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\WebsiteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\CourierController;
+use App\Http\Controllers\Admin\PathaoController;
 use App\Http\Controllers\Admin\PriceCalculatorController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\SeoController;
@@ -46,6 +47,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
   Route::post('payment-gateways/update', [PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
   Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
   Route::post('courier/update', [CourierController::class, 'update'])->name('courier.update');
+
+  // Pathao address API
+  Route::get('pathao/cities', [PathaoController::class, 'cities'])->name('pathao.cities');
+  Route::get('pathao/zones/{cityId}', [PathaoController::class, 'zones'])->name('pathao.zones');
+  Route::get('pathao/areas/{zoneId}', [PathaoController::class, 'areas'])->name('pathao.areas');
   Route::get('marketing', [MarketingController::class, 'index'])->name('marketing.index');
   Route::post('marketing/update', [MarketingController::class, 'update'])->name('marketing.update');
   Route::get('seo', [SeoController::class, 'index'])->name('seo.index');

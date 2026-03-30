@@ -95,6 +95,12 @@ export interface Order {
     subtotal: number;
     total: number;
     status: string;
+    courier?: 'steadfast' | 'pathao' | null;
+    consignment_id?: string | null;
+    tracking_code?: string | null;
+    pathao_city_id?: number | null;
+    pathao_zone_id?: number | null;
+    pathao_area_id?: number | null;
     success_rate?: number;
     created_at: string;
     items?: OrderItem[];

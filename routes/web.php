@@ -12,6 +12,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\Webhook\PathaoWebhookController;
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');
@@ -31,6 +32,9 @@ Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
 Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
+
+// Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
+Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name('webhooks.pathao');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

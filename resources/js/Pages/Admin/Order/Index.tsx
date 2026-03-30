@@ -111,6 +111,10 @@ export default function Index({ orders, filters }: Props) {
         address: string;
         phone: string;
         note?: string;
+        courier: "steadfast" | "pathao";
+        pathao_city_id?: number;
+        pathao_zone_id?: number;
+        pathao_area_id?: number;
     }) => {
         if (!selectedOrderForShipping) return;
 
