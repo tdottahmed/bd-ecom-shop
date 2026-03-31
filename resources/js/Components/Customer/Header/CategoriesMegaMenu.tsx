@@ -42,7 +42,8 @@ const CategoriesMegaMenu: React.FC<Props> = ({
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const firstCategoryWithProducts =
-        allCategories.find((c) => (c.products ?? []).length > 0) ?? allCategories[0];
+        allCategories.find((c) => (c.products ?? []).length > 0) ??
+        allCategories[0];
 
     const [activeCategorySlug, setActiveCategorySlug] = useState<string | null>(
         firstCategoryWithProducts?.slug ?? null,
@@ -62,13 +63,16 @@ const CategoriesMegaMenu: React.FC<Props> = ({
     // Sync default when categories load asynchronously
     useEffect(() => {
         if (!activeCategorySlug && allCategories.length > 0) {
-            const first = allCategories.find((c) => (c.products ?? []).length > 0) ?? allCategories[0];
+            const first =
+                allCategories.find((c) => (c.products ?? []).length > 0) ??
+                allCategories[0];
             setActiveCategorySlug(first?.slug ?? null);
         }
     }, [allCategories]);
 
     const activeCategory =
-        allCategories.find((c) => c.slug === activeCategorySlug) ?? firstCategoryWithProducts;
+        allCategories.find((c) => c.slug === activeCategorySlug) ??
+        firstCategoryWithProducts;
     const activeProducts = (activeCategory?.products ?? []).slice(0, 4);
     const fillerCount = Math.max(0, 4 - activeProducts.length);
 
@@ -80,7 +84,10 @@ const CategoriesMegaMenu: React.FC<Props> = ({
         >
             <button
                 type="button"
-                onMouseEnter={() => { cancelClose(); onMouseEnter(); }}
+                onMouseEnter={() => {
+                    cancelClose();
+                    onMouseEnter();
+                }}
                 onClick={onToggle}
                 className="px-2 py-2 md:px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-full transition-colors inline-flex items-center gap-2"
                 aria-expanded={isOpen}
@@ -100,7 +107,6 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                 >
                     {allCategories.length > 0 ? (
                         <div className="flex flex-col md:flex-row max-h-[70vh]">
-
                             {/* Left: Category List */}
                             <div className="md:w-56 lg:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100 overflow-y-auto">
                                 <div className="p-4">
@@ -135,7 +141,9 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                                 >
                                                     <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
                                                         <Image
-                                                            src={getAssetUrl(c.image)}
+                                                            src={getAssetUrl(
+                                                                c.image,
+                                                            )}
                                                             alt={c.title}
                                                             className="w-full h-full object-cover"
                                                         />
@@ -143,7 +151,10 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                                     <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1 truncate">
                                                         {c.title}
                                                     </span>
-                                                    <ArrowRight size={13} className="text-gray-300 group-hover:text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
+                                                    <ArrowRight
+                                                        size={13}
+                                                        className="text-gray-300 group-hover:text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all"
+                                                    />
                                                 </Link>
                                             </li>
                                         ))}
@@ -171,7 +182,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                 </p>
 
                                 {activeProducts.length > 0 ? (
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
                                         {activeProducts.map((p) => {
                                             const price = p.has_discount
                                                 ? p.discounted_sale_price
@@ -183,47 +194,56 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                             return (
                                                 <Link
                                                     key={p.id}
-                                                    href={route("products.show", p.slug)}
+                                                    href={route(
+                                                        "products.show",
+                                                        p.slug,
+                                                    )}
                                                     onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-xl rounded-2xl p-3 transition-all duration-300"
+                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm rounded-lg p-1.5 transition-all duration-300"
                                                 >
-                                                    <div className="aspect-square w-full rounded-xl bg-white border border-gray-100 mb-3 overflow-hidden">
+                                                    <div className="aspect-square w-full rounded-md bg-white border border-gray-100 mb-1.5 overflow-hidden">
                                                         {primaryImage ? (
                                                             <Image
-                                                                src={primaryImage}
+                                                                src={
+                                                                    primaryImage
+                                                                }
                                                                 alt={p.name}
                                                                 className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
                                                             />
                                                         ) : (
                                                             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                                <span className="text-gray-400 text-xs">No image</span>
+                                                                <span className="text-gray-400 text-xs">
+                                                                    No image
+                                                                </span>
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div className="flex-1 flex flex-col justify-between">
-                                                        <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 group-hover/card:text-blue-600 transition-colors">
+                                                        <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-blue-600 transition-colors leading-tight">
                                                             {p.name}
                                                         </h4>
-                                                        <div className="text-sm font-bold text-gray-900 mt-auto">
-                                                            {formatCurrency(price || 0)}
+                                                        <div className="text-[11px] font-bold text-gray-900 mt-auto">
+                                                            {formatCurrency(
+                                                                price || 0,
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </Link>
                                             );
                                         })}
-                                        {Array.from({ length: fillerCount }).map(
-                                            (_, index) => (
+                                        {fillerCount > 0 && (
+                                            <>
                                                 <Link
-                                                    key={`filler-${index}`}
+                                                    key="filler-explore-category"
                                                     href={route(
                                                         "products.category",
                                                         activeCategory?.slug,
                                                     )}
                                                     onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-2xl p-3 transition-all duration-300 hover:border-gray-300 hover:bg-white"
+                                                    className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-lg p-2 transition-all duration-300 hover:border-gray-300 hover:bg-white"
                                                 >
-                                                    <div className="aspect-square w-full rounded-xl bg-gray-100/80 border border-gray-100 mb-3 flex items-center justify-center">
-                                                        <span className="text-gray-400 text-xs text-center px-2">
+                                                    <div className="aspect-square w-full rounded-md bg-gray-100/80 border border-gray-100 mb-1.5 flex items-center justify-center">
+                                                        <span className="text-gray-400 text-[11px] text-center px-2">
                                                             More from{" "}
                                                             {
                                                                 activeCategory?.title
@@ -231,12 +251,21 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                                         </span>
                                                     </div>
                                                     <div className="flex-1 flex flex-col justify-end">
-                                                        <div className="text-sm font-semibold text-gray-700 group-hover/card:text-blue-600">
+                                                        <div className="text-[11px] font-semibold text-gray-700 group-hover/card:text-blue-600">
                                                             Explore Category
                                                         </div>
                                                     </div>
                                                 </Link>
-                                            ),
+                                                {Array.from({
+                                                    length: fillerCount - 1,
+                                                }).map((_, idx) => (
+                                                    <div
+                                                        key={`filler-empty-${idx}`}
+                                                        className="hidden lg:block rounded-lg border border-transparent"
+                                                        aria-hidden="true"
+                                                    />
+                                                ))}
+                                            </>
                                         )}
                                     </div>
                                 ) : (

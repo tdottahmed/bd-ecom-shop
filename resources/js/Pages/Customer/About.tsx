@@ -116,7 +116,7 @@ export default function About({
                             Our Story
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
-                            About True by Malaysia
+                            About True Buy Malaysia
                         </h1>
                         <p className="max-w-xl mx-auto text-lg text-slate-500">
                             We started with a simple mission — make online

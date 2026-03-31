@@ -46,24 +46,24 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
             {/* Header */}
             <div className="mb-8 flex items-end justify-between gap-4">
                 <div>
-                    <h2 className="font-display text-2xl font-extrabold tracking-tight text-zinc-900 md:text-4xl">
+                    <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-4xl">
                         Shop by Category
                     </h2>
                     <p className="mt-2 text-sm text-zinc-600 font-medium">
                         Explore our curated collections
                     </p>
                 </div>
-                
+
                 {/* Desktop controls */}
                 <div className="hidden items-center gap-2 md:flex">
-                    <button 
+                    <button
                         onClick={() => scroll("left")}
                         className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-600 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white active:scale-95"
                         aria-label="Scroll left"
                     >
                         <ArrowLeft size={20} strokeWidth={1.5} />
                     </button>
-                    <button 
+                    <button
                         onClick={() => scroll("right")}
                         className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-600 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white active:scale-95"
                         aria-label="Scroll right"
@@ -75,10 +75,10 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
 
             {/* Slider */}
             <div className="relative -mx-5 px-5 md:-mx-10 md:px-10">
-                <div 
+                <div
                     ref={scrollContainerRef}
                     className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-6 scrollbar-hide md:gap-5"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                     {categories.map((cat, index) => (
                         <Link
@@ -100,13 +100,17 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
                                 <h3 className="font-display text-lg font-bold tracking-wide text-white sm:text-xl md:text-2xl drop-shadow-md">
                                     {cat.title}
                                 </h3>
-                                
+
                                 <div className="mt-2 md:mt-3 flex items-center justify-between pointer-events-none">
                                     <span className="hidden text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white/90 uppercase drop-shadow-sm transition-transform duration-500 group-hover:translate-x-1 sm:block">
                                         Explore
                                     </span>
                                     <div className="flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:bg-white group-hover:text-zinc-900">
-                                        <ArrowRight size={14} strokeWidth={2} className="md:w-4 md:h-4" />
+                                        <ArrowRight
+                                            size={14}
+                                            strokeWidth={2}
+                                            className="md:w-4 md:h-4"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +132,11 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
                     >
                         <div className="flex flex-col items-center text-center">
                             <div className="flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-zinc-900 text-white shadow-xl transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl mb-4 md:mb-6">
-                                <LayoutGrid size={20} strokeWidth={1.5} className="md:w-6 md:h-6" />
+                                <LayoutGrid
+                                    size={20}
+                                    strokeWidth={1.5}
+                                    className="md:w-6 md:h-6"
+                                />
                             </div>
                             <h3 className="font-display text-lg font-extrabold text-zinc-900 sm:text-xl md:text-2xl">
                                 View All
@@ -138,7 +146,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({
                             </p>
                         </div>
                     </Link>
-                    
+
                     {/* Spacer block to fix trailing padding cutoff on mobile overflow */}
                     <div className="w-1 shrink-0 md:hidden" />
                 </div>
