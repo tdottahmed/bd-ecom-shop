@@ -105,6 +105,15 @@ class CustomerController extends Controller
             'bannerImages' => $bannerSettings["bannerImages"],
             'bannerActive' => $bannerSettings["bannerActive"],
             'homeContent' => $this->getHomeContent(),
+            'homeCta' => [
+                'enabled' => get_setting('cta_enabled', '1') === '1',
+                'title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
+                'description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
+                'browseText' => get_setting('cta_browse_text', 'Browse Our Products'),
+                'browseLink' => get_setting('cta_browse_link', '/products'),
+                'contactText' => get_setting('cta_contact_text', 'Contact Us'),
+                'contactLink' => get_setting('cta_contact_link', '/contact-us'),
+            ],
             'filters' => [
                 'search' => $request->input('search'),
                 'min_price' => $request->input('min_price'),

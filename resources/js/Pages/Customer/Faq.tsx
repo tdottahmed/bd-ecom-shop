@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Head, Link } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
-import { ChevronRight, Home, HelpCircle, Plus, Minus, MessageCircle } from "lucide-react";
+import { HelpCircle, Plus, Minus } from "lucide-react";
+import CtaSection from "@/Components/Customer/CtaSection";
 
 interface FAQ {
     question: string;
@@ -21,21 +22,9 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                     <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-30 blur-3xl" />
                 </div>
 
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
-                    {/* Breadcrumb */}
-                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
-                        <Link
-                            href="/"
-                            className="flex items-center gap-1 hover:text-slate-700 transition-colors"
-                        >
-                            <Home size={12} /> Home
-                        </Link>
-                        <ChevronRight size={12} className="text-slate-300" />
-                        <span className="text-slate-600 font-medium">FAQ</span>
-                    </nav>
-
+                <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Hero */}
-                    <div className="text-center mb-12">
+                    <div className="text-center">
                         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
                             <HelpCircle size={12} /> Help Center
                         </div>
@@ -43,7 +32,8 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                             Frequently Asked Questions
                         </h1>
                         <p className="max-w-xl mx-auto text-lg text-slate-500">
-                            Find answers to the most common questions about our products, shipping, and policies.
+                            Find answers to the most common questions about our
+                            products, shipping, and policies.
                         </p>
                     </div>
 
@@ -67,7 +57,9 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                                         >
                                             <span
                                                 className={`text-sm font-semibold pr-4 transition-colors ${
-                                                    isOpen ? "text-indigo-600" : "text-slate-700"
+                                                    isOpen
+                                                        ? "text-indigo-600"
+                                                        : "text-slate-700"
                                                 }`}
                                             >
                                                 {faq.question}
@@ -79,12 +71,18 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                                                         : "bg-slate-100 text-slate-400"
                                                 }`}
                                             >
-                                                {isOpen ? <Minus size={14} /> : <Plus size={14} />}
+                                                {isOpen ? (
+                                                    <Minus size={14} />
+                                                ) : (
+                                                    <Plus size={14} />
+                                                )}
                                             </span>
                                         </button>
                                         <div
                                             className={`transition-all duration-300 ease-in-out ${
-                                                isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                                                isOpen
+                                                    ? "max-h-96 opacity-100"
+                                                    : "max-h-0 opacity-0"
                                             }`}
                                         >
                                             <div className="px-6 pb-5 pt-4 text-sm text-slate-500 leading-relaxed border-t border-slate-100">
@@ -97,24 +95,17 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                         </div>
                     ) : (
                         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center mb-16">
-                            <HelpCircle size={40} className="mx-auto text-slate-300 mb-4" />
-                            <p className="text-slate-500">No FAQs have been added yet.</p>
+                            <HelpCircle
+                                size={40}
+                                className="mx-auto text-slate-300 mb-4"
+                            />
+                            <p className="text-slate-500">
+                                No FAQs have been added yet.
+                            </p>
                         </div>
                     )}
 
-                    {/* CTA */}
-                    <div className="bg-slate-900 rounded-3xl p-8 sm:p-10 text-center">
-                        <h2 className="text-xl font-bold text-white mb-2">Still have questions?</h2>
-                        <p className="text-slate-400 text-sm mb-6">
-                            Can't find what you're looking for? Our team is happy to help.
-                        </p>
-                        <Link
-                            href="/contact-us"
-                            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 font-semibold px-6 py-3 rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-lg"
-                        >
-                            <MessageCircle size={15} /> Contact Support
-                        </Link>
-                    </div>
+                    <CtaSection />
                 </div>
             </div>
         </CustomerLayout>

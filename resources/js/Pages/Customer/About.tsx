@@ -13,7 +13,8 @@ import {
     ArrowRight,
 } from "lucide-react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
-import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import NewsletterSection from "@/Components/Customer/CtaSection";
+import CtaSection from "@/Components/Customer/CtaSection";
 
 const processSteps = [
     {
@@ -84,10 +85,16 @@ export default function About({
 }: {
     page?: { title: string; slug: string; content?: string | null };
     stats?: { value: string; label: string }[];
-    testimonials?: { name: string; role: string; quote: string; rating: number }[];
+    testimonials?: {
+        name: string;
+        role: string;
+        quote: string;
+        rating: number;
+    }[];
 }) {
     const displayStats = stats.length > 0 ? stats : defaultStats;
-    const displayTestimonials = testimonials.length > 0 ? testimonials : defaultTestimonials;
+    const displayTestimonials =
+        testimonials.length > 0 ? testimonials : defaultTestimonials;
 
     return (
         <CustomerLayout>
@@ -102,15 +109,6 @@ export default function About({
                 <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
-                    {/* Breadcrumb */}
-                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
-                        <Link href="/" className="flex items-center gap-1 hover:text-slate-700 transition-colors">
-                            <Home size={12} /> Home
-                        </Link>
-                        <ChevronRight size={12} className="text-slate-300" />
-                        <span className="text-slate-600 font-medium">About Us</span>
-                    </nav>
-
                     {/* Hero heading */}
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -122,8 +120,8 @@ export default function About({
                         </h1>
                         <p className="max-w-xl mx-auto text-lg text-slate-500">
                             We started with a simple mission — make online
-                            shopping dependable. Here's how we got here and
-                            what drives us every day.
+                            shopping dependable. Here's how we got here and what
+                            drives us every day.
                         </p>
                     </div>
 
@@ -326,7 +324,7 @@ export default function About({
                     </div>
 
                     {/* Newsletter */}
-                    <NewsletterSection />
+                    <CtaSection />
                 </div>
             </div>
         </CustomerLayout>

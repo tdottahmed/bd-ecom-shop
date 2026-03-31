@@ -7,11 +7,11 @@ import ProductGrid from "@/Components/Customer/ProductGrid";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
 import FeaturesSection from "@/Components/Customer/FeaturesSection";
 import PromoBanner from "@/Components/Customer/PromoBanner";
-import NewsletterSection from "@/Components/Customer/NewsletterSection";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, Product, PaginatedData } from "@/types";
 import ProductFilters from "@/Components/Customer/ProductFilters";
 import BrandsShowcaseSection from "@/Components/Customer/BrandsShowcaseSection";
+import CtaSection from "@/Components/Customer/CtaSection";
 
 interface CategoryProductsSection {
     category: Category;
@@ -24,6 +24,15 @@ interface HomeProps {
     bannerImages?: string[];
     bannerActive?: boolean;
     homeContent?: any;
+    homeCta?: {
+        enabled?: boolean;
+        title?: string;
+        description?: string;
+        browseText?: string;
+        browseLink?: string;
+        contactText?: string;
+        contactLink?: string;
+    };
     category?: Category;
     filters?: {
         search?: string;
@@ -45,6 +54,7 @@ const Home: React.FC<HomeProps> = ({
     bannerImages,
     bannerActive,
     homeContent,
+    homeCta,
     filters = {},
     category,
     brands = [],
@@ -87,18 +97,24 @@ const Home: React.FC<HomeProps> = ({
 
     const handleApplyFilters = (params: Record<string, string>) => {
         let targetUrl = currentUrl;
-        
+
         if (params.category_id) {
-            const selectedCat = categories?.find(c => c.id.toString() === params.category_id);
+            const selectedCat = categories?.find(
+                (c) => c.id.toString() === params.category_id,
+            );
             if (selectedCat) {
                 targetUrl = route("products.category", selectedCat.slug);
                 delete params.category_id;
             }
-        } else if (currentUrl.includes('/category/')) {
+        } else if (currentUrl.includes("/category/")) {
             targetUrl = route("products.index");
         }
-        
-        router.visit(targetUrl, { data: params, preserveState: true, preserveScroll: true });
+
+        router.visit(targetUrl, {
+            data: params,
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -197,15 +213,14 @@ const Home: React.FC<HomeProps> = ({
                         </ScrollReveal>
                         {/* Newsletter Section */}
                         <ScrollReveal animation="fade-up" delay="delay-200">
-                            <NewsletterSection
-                                enabled={homeContent?.newsletter?.enabled}
-                                title={homeContent?.newsletter?.title}
-                                description={
-                                    homeContent?.newsletter?.description
-                                }
-                                placeholder={
-                                    homeContent?.newsletter?.placeholder
-                                }
+                            <CtaSection
+                                enabled={homeContent?.cta?.enabled}
+                                title={homeContent?.cta?.title}
+                                description={homeContent?.cta?.description}
+                                browseText={homeContent?.cta?.browseText}
+                                browseLink={homeContent?.cta?.browseLink}
+                                contactText={homeContent?.cta?.contactText}
+                                contactLink={homeContent?.cta?.contactLink}
                             />
                         </ScrollReveal>
                     </div>

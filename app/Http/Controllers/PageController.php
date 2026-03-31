@@ -61,5 +61,13 @@ class PageController extends Controller
             'page' => $page ? $page->only(['title', 'slug', 'content']) : null,
         ]);
     }
+
+    public function termsConditions()
+    {
+        $page = Page::where('slug', 'terms-and-conditions')->where('is_published', true)->first();
+        return Inertia::render('Customer/TermsConditions', [
+            'page' => $page ? $page->only(['title', 'slug', 'content']) : null,
+        ]);
+    }
 }
 

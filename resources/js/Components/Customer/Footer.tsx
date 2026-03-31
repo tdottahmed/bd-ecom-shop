@@ -87,8 +87,9 @@ export default function Footer() {
     return (
         <footer className="bg-white border-t border-gray-100 pt-12 pb-6 mt-auto">
             <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 lg:gap-14 mb-12">
-                    <div className="flex flex-col space-y-6">
+                <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-14">
+                    {/* Column 1: Logo + Brand Awareness */}
+                    <div className="flex flex-col space-y-5">
                         <Link href="/" className="inline-block">
                             {siteLogo ? (
                                 <img
@@ -103,29 +104,21 @@ export default function Footer() {
                             )}
                         </Link>
 
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-sm">
+                        <p className="max-w-sm text-sm leading-relaxed text-gray-500">
                             {siteDescription ||
                                 "Your one-stop destination for premium products and authentic shopping experience."}
                         </p>
+                        <p className="max-w-sm text-xs uppercase tracking-[0.14em] text-emerald-700/80">
+                            Trusted quality. Genuine products. Fast delivery.
+                        </p>
                     </div>
 
+                    {/* Column 2: Quick Links */}
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
                             Quick Links
                         </h3>
-                        <div className="space-y-2 text-sm">
-                            <Link
-                                href={route("home")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
-                            >
-                                Home
-                            </Link>
-                            <Link
-                                href={route("products.index")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
-                            >
-                                Products
-                            </Link>
+                        <div className="grid grid-cols-1 gap-y-2 text-sm">
                             <Link
                                 href={route("brands.index")}
                                 className="block text-gray-600 hover:text-[#059669] transition-colors"
@@ -144,9 +137,37 @@ export default function Footer() {
                             >
                                 Contact Us
                             </Link>
+                            <Link
+                                href={route("pages.privacy-policy")}
+                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                            >
+                                Privacy Policy
+                            </Link>
+                            <Link
+                                href={route("pages.faq")}
+                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                            >
+                                FAQ
+                            </Link>
+                            <Link
+                                href={route("pages.terms")}
+                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                            >
+                                Terms & Conditions
+                            </Link>
+                            {customPages.map((page) => (
+                                <Link
+                                    key={page.slug}
+                                    href={route("pages.show", page.slug)}
+                                    className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                >
+                                    {page.title}
+                                </Link>
+                            ))}
                         </div>
                     </div>
 
+                    {/* Column 3: Social + Newsletter */}
                     <div className="flex flex-col space-y-6">
                         <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
                             Stay Connected
@@ -259,18 +280,6 @@ export default function Footer() {
                                 Staff Login
                             </Link>
                         )}
-
-                        <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500">
-                            <span>Developed by</span>
-                            <a
-                                href="https://nixsoftware.net"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-bold text-gray-900 hover:text-[#2DE3A7] transition-colors"
-                            >
-                                NixSoftware
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

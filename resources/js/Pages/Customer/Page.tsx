@@ -1,7 +1,7 @@
 import React from "react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import { Head } from "@inertiajs/react";
-import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import NewsletterSection from "@/Components/Customer/CtaSection";
 
 type Page = {
     title: string;

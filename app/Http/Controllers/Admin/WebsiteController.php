@@ -34,6 +34,13 @@ class WebsiteController extends Controller
                 'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
                 'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
                 'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
+                'cta_enabled' => get_setting('cta_enabled', '1') === '1',
+                'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
+                'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
+                'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
+                'cta_browse_link' => get_setting('cta_browse_link', '/products'),
+                'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
+                'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
             ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
@@ -235,6 +242,35 @@ class WebsiteController extends Controller
             Cache::forget('setting_about_stats');
             Cache::forget('setting_about_testimonials');
             return back()->with('success', 'About page settings updated.');
+        }
+
+        if ($type === 'cta') {
+            $request->validate([
+                'cta_enabled' => 'required|boolean',
+                'cta_title' => 'nullable|string|max:255',
+                'cta_description' => 'nullable|string|max:1000',
+                'cta_browse_text' => 'nullable|string|max:100',
+                'cta_browse_link' => 'nullable|string|max:255',
+                'cta_contact_text' => 'nullable|string|max:100',
+                'cta_contact_link' => 'nullable|string|max:255',
+            ]);
+
+            $ctaSettings = [
+                'cta_enabled' => $request->boolean('cta_enabled') ? '1' : '0',
+                'cta_title' => $request->input('cta_title', ''),
+                'cta_description' => $request->input('cta_description', ''),
+                'cta_browse_text' => $request->input('cta_browse_text', ''),
+                'cta_browse_link' => $request->input('cta_browse_link', ''),
+                'cta_contact_text' => $request->input('cta_contact_text', ''),
+                'cta_contact_link' => $request->input('cta_contact_link', ''),
+            ];
+
+            foreach ($ctaSettings as $key => $value) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+                Cache::forget('setting_' . $key);
+            }
+
+            return back()->with('success', 'CTA settings updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');

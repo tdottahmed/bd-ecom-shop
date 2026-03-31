@@ -78,14 +78,7 @@ export default function Contact({
                 <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
-                    {/* Breadcrumb */}
-                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
-                        <Link href="/" className="flex items-center gap-1 hover:text-slate-700 transition-colors">
-                            <Home size={12} /> Home
-                        </Link>
-                        <ChevronRight size={12} className="text-slate-300" />
-                        <span className="text-slate-600 font-medium">Contact Us</span>
-                    </nav>
+                    
 
                     {/* Hero heading */}
                     <div className="text-center mb-14">

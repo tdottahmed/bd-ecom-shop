@@ -4,7 +4,7 @@ import { Head, Link } from "@inertiajs/react";
 import Card from "@/Components/Ui/Card";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
-import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import NewsletterSection from "@/Components/Customer/CtaSection";
 
 type Brand = {
     id: number;
@@ -65,4 +65,3 @@ export default function Brands({ brands }: Props) {
         </CustomerLayout>
     );
 }
-

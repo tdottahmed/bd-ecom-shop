@@ -4,7 +4,7 @@ import { Head, Link } from "@inertiajs/react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
 import ProductCard from "@/Components/Customer/ProductCard";
-import NewsletterSection from "@/Components/Customer/NewsletterSection";
+import NewsletterSection from "@/Components/Customer/CtaSection";
 
 type Brand = {
     id: number;
