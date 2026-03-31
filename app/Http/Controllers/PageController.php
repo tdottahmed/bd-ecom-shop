@@ -21,12 +21,18 @@ class PageController extends Controller
 
     public function about()
     {
-        return $this->show('about-us');
+        return Inertia::render('Customer/About');
     }
 
     public function contact()
     {
-        return $this->show('contact-us');
+        $page = Page::where('slug', 'contact-us')->where('is_published', true)->first();
+        $faqs = json_decode(get_setting('faqs', '[]'), true);
+        
+        return Inertia::render('Customer/Contact', [
+            'page' => $page ? $page->only(['title', 'slug', 'content']) : null,
+            'faqs' => $faqs,
+        ]);
     }
 }
 

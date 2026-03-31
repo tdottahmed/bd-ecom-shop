@@ -5,6 +5,11 @@ export interface DeliveryCharge {
     duration: string;
 }
 
+export interface FAQ {
+    question: string;
+    answer: string;
+}
+
 export interface WebsiteSetting {
     banner_active: boolean;
     banner_images: string[];
@@ -15,5 +20,6 @@ export interface WebsiteSetting {
     social_instagram: string | null;
     social_youtube: string | null;
     social_tiktok: string | null;
+    faqs?: FAQ[];
 }
 

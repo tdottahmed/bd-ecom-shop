@@ -1,7 +1,6 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import { Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 
 import Card, {
     CardContent,
@@ -26,8 +25,6 @@ const DeliveryChargeForm: React.FC<DeliveryChargeFormProps> = ({
         e.preventDefault();
         post(route("admin.website.update"), {
             preserveScroll: true,
-            onSuccess: () =>
-                toast.success("Delivery charges updated successfully"),
         });
     };
 
@@ -169,4 +166,3 @@ const DeliveryChargeForm: React.FC<DeliveryChargeFormProps> = ({
 };
 
 export default DeliveryChargeForm;
-
