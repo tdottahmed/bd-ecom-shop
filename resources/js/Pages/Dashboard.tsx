@@ -1,22 +1,26 @@
 import Header from "@/Components/Layouts/Header";
 import Master from "@/Layouts/Master";
-import { usePage, router } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { router } from "@inertiajs/react";
+import { useState } from "react";
 import TextInput from "@/Components/Ui/TextInput";
 import { formatPrice } from "@/Utils/helpers";
 import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    Legend,
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+    ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
+import {
+    TrendingUp, DollarSign, ShoppingBag, Clock,
+    CheckCircle, XCircle, ArrowUpRight,
+} from "lucide-react";
+
+interface RecentOrder {
+    id: number;
+    customer_name: string;
+    customer_phone: string;
+    total: number;
+    status: string;
+    created_at: string;
+}
 
 interface DashboardProps {
     metrics: {
@@ -24,19 +28,17 @@ interface DashboardProps {
         profit: number;
         completed_sell: number;
         completed_profit: number;
-        extra_costs: number;
         total_orders: number;
         completed_orders: number;
         canceled_orders: number;
-        total_items: number;
-        unique_items: number;
-        total_quantity: number;
-        free_delivery: number;
+        pending_orders: number;
+        avg_order_value: number;
     };
     charts: {
-        sales_trend: { date: string; sales: number }[];
+        sales_trend: { date: string; sales: number; profit: number }[];
         order_status: { name: string; value: number }[];
     };
+    recent_orders: RecentOrder[];
     filters: {
         date_range: string;
         start_date: string | null;
@@ -44,123 +46,150 @@ interface DashboardProps {
     };
 }
 
-const MetricCard = ({
-    title,
-    value,
-    subValue,
-}: {
-    title: string | number;
+// ─── Status helpers ────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
+    pending:    { label: "Pending",    cls: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
+    processing: { label: "Processing", cls: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+    shipped:    { label: "Shipped",    cls: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+    completed:  { label: "Completed",  cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+    cancelled:  { label: "Cancelled",  cls: "bg-red-500/10 text-red-400 border-red-500/20" },
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+    const cfg = STATUS_CONFIG[status.toLowerCase()] ?? { label: status, cls: "bg-gray-500/10 text-gray-400 border-gray-500/20" };
+    return (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${cfg.cls}`}>
+            {cfg.label}
+        </span>
+    );
+};
+
+const PIE_COLORS: Record<string, string> = {
+    Completed:  "#2DE3A7",
+    Cancelled:  "#f87171",
+    Pending:    "#fbbf24",
+    Processing: "#60a5fa",
+    Shipped:    "#c084fc",
+};
+
+// ─── KPI Card ─────────────────────────────────────────────────────────────────
+
+interface KpiCardProps {
+    label: string;
     value: string | number;
-    subValue?: string;
-}) => (
-    <div className="bg-[#0b1818] border border-[#1a2c2c] rounded-2xl p-6 flex flex-col items-center justify-center text-center h-40">
-        <div className="text-3xl font-bold text-white mb-2"> {value} </div>
-        <div className="text-gray-400 text-sm"> {title} </div>
-        {subValue && (
-            <div className="text-gray-500 text-xs mt-1"> {subValue} </div>
-        )}
+    sub?: string;
+    icon: React.ReactNode;
+    accent: string;
+}
+
+const KpiCard = ({ label, value, sub, icon, accent }: KpiCardProps) => (
+    <div className="bg-[#0b1818] border border-[#1E2826] rounded-2xl p-5 flex items-start gap-4">
+        <div className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ${accent}`}>
+            {icon}
+        </div>
+        <div className="min-w-0">
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wide">{label}</p>
+            <p className="text-white text-2xl font-bold mt-0.5 truncate">{value}</p>
+            {sub && <p className="text-gray-500 text-xs mt-0.5">{sub}</p>}
+        </div>
     </div>
 );
 
-const COLORS = [
-    "#0088FE",
-    "#00C49F",
-    "#FFBB28",
-    "#FF8042",
-    "#8884d8",
-    "#82ca9d",
+// ─── Stat Pill ────────────────────────────────────────────────────────────────
+
+const StatPill = ({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color: string }) => (
+    <div className="bg-[#0b1818] border border-[#1E2826] rounded-xl px-4 py-3 flex items-center gap-3">
+        <span className={`shrink-0 ${color}`}>{icon}</span>
+        <div>
+            <p className="text-white text-lg font-semibold">{value}</p>
+            <p className="text-gray-500 text-xs">{label}</p>
+        </div>
+    </div>
+);
+
+// ─── Chart tooltip ────────────────────────────────────────────────────────────
+
+const tooltipStyle = {
+    contentStyle: { backgroundColor: "#0b1818", borderColor: "#1E2826", color: "#fff", fontSize: "12px", borderRadius: "8px" },
+    itemStyle: { color: "#fff" },
+};
+
+// ─── Date range options ───────────────────────────────────────────────────────
+
+const DATE_OPTIONS = [
+    { value: "today",         label: "Today" },
+    { value: "yesterday",     label: "Yesterday" },
+    { value: "last_week",     label: "Last 7 days" },
+    { value: "last_month",    label: "Last 30 days" },
+    { value: "last_6_months", label: "Last 6 months" },
+    { value: "last_year",     label: "Last year" },
+    { value: "all",           label: "All time" },
+    { value: "custom",        label: "Custom range" },
 ];
 
-export default function Dashboard({
-    metrics,
-    charts,
-    filters,
-}: DashboardProps) {
-    const [dateRange, setDateRange] = useState(filters?.date_range || "all");
-    const [startDate, setStartDate] = useState(filters?.start_date || "");
-    const [endDate, setEndDate] = useState(filters?.end_date || "");
-    const [showCustomDate, setShowCustomDate] = useState(
-        filters?.date_range === "custom"
-    );
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
-    const handleFilterChange = (range: string) => {
+export default function Dashboard({ metrics, charts, recent_orders, filters }: DashboardProps) {
+    const [dateRange, setDateRange]       = useState(filters?.date_range ?? "all");
+    const [startDate, setStartDate]       = useState(filters?.start_date ?? "");
+    const [endDate, setEndDate]           = useState(filters?.end_date ?? "");
+    const [showCustom, setShowCustom]     = useState(filters?.date_range === "custom");
+
+    const navigate = (params: Record<string, string>) =>
+        router.get(route("admin.dashboard"), params, { preserveState: true, preserveScroll: true });
+
+    const handleRangeChange = (range: string) => {
         setDateRange(range);
-        if (range === "custom") {
-            setShowCustomDate(true);
-        } else {
-            setShowCustomDate(false);
-            router.get(
-                route("admin.dashboard"),
-                { date_range: range },
-                { preserveState: true, preserveScroll: true }
-            );
-        }
+        if (range === "custom") { setShowCustom(true); return; }
+        setShowCustom(false);
+        navigate({ date_range: range });
     };
 
-    const applyCustomFilter = () => {
-        if (startDate && endDate) {
-            router.get(
-                route("admin.dashboard"),
-                {
-                    date_range: "custom",
-                    start_date: startDate,
-                    end_date: endDate,
-                },
-                { preserveState: true, preserveScroll: true }
-            );
-        }
+    const applyCustom = () => {
+        if (startDate && endDate) navigate({ date_range: "custom", start_date: startDate, end_date: endDate });
     };
+
+    const profitMargin = metrics.total_sell > 0
+        ? ((metrics.profit / metrics.total_sell) * 100).toFixed(1)
+        : "0";
+
+    const completionRate = metrics.total_orders > 0
+        ? ((metrics.completed_orders / metrics.total_orders) * 100).toFixed(1)
+        : "0";
 
     return (
-        <Master
-            title="Dashboard"
-            head={<Header title="Dashboard" showUserMenu={true} />}
-        >
+        <Master title="Dashboard" head={<Header title="Dashboard" showUserMenu={true} />}>
             <div className="p-4 md:p-6 space-y-6">
-                {/* Filters */}
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="relative">
-                        <select
-                            value={dateRange}
-                            onChange={(e) => handleFilterChange(e.target.value)}
-                            className="bg-[#0b1818] border border-[#1a2c2c] text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5"
-                        >
-                            <option value="today"> Today </option>
-                            <option value="yesterday"> Last day </option>
-                            <option value="last_week"> Last one week </option>
-                            <option value="last_month"> Last Month </option>
-                            <option value="last_6_months">
-                                {" "}
-                                last 6 month{" "}
-                            </option>
-                            <option value="last_year"> Last 1 year </option>
-                            <option value="all"> all </option>
-                            <option value="custom"> Custom Range </option>
-                        </select>
-                    </div>
 
-                    {showCustomDate && (
+                {/* ── Filter Bar ── */}
+                <div className="flex flex-wrap items-center gap-3">
+                    <select
+                        value={dateRange}
+                        onChange={(e) => handleRangeChange(e.target.value)}
+                        className="bg-[#0b1818] border border-[#1E2826] text-white text-sm rounded-lg focus:ring-[#2DE3A7] focus:border-[#2DE3A7] px-3 py-2"
+                    >
+                        {DATE_OPTIONS.map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                    </select>
+
+                    {showCustom && (
                         <div className="flex items-center gap-2">
                             <TextInput
-                                id="start_date"
-                                name="start_date"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-[#0b1818] border border-[#1a2c2c] text-white text-sm rounded-lg p-2.5"
+                                id="start_date" name="start_date" type="date"
+                                value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                                className="bg-[#0b1818] border-[#1E2826] text-white text-sm rounded-lg px-3 py-2"
                             />
-                            <span className="text-gray-400"> to </span>
+                            <span className="text-gray-500 text-sm">→</span>
                             <TextInput
-                                id="end_date"
-                                name="end_date"
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-[#0b1818] border border-[#1a2c2c] text-white text-sm rounded-lg p-2.5"
+                                id="end_date" name="end_date" type="date"
+                                value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                                className="bg-[#0b1818] border-[#1E2826] text-white text-sm rounded-lg px-3 py-2"
                             />
                             <button
-                                onClick={applyCustomFilter}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm px-4 py-2.5"
+                                onClick={applyCustom}
+                                className="bg-[#2DE3A7] hover:bg-[#24c490] text-black font-semibold rounded-lg text-sm px-4 py-2"
                             >
                                 Apply
                             </button>
@@ -168,200 +197,179 @@ export default function Dashboard({
                     )}
                 </div>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                    <MetricCard
-                        title="Total Sell"
+                {/* ── KPI Cards ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <KpiCard
+                        label="Total Revenue"
                         value={formatPrice(metrics.total_sell)}
+                        sub={`Avg ${formatPrice(metrics.avg_order_value)} / order`}
+                        icon={<TrendingUp size={20} className="text-[#2DE3A7]" />}
+                        accent="bg-[#2DE3A7]/10"
                     />
-                    <MetricCard
-                        title="Profit"
+                    <KpiCard
+                        label="Net Profit"
                         value={formatPrice(metrics.profit)}
+                        sub={`${profitMargin}% margin`}
+                        icon={<DollarSign size={20} className="text-blue-400" />}
+                        accent="bg-blue-500/10"
                     />
-                    <MetricCard
-                        title="Completed Sell"
-                        value={formatPrice(metrics.completed_sell)}
+                    <KpiCard
+                        label="Total Orders"
+                        value={metrics.total_orders.toLocaleString()}
+                        sub={`${completionRate}% completion rate`}
+                        icon={<ShoppingBag size={20} className="text-purple-400" />}
+                        accent="bg-purple-500/10"
                     />
-
-                    <MetricCard
-                        title="Completed Profit"
-                        value={formatPrice(metrics.completed_profit)}
-                    />
-                    <MetricCard
-                        title="Extra Costs"
-                        value={formatPrice(metrics.extra_costs)}
-                    />
-                    <MetricCard
-                        title="Total Orders"
-                        value={metrics.total_orders}
-                    />
-
-                    <MetricCard
-                        title="Completed Orders"
-                        value={metrics.completed_orders}
-                    />
-                    <MetricCard
-                        title="Canceled Orders"
-                        value={metrics.canceled_orders}
-                    />
-                    <MetricCard
-                        title="Total items"
-                        value={metrics.total_items.toLocaleString()}
-                    />
-
-                    <MetricCard
-                        title="Unique items"
-                        value={metrics.unique_items}
-                    />
-                    <MetricCard
-                        title="Total quantity"
-                        value={metrics.total_quantity.toLocaleString()}
-                    />
-                    <MetricCard
-                        title="Free delivery"
-                        value={metrics.free_delivery}
+                    <KpiCard
+                        label="Pending Orders"
+                        value={metrics.pending_orders.toLocaleString()}
+                        sub="Awaiting action"
+                        icon={<Clock size={20} className="text-amber-400" />}
+                        accent="bg-amber-500/10"
                     />
                 </div>
 
-                {/* Charts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Sales Trend Chart */}
-                    <div className="bg-[#0b1818] border border-[#1a2c2c] rounded-2xl p-4 md:p-6">
-                        <h3 className="text-white text-lg font-semibold mb-4">
-                            {" "}
-                            Sales Trend{" "}
-                        </h3>
-                        <div className="h-64 md:h-80">
+                {/* ── Secondary Stats ── */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <StatPill
+                        label="Completed Orders"
+                        value={metrics.completed_orders.toLocaleString()}
+                        icon={<CheckCircle size={18} />}
+                        color="text-emerald-400"
+                    />
+                    <StatPill
+                        label="Cancelled Orders"
+                        value={metrics.canceled_orders.toLocaleString()}
+                        icon={<XCircle size={18} />}
+                        color="text-red-400"
+                    />
+                    <StatPill
+                        label="Completed Revenue"
+                        value={formatPrice(metrics.completed_sell)}
+                        icon={<TrendingUp size={18} />}
+                        color="text-[#2DE3A7]"
+                    />
+                    <StatPill
+                        label="Completed Profit"
+                        value={formatPrice(metrics.completed_profit)}
+                        icon={<DollarSign size={18} />}
+                        color="text-blue-400"
+                    />
+                </div>
+
+                {/* ── Charts ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Sales & Profit Trend */}
+                    <div className="lg:col-span-2 bg-[#0b1818] border border-[#1E2826] rounded-2xl p-5">
+                        <h3 className="text-white text-base font-semibold mb-4">Sales & Profit Trend</h3>
+                        <div className="h-64 md:h-72">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart
-                                    data={charts.sales_trend}
-                                    margin={{
-                                        top: 10,
-                                        right: 10,
-                                        left: -20,
-                                        bottom: 0,
-                                    }}
-                                >
+                                <AreaChart data={charts.sales_trend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                                     <defs>
-                                        <linearGradient
-                                            id="colorSales"
-                                            x1="0"
-                                            y1="0"
-                                            x2="0"
-                                            y2="1"
-                                        >
-                                            <stop
-                                                offset="5%"
-                                                stopColor="#10B981"
-                                                stopOpacity={0.8}
-                                            />
-                                            <stop
-                                                offset="95%"
-                                                stopColor="#10B981"
-                                                stopOpacity={0}
-                                            />
+                                        <linearGradient id="gSales" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#2DE3A7" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#2DE3A7" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="gProfit" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        stroke="#1f2937"
-                                        vertical={false}
-                                    />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#1E2826" vertical={false} />
                                     <XAxis
-                                        dataKey="date"
-                                        stroke="#9ca3af"
-                                        tick={{ fontSize: 12 }}
-                                        tickFormatter={(value) =>
-                                            value.split("-").slice(1).join("/")
-                                        }
+                                        dataKey="date" stroke="#4b5563" tick={{ fontSize: 11 }}
+                                        tickFormatter={(v) => v.split("-").slice(1).join("/")}
                                     />
-                                    <YAxis
-                                        stroke="#9ca3af"
-                                        tick={{ fontSize: 12 }}
-                                        tickFormatter={(value) =>
-                                            `${value / 1000}k`
-                                        }
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "#111827",
-                                            borderColor: "#374151",
-                                            color: "#fff",
-                                            fontSize: "12px",
-                                        }}
-                                        itemStyle={{ color: "#fff" }}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="sales"
-                                        stroke="#10B981"
-                                        strokeWidth={2}
-                                        fillOpacity={1}
-                                        fill="url(#colorSales)"
-                                    />
+                                    <YAxis stroke="#4b5563" tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                                    <Tooltip {...tooltipStyle} formatter={(v: number) => formatPrice(v)} />
+                                    <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
+                                    <Area type="monotone" dataKey="sales"  name="Sales"  stroke="#2DE3A7" strokeWidth={2} fillOpacity={1} fill="url(#gSales)" />
+                                    <Area type="monotone" dataKey="profit" name="Profit" stroke="#60a5fa" strokeWidth={2} fillOpacity={1} fill="url(#gProfit)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Order Status Chart */}
-                    <div className="bg-[#0b1818] border border-[#1a2c2c] rounded-2xl p-4 md:p-6">
-                        <h3 className="text-white text-lg font-semibold mb-4">
-                            {" "}
-                            Order Status Distribution{" "}
-                        </h3>
-                        <div className="h-64 md:h-80">
+                    {/* Order Status Donut */}
+                    <div className="bg-[#0b1818] border border-[#1E2826] rounded-2xl p-5">
+                        <h3 className="text-white text-base font-semibold mb-4">Order Status</h3>
+                        <div className="h-64 md:h-72">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={charts.order_status}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) =>
-                                            `${(percent
-                                                ? percent * 100
-                                                : 0
-                                            ).toFixed(0)}%`
-                                        }
-                                        outerRadius={80}
-                                        fill="#8884d8"
+                                        cx="50%" cy="45%"
+                                        innerRadius={55} outerRadius={85}
+                                        paddingAngle={3}
                                         dataKey="value"
                                     >
-                                        {charts.order_status.map(
-                                            (entry, index) => (
-                                                <Cell
-                                                    key={`cell-${index}`}
-                                                    fill={
-                                                        COLORS[
-                                                            index %
-                                                                COLORS.length
-                                                        ]
-                                                    }
-                                                />
-                                            )
-                                        )}
+                                        {charts.order_status.map((entry, i) => (
+                                            <Cell
+                                                key={i}
+                                                fill={PIE_COLORS[entry.name] ?? "#6b7280"}
+                                            />
+                                        ))}
                                     </Pie>
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: "#111827",
-                                            borderColor: "#374151",
-                                            color: "#fff",
-                                            fontSize: "12px",
-                                        }}
-                                        itemStyle={{ color: "#fff" }}
-                                    />
-                                    <Legend
-                                        wrapperStyle={{
-                                            fontSize: "12px",
-                                            paddingTop: "10px",
-                                        }}
-                                    />
+                                    <Tooltip {...tooltipStyle} />
+                                    <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
+
+                {/* ── Recent Orders ── */}
+                <div className="bg-[#0b1818] border border-[#1E2826] rounded-2xl overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2826]">
+                        <h3 className="text-white text-base font-semibold">Recent Orders</h3>
+                        <a
+                            href={route("admin.orders.index")}
+                            className="text-[#2DE3A7] text-xs font-medium flex items-center gap-1 hover:opacity-80"
+                        >
+                            View all <ArrowUpRight size={14} />
+                        </a>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-[#1E2826]">
+                                    {["Order", "Customer", "Phone", "Total", "Status", "Date"].map((h) => (
+                                        <th key={h} className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide px-5 py-3">
+                                            {h}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#1E2826]">
+                                {recent_orders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="text-center text-gray-500 py-8">No orders yet</td>
+                                    </tr>
+                                ) : recent_orders.map((order) => (
+                                    <tr key={order.id} className="hover:bg-[#0f1e1c] transition-colors">
+                                        <td className="px-5 py-3.5">
+                                            <a
+                                                href={route("admin.orders.show", order.id)}
+                                                className="text-[#2DE3A7] font-medium hover:underline"
+                                            >
+                                                #{order.id}
+                                            </a>
+                                        </td>
+                                        <td className="px-5 py-3.5 text-white font-medium">{order.customer_name}</td>
+                                        <td className="px-5 py-3.5 text-gray-400">{order.customer_phone}</td>
+                                        <td className="px-5 py-3.5 text-white font-semibold">{formatPrice(order.total)}</td>
+                                        <td className="px-5 py-3.5"><StatusBadge status={order.status} /></td>
+                                        <td className="px-5 py-3.5 text-gray-500 whitespace-nowrap">
+                                            {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </Master>
     );

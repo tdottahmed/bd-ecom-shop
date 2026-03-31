@@ -28,7 +28,7 @@ export default function RichTextEditor({ value, onChange }: Props) {
         if (editor && !editor.isFocused) {
             const current = editor.getHTML();
             if (current !== value) {
-                editor.commands.setContent(value, false);
+                editor.commands.setContent(value, { emitUpdate: false });
             }
         }
     }, [value, editor]);

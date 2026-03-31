@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -11,128 +13,101 @@ class DashboardController extends Controller
     {
         $dateRange = $request->input('date_range', 'all');
         $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        $endDate   = $request->input('end_date');
 
-        $query = \App\Models\Order::query();
+        $query = Order::query();
 
         if ($dateRange === 'custom' && $startDate && $endDate) {
             $query->whereBetween('created_at', [
-                \Carbon\Carbon::parse($startDate)->startOfDay(),
-                \Carbon\Carbon::parse($endDate)->endOfDay()
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay(),
             ]);
         } else {
-            switch ($dateRange) {
-                case 'today':
-                    $query->whereDate('created_at', \Carbon\Carbon::today());
-                    break;
-                case 'yesterday':
-                    $query->whereDate('created_at', \Carbon\Carbon::yesterday());
-                    break;
-                case 'last_week':
-                    $query->whereBetween('created_at', [\Carbon\Carbon::now()->subWeek()->startOfDay(), \Carbon\Carbon::now()->endOfDay()]);
-                    break;
-                case 'last_month':
-                    $query->whereBetween('created_at', [\Carbon\Carbon::now()->subMonth()->startOfDay(), \Carbon\Carbon::now()->endOfDay()]);
-                    break;
-                case 'last_6_months':
-                    $query->whereBetween('created_at', [\Carbon\Carbon::now()->subMonths(6)->startOfDay(), \Carbon\Carbon::now()->endOfDay()]);
-                    break;
-                case 'last_year':
-                    $query->whereBetween('created_at', [\Carbon\Carbon::now()->subYear()->startOfDay(), \Carbon\Carbon::now()->endOfDay()]);
-                    break;
-                case 'all':
-                    // No filter
-                    break;
-                default:
-                    $query->whereDate('created_at', \Carbon\Carbon::today());
-                    break;
-            }
+            match ($dateRange) {
+                'today'        => $query->whereDate('created_at', Carbon::today()),
+                'yesterday'    => $query->whereDate('created_at', Carbon::yesterday()),
+                'last_week'    => $query->whereBetween('created_at', [Carbon::now()->subWeek()->startOfDay(), Carbon::now()->endOfDay()]),
+                'last_month'   => $query->whereBetween('created_at', [Carbon::now()->subMonth()->startOfDay(), Carbon::now()->endOfDay()]),
+                'last_6_months'=> $query->whereBetween('created_at', [Carbon::now()->subMonths(6)->startOfDay(), Carbon::now()->endOfDay()]),
+                'last_year'    => $query->whereBetween('created_at', [Carbon::now()->subYear()->startOfDay(), Carbon::now()->endOfDay()]),
+                default        => null,
+            };
         }
 
         $orders = $query->with(['items.product'])->get();
 
-        $totalSell = $orders->where('status', '!=', 'cancelled')->sum('total');
-        
-        // Get additional cost from settings
         $additionalCost = get_setting('additional_cost', 0);
-        
-        // Profit Calculation: (Selling Price - (Purchase Price + Additional Cost)) * Quantity
-        // Note: Using current product purchase price as historical cost is not stored in order_items
-        $profit = $orders->where('status', '!=', 'cancelled')->sum(function ($order) use ($additionalCost) {
+
+        $activeOrders = $orders->where('status', '!=', 'cancelled');
+
+        $totalSell = $activeOrders->sum('total');
+
+        $profit = $activeOrders->sum(function ($order) use ($additionalCost) {
             return $order->items->sum(function ($item) use ($additionalCost) {
                 $purchasePrice = $item->product->purchase_price ?? 0;
-                $actualCost = $purchasePrice + $additionalCost;
-                return ($item->price - $actualCost) * $item->quantity;
+                return ($item->price - ($purchasePrice + $additionalCost)) * $item->quantity;
             });
         });
 
         $completedOrders = $orders->where('status', 'completed');
-        $completedSell = $completedOrders->sum('total');
-        
+        $completedSell   = $completedOrders->sum('total');
+
         $completedProfit = $completedOrders->sum(function ($order) use ($additionalCost) {
             return $order->items->sum(function ($item) use ($additionalCost) {
                 $purchasePrice = $item->product->purchase_price ?? 0;
-                $actualCost = $purchasePrice + $additionalCost;
-                return ($item->price - $actualCost) * $item->quantity;
+                return ($item->price - ($purchasePrice + $additionalCost)) * $item->quantity;
             });
         });
 
-        $extraCosts = $orders->sum('delivery_cost');
-        $totalOrders = $orders->count();
-        $completedOrdersCount = $completedOrders->count();
-        $canceledOrders = $orders->where('status', 'cancelled')->count();
-        
-        $totalItems = $orders->sum(function ($order) {
-            return $order->items->count();
-        });
+        $totalOrders        = $orders->count();
+        $completedCount     = $completedOrders->count();
+        $canceledCount      = $orders->where('status', 'cancelled')->count();
+        $pendingCount       = $orders->filter(fn($o) => !in_array($o->status, ['completed', 'cancelled']))->count();
 
-        $uniqueItems = $orders->pluck('items')->flatten()->pluck('product_id')->unique()->count();
-        
-        $totalQuantity = $orders->sum(function ($order) {
-            return $order->items->sum('quantity');
-        });
+        // Sales trend grouped by day
+        $salesTrend = $orders->groupBy(fn($o) => Carbon::parse($o->created_at)->format('Y-m-d'))
+            ->map(fn($rows, $date) => [
+                'date'   => $date,
+                'sales'  => $rows->where('status', '!=', 'cancelled')->sum('total'),
+                'profit' => $rows->where('status', '!=', 'cancelled')->sum(function ($order) use ($additionalCost) {
+                    return $order->items->sum(function ($item) use ($additionalCost) {
+                        $purchasePrice = $item->product->purchase_price ?? 0;
+                        return ($item->price - ($purchasePrice + $additionalCost)) * $item->quantity;
+                    });
+                }),
+            ])
+            ->values();
 
-        $freeDeliveryCount = $orders->where('delivery_cost', 0)->count();
+        // Order status distribution
+        $orderStatus = $orders->groupBy('status')
+            ->map(fn($rows, $status) => ['name' => ucfirst($status), 'value' => $rows->count()])
+            ->values();
 
-        // Chart Data
-        // Sales Trend (Daily)
-        $salesTrend = $orders->groupBy(function($date) {
-            return \Carbon\Carbon::parse($date->created_at)->format('Y-m-d');
-        })->map(function ($row) {
-            return $row->sum('total');
-        })->map(function ($value, $date) {
-            return ['date' => $date, 'sales' => $value];
-        })->values();
-
-        // Order Status Distribution
-        $orderStatus = $orders->groupBy('status')->map(function ($row, $status) {
-            return ['name' => ucfirst($status), 'value' => $row->count()];
-        })->values();
+        // Recent orders — always latest 8 regardless of date filter
+        $recentOrders = Order::latest()->limit(8)->get(['id', 'customer_name', 'customer_phone', 'total', 'status', 'created_at']);
 
         return inertia('Dashboard', [
             'metrics' => [
-                'total_sell' => $totalSell,
-                'profit' => $profit,
-                'completed_sell' => $completedSell,
+                'total_sell'       => $totalSell,
+                'profit'           => $profit,
+                'completed_sell'   => $completedSell,
                 'completed_profit' => $completedProfit,
-                'extra_costs' => $extraCosts,
-                'total_orders' => $totalOrders,
-                'completed_orders' => $completedOrdersCount,
-                'canceled_orders' => $canceledOrders,
-                'total_items' => $totalItems,
-                'unique_items' => $uniqueItems,
-                'total_quantity' => $totalQuantity,
-                'free_delivery' => $freeDeliveryCount,
+                'total_orders'     => $totalOrders,
+                'completed_orders' => $completedCount,
+                'canceled_orders'  => $canceledCount,
+                'pending_orders'   => $pendingCount,
+                'avg_order_value'  => $totalOrders > 0 ? round($totalSell / $totalOrders) : 0,
             ],
             'charts' => [
-                'sales_trend' => $salesTrend,
+                'sales_trend'  => $salesTrend,
                 'order_status' => $orderStatus,
             ],
+            'recent_orders' => $recentOrders,
             'filters' => [
                 'date_range' => $dateRange,
                 'start_date' => $startDate,
-                'end_date' => $endDate,
-            ]
+                'end_date'   => $endDate,
+            ],
         ]);
     }
 
