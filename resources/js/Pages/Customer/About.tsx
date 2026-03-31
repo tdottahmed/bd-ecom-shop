@@ -108,7 +108,7 @@ export default function About({
                 <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Hero heading */}
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -126,7 +126,7 @@ export default function About({
                     </div>
 
                     {/* Hero */}
-                    <div className="rounded-3xl border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.10)] overflow-hidden mb-10">
+                    <div className="text-center rounded-3xl max-w-7xl mx-auto border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.10)] overflow-hidden mb-10">
                         <div className="grid lg:grid-cols-2 items-center">
                             <div className="p-10 sm:p-14">
                                 <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
@@ -175,7 +175,7 @@ export default function About({
                     </div>
 
                     {/* Story + Values */}
-                    <div className="grid lg:grid-cols-2 gap-6 mb-10">
+                    <div className="grid max-w-7xl mx-auto lg:grid-cols-2 gap-6 mb-10">
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 sm:p-10">
                             <p className="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-3">
                                 Our Story
@@ -227,7 +227,7 @@ export default function About({
                     </div>
 
                     {/* How We Work */}
-                    <div className="mb-10">
+                    <div className="mb-10 max-w-7xl mx-auto">
                         <div className="text-center mb-10">
                             <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
                                 How we work
@@ -267,7 +267,7 @@ export default function About({
                     </div>
 
                     {/* Testimonials */}
-                    <div className="mb-10">
+                    <div className="mb-10 max-w-7xl mx-auto">
                         <div className="text-center mb-10">
                             <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
                                 Customer Testimonials

@@ -25,13 +25,16 @@ function DefaultContent() {
             <section id="introduction">
                 <h2>Introduction</h2>
                 <p>
-                    Welcome to True by Malaysia (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). We are committed to protecting your
-                    personal information and your right to privacy. This Privacy Policy explains how we collect,
-                    use, and share information about you when you use our website and services.
+                    Welcome to True by Malaysia (&quot;we&quot;, &quot;us&quot;,
+                    or &quot;our&quot;). We are committed to protecting your
+                    personal information and your right to privacy. This Privacy
+                    Policy explains how we collect, use, and share information
+                    about you when you use our website and services.
                 </p>
                 <p>
-                    By accessing or using our platform, you agree to the terms described in this policy. If you
-                    do not agree, please discontinue use of our services.
+                    By accessing or using our platform, you agree to the terms
+                    described in this policy. If you do not agree, please
+                    discontinue use of our services.
                 </p>
             </section>
 
@@ -40,19 +43,23 @@ function DefaultContent() {
                 <p>We may collect the following types of information:</p>
                 <ul>
                     <li>
-                        <strong>Personal identification information</strong> — name, email address, phone number,
-                        and shipping address provided during checkout or account registration.
+                        <strong>Personal identification information</strong> —
+                        name, email address, phone number, and shipping address
+                        provided during checkout or account registration.
                     </li>
                     <li>
-                        <strong>Order and transaction data</strong> — purchase history, payment method type (we do
-                        not store full card numbers), and delivery details.
+                        <strong>Order and transaction data</strong> — purchase
+                        history, payment method type (we do not store full card
+                        numbers), and delivery details.
                     </li>
                     <li>
-                        <strong>Device and usage data</strong> — IP address, browser type, pages visited, and
-                        referring URLs, collected automatically when you visit our site.
+                        <strong>Device and usage data</strong> — IP address,
+                        browser type, pages visited, and referring URLs,
+                        collected automatically when you visit our site.
                     </li>
                     <li>
-                        <strong>Communications</strong> — messages you send us via contact forms or email.
+                        <strong>Communications</strong> — messages you send us
+                        via contact forms or email.
                     </li>
                 </ul>
             </section>
@@ -61,42 +68,61 @@ function DefaultContent() {
                 <h2>How We Use Your Data</h2>
                 <p>We use the information we collect to:</p>
                 <ul>
-                    <li>Process and fulfill your orders and provide order tracking updates.</li>
-                    <li>Respond to your inquiries and provide customer support.</li>
-                    <li>Send transactional emails (order confirmations, shipping notifications).</li>
-                    <li>Improve our website, products, and services based on usage patterns.</li>
-                    <li>Prevent fraud and maintain the security of our platform.</li>
+                    <li>
+                        Process and fulfill your orders and provide order
+                        tracking updates.
+                    </li>
+                    <li>
+                        Respond to your inquiries and provide customer support.
+                    </li>
+                    <li>
+                        Send transactional emails (order confirmations, shipping
+                        notifications).
+                    </li>
+                    <li>
+                        Improve our website, products, and services based on
+                        usage patterns.
+                    </li>
+                    <li>
+                        Prevent fraud and maintain the security of our platform.
+                    </li>
                     <li>Comply with legal obligations.</li>
                 </ul>
                 <p>
-                    We do not sell your personal data to third parties. We may share data with trusted service
-                    providers (e.g., courier partners, payment processors) solely to fulfill your orders.
+                    We do not sell your personal data to third parties. We may
+                    share data with trusted service providers (e.g., courier
+                    partners, payment processors) solely to fulfill your orders.
                 </p>
             </section>
 
             <section id="cookies">
                 <h2>Cookies</h2>
                 <p>
-                    Our website uses cookies — small text files placed on your device — to improve your
-                    experience. Cookies help us remember your preferences, maintain your shopping cart session,
-                    and analyze site traffic.
+                    Our website uses cookies — small text files placed on your
+                    device — to improve your experience. Cookies help us
+                    remember your preferences, maintain your shopping cart
+                    session, and analyze site traffic.
                 </p>
                 <p>
-                    You can control or disable cookies through your browser settings. Disabling cookies may
-                    limit some features of the site, such as the shopping cart.
+                    You can control or disable cookies through your browser
+                    settings. Disabling cookies may limit some features of the
+                    site, such as the shopping cart.
                 </p>
             </section>
 
             <section id="third-parties">
                 <h2>Third-Party Services</h2>
                 <p>
-                    We work with third-party services to operate our platform, including courier services
-                    (Steadfast, Pathao, RedX) and analytics providers. These parties only receive information
-                    necessary to perform their functions and are bound by their own privacy policies.
+                    We work with third-party services to operate our platform,
+                    including courier services (Steadfast, Pathao, RedX) and
+                    analytics providers. These parties only receive information
+                    necessary to perform their functions and are bound by their
+                    own privacy policies.
                 </p>
                 <p>
-                    Our site may contain links to third-party websites. We are not responsible for the privacy
-                    practices of those sites and encourage you to review their policies separately.
+                    Our site may contain links to third-party websites. We are
+                    not responsible for the privacy practices of those sites and
+                    encourage you to review their policies separately.
                 </p>
             </section>
 
@@ -106,31 +132,39 @@ function DefaultContent() {
                 <ul>
                     <li>Access the personal data we hold about you.</li>
                     <li>Request correction of inaccurate data.</li>
-                    <li>Request deletion of your data, subject to legal obligations.</li>
+                    <li>
+                        Request deletion of your data, subject to legal
+                        obligations.
+                    </li>
                     <li>Opt out of marketing communications at any time.</li>
                 </ul>
                 <p>
-                    To exercise any of these rights, please contact us at the details provided below.
+                    To exercise any of these rights, please contact us at the
+                    details provided below.
                 </p>
             </section>
 
             <section id="contact">
                 <h2>Contact Us</h2>
                 <p>
-                    If you have questions or concerns about this Privacy Policy or how we handle your data,
-                    please reach out to us:
+                    If you have questions or concerns about this Privacy Policy
+                    or how we handle your data, please reach out to us:
                 </p>
                 <ul>
                     <li>
                         <strong>Email:</strong>{" "}
-                        <a href="mailto:support@truebymalaysia.com">support@truebymalaysia.com</a>
+                        <a href="mailto:support@truebymalaysia.com">
+                            support@truebymalaysia.com
+                        </a>
                     </li>
                     <li>
-                        <strong>Address:</strong> Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia
+                        <strong>Address:</strong> Kuala Lumpur City Centre,
+                        50088 Kuala Lumpur, Malaysia
                     </li>
                 </ul>
                 <p>
-                    We aim to respond to all privacy-related inquiries within 5 business days.
+                    We aim to respond to all privacy-related inquiries within 5
+                    business days.
                 </p>
             </section>
         </div>
@@ -154,18 +188,6 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
-                    {/* Breadcrumb */}
-                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
-                        <Link
-                            href="/"
-                            className="flex items-center gap-1 hover:text-slate-700 transition-colors"
-                        >
-                            <Home size={12} /> Home
-                        </Link>
-                        <ChevronRight size={12} className="text-slate-300" />
-                        <span className="text-slate-600 font-medium">Privacy Policy</span>
-                    </nav>
-
                     {/* Page Header */}
                     <div className="mb-10">
                         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -193,7 +215,9 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                                             <a
                                                 key={section.id}
                                                 href={`#${section.id}`}
-                                                onClick={() => setActiveSection(section.id)}
+                                                onClick={() =>
+                                                    setActiveSection(section.id)
+                                                }
                                                 className={`block text-sm px-3 py-2 rounded-lg transition-colors ${
                                                     activeSection === section.id
                                                         ? "bg-indigo-50 text-indigo-600 font-medium"
@@ -214,7 +238,9 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                                 {hasContent ? (
                                     <div
                                         className="prose prose-slate max-w-none"
-                                        dangerouslySetInnerHTML={{ __html: page!.content! }}
+                                        dangerouslySetInnerHTML={{
+                                            __html: page!.content!,
+                                        }}
                                     />
                                 ) : (
                                     <DefaultContent />
@@ -224,7 +250,10 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                             {/* Footer note */}
                             <p className="text-center text-xs text-slate-400 mt-6">
                                 If you have questions about this policy, please{" "}
-                                <Link href="/contact-us" className="text-indigo-500 hover:underline">
+                                <Link
+                                    href="/contact-us"
+                                    className="text-indigo-500 hover:underline"
+                                >
                                     contact us
                                 </Link>
                                 .
