@@ -30,6 +30,13 @@ const primaryMenuItems = [
         urlPattern: "/admin/orders",
     },
     {
+        key: "landing-pages",
+        label: "Pages",
+        icon: <Package size={20} />,
+        route: "admin.landing-pages.index",
+        urlPattern: "/admin/landing-pages",
+    },
+    {
         key: "more",
         label: "More",
         icon: <Grid size={20} />,

@@ -2,7 +2,6 @@ import Header from "@/Components/Layouts/Header";
 import Master from "@/Layouts/Master";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
-import TextInput from "@/Components/Ui/TextInput";
 import { formatPrice } from "@/Utils/helpers";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -10,7 +9,7 @@ import {
 } from "recharts";
 import {
     TrendingUp, DollarSign, ShoppingBag, Clock,
-    CheckCircle, XCircle, ArrowUpRight,
+    CheckCircle, XCircle, ArrowUpRight, Calendar,
 } from "lucide-react";
 
 interface RecentOrder {
@@ -163,33 +162,69 @@ export default function Dashboard({ metrics, charts, recent_orders, filters }: D
             <div className="p-4 md:p-6 space-y-6">
 
                 {/* ── Filter Bar ── */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <select
-                        value={dateRange}
-                        onChange={(e) => handleRangeChange(e.target.value)}
-                        className="bg-[#0b1818] border border-[#1E2826] text-white text-sm rounded-lg focus:ring-[#2DE3A7] focus:border-[#2DE3A7] px-3 py-2"
-                    >
-                        {DATE_OPTIONS.map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                    </select>
+                <div className="bg-[#0b1818] border border-[#1E2826] rounded-2xl px-4 py-3 space-y-3">
+                    <div className="flex items-center gap-3">
+                        <span className="shrink-0 text-gray-500 text-xs font-medium uppercase tracking-widest">
+                            Period
+                        </span>
 
+                        {/* Pill group — scrollable on mobile */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+                            {DATE_OPTIONS.filter((o) => o.value !== "custom").map((o) => (
+                                <button
+                                    key={o.value}
+                                    type="button"
+                                    onClick={() => handleRangeChange(o.value)}
+                                    className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                                        dateRange === o.value && !showCustom
+                                            ? "bg-[#2DE3A7] text-black shadow-[0_0_12px_rgba(45,227,167,0.25)]"
+                                            : "bg-[#0C1311] text-gray-400 border border-[#1E2826] hover:text-white hover:border-[#2DE3A7]/40"
+                                    }`}
+                                >
+                                    {o.label}
+                                </button>
+                            ))}
+
+                            <button
+                                type="button"
+                                onClick={() => handleRangeChange("custom")}
+                                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all duration-150 ${
+                                    showCustom
+                                        ? "bg-[#2DE3A7] text-black shadow-[0_0_12px_rgba(45,227,167,0.25)]"
+                                        : "bg-[#0C1311] text-gray-400 border border-[#1E2826] hover:text-white hover:border-[#2DE3A7]/40"
+                                }`}
+                            >
+                                <Calendar size={11} />
+                                Custom
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Custom date row — slides in */}
                     {showCustom && (
-                        <div className="flex items-center gap-2">
-                            <TextInput
-                                id="start_date" name="start_date" type="date"
-                                value={startDate} onChange={(e) => setStartDate(e.target.value)}
-                                className="bg-[#0b1818] border-[#1E2826] text-white text-sm rounded-lg px-3 py-2"
-                            />
-                            <span className="text-gray-500 text-sm">→</span>
-                            <TextInput
-                                id="end_date" name="end_date" type="date"
-                                value={endDate} onChange={(e) => setEndDate(e.target.value)}
-                                className="bg-[#0b1818] border-[#1E2826] text-white text-sm rounded-lg px-3 py-2"
-                            />
+                        <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-[#1E2826]">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray-500 text-xs">From</label>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="bg-[#0C1311] border border-[#1E2826] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#2DE3A7]/60 [color-scheme:dark]"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-gray-500 text-xs">To</label>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="bg-[#0C1311] border border-[#1E2826] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#2DE3A7]/60 [color-scheme:dark]"
+                                />
+                            </div>
                             <button
                                 onClick={applyCustom}
-                                className="bg-[#2DE3A7] hover:bg-[#24c490] text-black font-semibold rounded-lg text-sm px-4 py-2"
+                                disabled={!startDate || !endDate}
+                                className="px-4 py-2 bg-[#2DE3A7] hover:bg-[#24c490] disabled:opacity-40 disabled:cursor-not-allowed text-black text-sm font-semibold rounded-lg transition-colors"
                             >
                                 Apply
                             </button>

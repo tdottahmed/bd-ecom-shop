@@ -12,7 +12,11 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
+
+Route::get('lp/{slug}', [LandingPageController::class, 'show'])->name('landing-page.show');
+Route::post('lp/{slug}/order', [LandingPageController::class, 'order'])->name('landing-page.order');
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');

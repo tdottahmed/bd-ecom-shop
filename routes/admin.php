@@ -18,10 +18,16 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
+use App\Http\Controllers\Admin\LandingPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+  // Landing Pages
+  Route::post('landing-pages/upload-image', [LandingPageController::class, 'uploadImage'])->name('landing-pages.upload-image');
+  Route::post('landing-pages/{landingPage}/toggle-publish', [LandingPageController::class, 'togglePublish'])->name('landing-pages.toggle-publish');
+  Route::resource('landing-pages', LandingPageController::class)->except(['show']);
   Route::get('products', [ProductController::class, 'index'])->name('products.index');
   Route::get('products/import', [ProductImportController::class, 'index'])->name('products.import');
   Route::get('products/import/template', [ProductImportController::class, 'template'])->name('products.import.template');

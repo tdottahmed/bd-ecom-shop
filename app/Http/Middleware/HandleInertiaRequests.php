@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
+        $props = [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
@@ -41,7 +41,20 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
-            'categories' => fn() => Category::select('id', 'title', 'slug', 'image')->get(),
+            'categories' => fn() => Category::select('id', 'title', 'slug', 'image')
+                ->orderBy('title')
+                ->get()
+                ->tap(function ($cats) {
+                    $cats->take(8)->each(function ($category) {
+                        $products = $category->products()
+                            ->select('id', 'category_id', 'name', 'slug', 'images', 'sale_price', 'has_discount', 'discounted_sale_price')
+                            ->latest()
+                            ->limit(4)
+                            ->get();
+
+                        $category->setRelation('products', $products);
+                    });
+                }),
             'brands' => fn() => Brand::select('id', 'title', 'slug', 'image')->orderBy('title')->get(),
             'cart' => fn() => $request->session()->get('cart', []),
             'messengerLink' => fn() => get_setting('messenger_link'),
@@ -73,5 +86,8 @@ class HandleInertiaRequests extends Middleware
                 ->select('title', 'slug')
                 ->get(),
         ];
+        // dd($props['categories']());
+        return $props;
+
     }
 }
