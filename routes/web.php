@@ -27,6 +27,8 @@ Route::get('brand/{brand:slug}', [CustomerController::class, 'brand'])->name('br
 
 Route::get('about-us', [PageController::class, 'about'])->name('pages.about');
 Route::get('contact-us', [PageController::class, 'contact'])->name('pages.contact');
+Route::get('faq', [PageController::class, 'faq'])->name('pages.faq');
+Route::get('privacy-policy', [PageController::class, 'privacyPolicy'])->name('pages.privacy-policy');
 Route::get('page/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 Route::get('api/search', [CustomerController::class, 'search'])->name('api.search');

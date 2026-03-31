@@ -49,14 +49,14 @@ const values = [
     "Long-term trust over short-term sales",
 ];
 
-const stats = [
+const defaultStats = [
     { value: "10K+", label: "Happy Customers" },
     { value: "500+", label: "Products Listed" },
     { value: "99%", label: "Genuine Products" },
     { value: "24h", label: "Support Response" },
 ];
 
-const testimonials = [
+const defaultTestimonials = [
     {
         name: "Nusrat Jahan",
         role: "Regular Customer",
@@ -77,7 +77,18 @@ const testimonials = [
     },
 ];
 
-export default function About() {
+export default function About({
+    page,
+    stats = [],
+    testimonials = [],
+}: {
+    page?: { title: string; slug: string; content?: string | null };
+    stats?: { value: string; label: string }[];
+    testimonials?: { name: string; role: string; quote: string; rating: number }[];
+}) {
+    const displayStats = stats.length > 0 ? stats : defaultStats;
+    const displayTestimonials = testimonials.length > 0 ? testimonials : defaultTestimonials;
+
     return (
         <CustomerLayout>
             <Head title="About Us" />
@@ -90,7 +101,16 @@ export default function About() {
                 <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
-                <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                    {/* Breadcrumb */}
+                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
+                        <Link href="/" className="flex items-center gap-1 hover:text-slate-700 transition-colors">
+                            <Home size={12} /> Home
+                        </Link>
+                        <ChevronRight size={12} className="text-slate-300" />
+                        <span className="text-slate-600 font-medium">About Us</span>
+                    </nav>
+
                     {/* Hero heading */}
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -141,7 +161,7 @@ export default function About() {
                                     By the numbers
                                 </p>
                                 <div className="grid grid-cols-2 gap-8">
-                                    {stats.map(({ value, label }) => (
+                                    {displayStats.map(({ value, label }) => (
                                         <div key={label}>
                                             <p className="text-3xl font-black text-white">
                                                 {value}
@@ -261,7 +281,7 @@ export default function About() {
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-6">
-                            {testimonials.map((review) => (
+                            {displayTestimonials.map((review) => (
                                 <div
                                     key={review.name}
                                     className="bg-white rounded-3xl border border-slate-100 shadow-sm p-7 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"

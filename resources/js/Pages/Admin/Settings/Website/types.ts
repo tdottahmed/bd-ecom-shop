@@ -21,5 +21,12 @@ export interface WebsiteSetting {
     social_youtube: string | null;
     social_tiktok: string | null;
     faqs?: FAQ[];
+    contact_address?: string | null;
+    contact_phone?: string | null;
+    contact_email?: string | null;
+    contact_hours?: string | null;
+    contact_map_embed?: string | null;
+    about_stats?: { value: string; label: string }[];
+    about_testimonials?: { name: string; role: string; quote: string; rating: number }[];
 }
 

@@ -8,6 +8,8 @@ import DeliveryChargeForm from "./Partials/DeliveryChargeForm";
 import BrandingForm from "./Partials/BrandingForm";
 import FooterSettingsForm from "./Partials/FooterSettingsForm";
 import FaqForm from "./Partials/FaqForm";
+import ContactInfoForm from "./Partials/ContactInfoForm";
+import AboutSettingsForm from "./Partials/AboutSettingsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -35,6 +37,8 @@ export default function Index({
                 <MessengerLinkForm messengerLink={messengerLink} />
                 <DeliveryChargeForm charges={deliveryCharges} />
                 <FaqForm faqs={settings.faqs || []} />
+                <ContactInfoForm settings={settings} />
+                <AboutSettingsForm settings={settings} />
             </div>
         </Master>
     );

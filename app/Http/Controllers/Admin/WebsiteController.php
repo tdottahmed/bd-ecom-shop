@@ -27,6 +27,13 @@ class WebsiteController extends Controller
                 'social_instagram' => get_setting('social_instagram'),
                 'social_youtube' => get_setting('social_youtube'),
                 'social_tiktok' => get_setting('social_tiktok'),
+                'contact_address' => get_setting('contact_address', 'Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia'),
+                'contact_phone' => get_setting('contact_phone', '+60 3 1234 5678'),
+                'contact_email' => get_setting('contact_email', 'support@truebymalaysia.com'),
+                'contact_hours' => get_setting('contact_hours', 'Mon–Fri: 9am–6pm, Sat: 10am–2pm'),
+                'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
+                'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
+                'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
             ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
@@ -193,6 +200,41 @@ class WebsiteController extends Controller
             Cache::forget('setting_faqs');
 
             return back()->with('success', 'FAQs updated successfully.');
+        }
+
+        if ($type === 'contact') {
+            $request->validate([
+                'contact_address' => 'nullable|string|max:500',
+                'contact_phone'   => 'nullable|string|max:100',
+                'contact_email'   => 'nullable|email|max:255',
+                'contact_hours'   => 'nullable|string|max:255',
+                'contact_map_embed' => 'nullable|string|max:2000',
+            ]);
+            foreach (['contact_address','contact_phone','contact_email','contact_hours','contact_map_embed'] as $key) {
+                Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key, '')]);
+                Cache::forget('setting_' . $key);
+            }
+            return back()->with('success', 'Contact info updated.');
+        }
+
+        if ($type === 'about') {
+            $request->validate([
+                'about_stats' => 'nullable|array',
+                'about_stats.*.value' => 'required|string|max:50',
+                'about_stats.*.label' => 'required|string|max:100',
+                'about_testimonials' => 'nullable|array',
+                'about_testimonials.*.name' => 'required|string|max:255',
+                'about_testimonials.*.role' => 'required|string|max:255',
+                'about_testimonials.*.quote' => 'required|string|max:1000',
+                'about_testimonials.*.rating' => 'required|integer|min:1|max:5',
+            ]);
+            $stats = collect($request->about_stats ?? [])->filter(fn($s) => !empty($s['value']) && !empty($s['label']))->values()->toArray();
+            $testimonials = collect($request->about_testimonials ?? [])->filter(fn($t) => !empty($t['name']) && !empty($t['quote']))->values()->toArray();
+            Setting::updateOrCreate(['key' => 'about_stats'], ['value' => json_encode($stats)]);
+            Setting::updateOrCreate(['key' => 'about_testimonials'], ['value' => json_encode($testimonials)]);
+            Cache::forget('setting_about_stats');
+            Cache::forget('setting_about_testimonials');
+            return back()->with('success', 'About page settings updated.');
         }
 
         return back()->with('error', 'Invalid update type.');

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import {
     MapPin, Phone, Mail, Clock, Plus, Minus, Send,
@@ -11,37 +11,56 @@ interface FAQItem {
     answer: string;
 }
 
+interface ContactInfo {
+    address: string;
+    phone: string;
+    email: string;
+    hours: string;
+    map_embed: string;
+}
 
-const contactCards = [
-    {
-        icon: MapPin,
-        label: "Our Location",
-        lines: ["Kuala Lumpur City Centre,", "50088 Kuala Lumpur, Malaysia"],
-        color: "bg-indigo-50 text-indigo-600",
-    },
-    {
-        icon: Phone,
-        label: "Phone",
-        lines: ["+60 3 1234 5678", "Mon–Sat, 9am–6pm"],
-        color: "bg-emerald-50 text-emerald-600",
-    },
-    {
-        icon: Mail,
-        label: "Email",
-        lines: ["support@truebymalaysia.com", "We reply within 24 hours"],
-        color: "bg-sky-50 text-sky-600",
-    },
-    {
-        icon: Clock,
-        label: "Business Hours",
-        lines: ["Mon–Fri: 9:00am – 6:00pm", "Sat: 10:00am – 2:00pm"],
-        color: "bg-violet-50 text-violet-600",
-    },
-];
-
-export default function Contact({ page, faqs = [] }: { page?: any, faqs?: FAQItem[] }) {
+export default function Contact({
+    page,
+    faqs = [],
+    contactInfo,
+}: {
+    page?: any;
+    faqs?: FAQItem[];
+    contactInfo?: ContactInfo;
+}) {
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const toggleFaq = (index: number) => setOpenFaq(openFaq === index ? null : index);
+
+    const contactCards = [
+        {
+            icon: MapPin,
+            label: "Our Location",
+            lines: [contactInfo?.address || "Kuala Lumpur City Centre,", "50088 Kuala Lumpur, Malaysia"],
+            color: "bg-indigo-50 text-indigo-600",
+        },
+        {
+            icon: Phone,
+            label: "Phone",
+            lines: [contactInfo?.phone || "+60 3 1234 5678", contactInfo?.hours || "Mon–Sat, 9am–6pm"],
+            color: "bg-emerald-50 text-emerald-600",
+        },
+        {
+            icon: Mail,
+            label: "Email",
+            lines: [contactInfo?.email || "support@truebymalaysia.com", "We reply within 24 hours"],
+            color: "bg-sky-50 text-sky-600",
+        },
+        {
+            icon: Clock,
+            label: "Business Hours",
+            lines: [contactInfo?.hours || "Mon–Fri: 9:00am – 6:00pm", "Sat: 10:00am – 2:00pm"],
+            color: "bg-violet-50 text-violet-600",
+        },
+    ];
+
+    const mapSrc =
+        contactInfo?.map_embed ||
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy";
 
     return (
         <CustomerLayout>
@@ -58,7 +77,16 @@ export default function Contact({ page, faqs = [] }: { page?: any, faqs?: FAQIte
                 <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
 
-                <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                    {/* Breadcrumb */}
+                    <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-8">
+                        <Link href="/" className="flex items-center gap-1 hover:text-slate-700 transition-colors">
+                            <Home size={12} /> Home
+                        </Link>
+                        <ChevronRight size={12} className="text-slate-300" />
+                        <span className="text-slate-600 font-medium">Contact Us</span>
+                    </nav>
+
                     {/* Hero heading */}
                     <div className="text-center mb-14">
                         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
@@ -171,7 +199,7 @@ export default function Contact({ page, faqs = [] }: { page?: any, faqs?: FAQIte
                             {/* Map */}
                             <div className="h-[400px] lg:h-auto min-h-[400px]">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy"
+                                    src={mapSrc}
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0, display: "block" }}
