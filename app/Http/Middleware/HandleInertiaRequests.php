@@ -45,7 +45,21 @@ class HandleInertiaRequests extends Middleware
                 ->orderBy('title')
                 ->get()
                 ->tap(function ($cats) {
-                    $cats->take(8)->each(function ($category) {
+                    $cats->each(function ($category) {
+                        $products = $category->products()
+                            ->select('id', 'category_id', 'name', 'slug', 'images', 'sale_price', 'has_discount', 'discounted_sale_price')
+                            ->latest()
+                            ->limit(4)
+                            ->get();
+
+                        $category->setRelation('products', $products);
+                    });
+                }),
+            'navCategories' => fn() => Category::select('id', 'title', 'slug', 'image')
+                ->orderBy('title')
+                ->get()
+                ->tap(function ($cats) {
+                    $cats->each(function ($category) {
                         $products = $category->products()
                             ->select('id', 'category_id', 'name', 'slug', 'images', 'sale_price', 'has_discount', 'discounted_sale_price')
                             ->latest()
@@ -56,6 +70,20 @@ class HandleInertiaRequests extends Middleware
                     });
                 }),
             'brands' => fn() => Brand::select('id', 'title', 'slug', 'image')->orderBy('title')->get(),
+            'navBrands' => fn() => Brand::select('id', 'title', 'slug', 'image')
+                ->orderBy('title')
+                ->get()
+                ->tap(function ($brands) {
+                    $brands->each(function ($brand) {
+                        $products = $brand->products()
+                            ->select('id', 'brand_id', 'name', 'slug', 'images', 'sale_price', 'has_discount', 'discounted_sale_price')
+                            ->latest()
+                            ->limit(4)
+                            ->get();
+
+                        $brand->setRelation('products', $products);
+                    });
+                }),
             'cart' => fn() => $request->session()->get('cart', []),
             'messengerLink' => fn() => get_setting('messenger_link'),
             'additionalCost' => fn() => get_setting('additional_cost', 0),

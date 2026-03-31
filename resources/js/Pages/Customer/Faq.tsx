@@ -39,7 +39,7 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
 
                     {/* FAQ list */}
                     {faqs.length > 0 ? (
-                        <div className="space-y-3 mb-16">
+                        <div className="space-y-3 mb-16 max-w-7xl mx-auto mt-10">
                             {faqs.map((faq, i) => {
                                 const isOpen = openFaq === i;
                                 return (

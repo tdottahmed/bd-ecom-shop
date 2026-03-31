@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import { Link } from "@inertiajs/react";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown, ArrowRight, LayoutGrid } from "lucide-react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl, formatCurrency } from "@/Utils/helpers";
 
@@ -33,32 +33,54 @@ interface Props {
 
 const CategoriesMegaMenu: React.FC<Props> = ({
     categories,
-    featuredCategories,
     isOpen,
     onToggle,
     onMouseEnter,
     onClose,
 }) => {
-    const sectionsSource =
-        (featuredCategories ?? []).length > 0 ? featuredCategories : categories;
+    const allCategories = categories ?? [];
+    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const limitedSections = (sectionsSource ?? []).slice(0, 8);
-    const sectionsWithProducts = limitedSections.filter(
-        (c) => (c.products ?? []).length > 0
+    const firstCategoryWithProducts =
+        allCategories.find((c) => (c.products ?? []).length > 0) ?? allCategories[0];
+
+    const [activeCategorySlug, setActiveCategorySlug] = useState<string | null>(
+        firstCategoryWithProducts?.slug ?? null,
     );
-    const sections =
-        sectionsWithProducts.length > 0 ? sectionsWithProducts : limitedSections;
+
+    const scheduleClose = useCallback(() => {
+        closeTimer.current = setTimeout(() => onClose(), 150);
+    }, [onClose]);
+
+    const cancelClose = useCallback(() => {
+        if (closeTimer.current) {
+            clearTimeout(closeTimer.current);
+            closeTimer.current = null;
+        }
+    }, []);
+
+    // Sync default when categories load asynchronously
+    useEffect(() => {
+        if (!activeCategorySlug && allCategories.length > 0) {
+            const first = allCategories.find((c) => (c.products ?? []).length > 0) ?? allCategories[0];
+            setActiveCategorySlug(first?.slug ?? null);
+        }
+    }, [allCategories]);
+
+    const activeCategory =
+        allCategories.find((c) => c.slug === activeCategorySlug) ?? firstCategoryWithProducts;
+    const activeProducts = (activeCategory?.products ?? []).slice(0, 4);
+    const fillerCount = Math.max(0, 4 - activeProducts.length);
 
     return (
         <div
             className="relative flex"
-            onMouseLeave={() => {
-                if (isOpen) onClose();
-            }}
+            onMouseLeave={scheduleClose}
+            onMouseEnter={cancelClose}
         >
             <button
                 type="button"
-                onMouseEnter={onMouseEnter}
+                onMouseEnter={() => { cancelClose(); onMouseEnter(); }}
                 onClick={onToggle}
                 className="px-2 py-2 md:px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-full transition-colors inline-flex items-center gap-2"
                 aria-expanded={isOpen}
@@ -70,113 +92,159 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                 />
             </button>
 
-            {/* In mobile/tablet, we might want it relative to the button, but for desktop lg+, we want it wide. 
-                We use fixed positioning for large screens to ensure it spans beautifully from the bottom of the header. 
-                For 'md' screens (the second row navbar), it can be relative to the viewport or left aligned.
-            */}
             {isOpen && (
-                <div className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden transform transition-all duration-300 origin-top">
-                    {sections.length > 0 ? (
-                        <div className="flex flex-col max-h-[70vh] overflow-y-auto">
-                            <div className="p-6 md:p-8 space-y-8">
-                                {sections.map((c, index) => (
-                                    <div key={c.id} className="group/section">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                    <Image
-                                                        src={getAssetUrl(c.image)}
-                                                        alt={c.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
-                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">
-                                                    {c.title}
-                                                </h3>
-                                            </div>
-                                            <Link
-                                                href={route("products.category", c.slug)}
-                                                onClick={onClose}
-                                                className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline group-hover/section:translate-x-1 transition-all duration-300"
-                                            >
-                                                Show More <ArrowRight size={14} />
-                                            </Link>
-                                        </div>
+                <div
+                    className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                    onMouseEnter={cancelClose}
+                    onMouseLeave={scheduleClose}
+                >
+                    {allCategories.length > 0 ? (
+                        <div className="flex flex-col md:flex-row max-h-[70vh]">
 
-                                        {/* Products Grid */}
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                                            {(c.products ?? []).length > 0 ? (
-                                                c.products?.slice(0, 4).map((p) => {
-                                                    const price = p.has_discount ? p.discounted_sale_price : p.sale_price;
-                                                    const primaryImage = p.images?.[0] ? getAssetUrl(p.images[0]) : null;
+                            {/* Left: Category List */}
+                            <div className="md:w-56 lg:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100 overflow-y-auto">
+                                <div className="p-4">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-2">
+                                        All Categories
+                                    </p>
+                                    <ul className="space-y-0.5">
+                                        {allCategories.map((c) => (
+                                            <li key={c.id}>
+                                                <Link
+                                                    href={route(
+                                                        "products.category",
+                                                        c.slug,
+                                                    )}
+                                                    onMouseEnter={() =>
+                                                        setActiveCategorySlug(
+                                                            c.slug,
+                                                        )
+                                                    }
+                                                    onFocus={() =>
+                                                        setActiveCategorySlug(
+                                                            c.slug,
+                                                        )
+                                                    }
+                                                    onClick={onClose}
+                                                    className={`flex items-center gap-3 px-2 py-2 rounded-xl group transition-colors ${
+                                                        activeCategory?.slug ===
+                                                        c.slug
+                                                            ? "bg-gray-100"
+                                                            : "hover:bg-gray-50"
+                                                    }`}
+                                                >
+                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
+                                                        <Image
+                                                            src={getAssetUrl(c.image)}
+                                                            alt={c.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1 truncate">
+                                                        {c.title}
+                                                    </span>
+                                                    <ArrowRight size={13} className="text-gray-300 group-hover:text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
 
-                                                    return (
-                                                        <Link
-                                                            key={p.id}
-                                                            href={route("products.show", p.slug)}
-                                                            onClick={onClose}
-                                                            className="group/card flex flex-col bg-gray-50/50 hover:bg-white border text-left border-transparent hover:border-gray-200 hover:shadow-xl rounded-2xl p-3 sm:p-4 transition-all duration-300"
-                                                        >
-                                                            <div className="aspect-square w-full rounded-xl bg-white border border-gray-100 mb-3 overflow-hidden relative">
-                                                                {primaryImage ? (
-                                                                    <Image
-                                                                        src={primaryImage}
-                                                                        alt={p.name}
-                                                                        className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                                        <span className="text-gray-400 text-xs">No image</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex-1 flex flex-col justify-between">
-                                                                <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 group-hover/card:text-blue-600 transition-colors">
-                                                                    {p.name}
-                                                                </h4>
-                                                                <div className="text-sm font-bold text-gray-900 mt-auto">
-                                                                    {formatCurrency(price || 0)}
-                                                                </div>
-                                                            </div>
-                                                        </Link>
-                                                    );
-                                                })
-                                            ) : (
-                                                <div className="col-span-full py-6 text-center text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                                    No featured products yet.
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-4 sm:hidden">
-                                            <Link
-                                                href={route("products.category", c.slug)}
-                                                onClick={onClose}
-                                                className="inline-flex w-full justify-center items-center gap-2 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-xl transition-colors"
-                                            >
-                                                View all {c.title}
-                                            </Link>
-                                        </div>
-
-                                        {/* Visual separator except for last item */}
-                                        {index < sections.length - 1 && (
-                                            <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mt-8" />
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            {categories.length > sections.length && (
-                                <div className="bg-gray-50 border-t border-gray-100 p-4 text-center">
+                                <div className="p-4 border-t border-gray-100">
                                     <Link
                                         href={route("products.index")}
                                         onClick={onClose}
-                                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-bold rounded-full shadow-sm hover:shadow transition-all"
+                                        className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-colors"
                                     >
-                                        Browse Directory of All Categories
+                                        <LayoutGrid size={14} />
+                                        Browse All
                                     </Link>
                                 </div>
-                            )}
+                            </div>
+
+                            {/* Right: Hovered Category Products */}
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                                    {activeCategory
+                                        ? `${activeCategory.title} Products`
+                                        : "Category Products"}
+                                </p>
+
+                                {activeProducts.length > 0 ? (
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {activeProducts.map((p) => {
+                                            const price = p.has_discount
+                                                ? p.discounted_sale_price
+                                                : p.sale_price;
+                                            const primaryImage = p.images?.[0]
+                                                ? getAssetUrl(p.images[0])
+                                                : null;
+
+                                            return (
+                                                <Link
+                                                    key={p.id}
+                                                    href={route("products.show", p.slug)}
+                                                    onClick={onClose}
+                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-xl rounded-2xl p-3 transition-all duration-300"
+                                                >
+                                                    <div className="aspect-square w-full rounded-xl bg-white border border-gray-100 mb-3 overflow-hidden">
+                                                        {primaryImage ? (
+                                                            <Image
+                                                                src={primaryImage}
+                                                                alt={p.name}
+                                                                className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                                <span className="text-gray-400 text-xs">No image</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 flex flex-col justify-between">
+                                                        <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 group-hover/card:text-blue-600 transition-colors">
+                                                            {p.name}
+                                                        </h4>
+                                                        <div className="text-sm font-bold text-gray-900 mt-auto">
+                                                            {formatCurrency(price || 0)}
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })}
+                                        {Array.from({ length: fillerCount }).map(
+                                            (_, index) => (
+                                                <Link
+                                                    key={`filler-${index}`}
+                                                    href={route(
+                                                        "products.category",
+                                                        activeCategory?.slug,
+                                                    )}
+                                                    onClick={onClose}
+                                                    className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-2xl p-3 transition-all duration-300 hover:border-gray-300 hover:bg-white"
+                                                >
+                                                    <div className="aspect-square w-full rounded-xl bg-gray-100/80 border border-gray-100 mb-3 flex items-center justify-center">
+                                                        <span className="text-gray-400 text-xs text-center px-2">
+                                                            More from{" "}
+                                                            {
+                                                                activeCategory?.title
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1 flex flex-col justify-end">
+                                                        <div className="text-sm font-semibold text-gray-700 group-hover/card:text-blue-600">
+                                                            Explore Category
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            ),
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        No products available in this category.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ) : (
                         <div className="text-sm text-gray-500 p-8 text-center bg-gray-50">

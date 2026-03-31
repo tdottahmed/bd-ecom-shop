@@ -300,7 +300,10 @@ class CustomerController extends Controller
 
     public function brands()
     {
-        $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
+        $brands = Brand::select(['id', 'title', 'slug', 'image'])
+            ->withCount('products')
+            ->orderBy('title')
+            ->get();
 
         return Inertia::render('Customer/Brands', [
             'brands' => $brands,

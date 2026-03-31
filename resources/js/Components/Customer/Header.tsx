@@ -21,7 +21,16 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const { setIsOpen, getCartCount } = useCartStore();
     const cartCount = getCartCount();
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-    const { auth, messengerLink, categories, brands }: any = usePage().props;
+    const {
+        auth,
+        messengerLink,
+        categories,
+        navCategories,
+        brands,
+        navBrands,
+    }: any = usePage().props;
+    const menuCategories = navCategories ?? categories ?? [];
+    const menuBrands = navBrands ?? brands ?? [];
 
     const [openDropdown, setOpenDropdown] = useState<
         "categories" | "brands" | null
@@ -69,8 +78,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const featuredCategories = (categories ?? []).slice(0, 8);
-    const featuredBrands = (brands ?? []).slice(0, 8);
+    const featuredCategories = menuCategories.slice(0, 8);
+    const featuredBrands = menuBrands.slice(0, 8);
 
     const onCartClick = () => {
         setIsOpen(true);
@@ -124,9 +133,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                     className="flex items-center gap-1 whitespace-nowrap"
                                 >
                                     <DesktopNav
-                                        categories={categories}
+                                        categories={menuCategories}
                                         featuredCategories={featuredCategories}
-                                        brands={brands}
+                                        brands={menuBrands}
                                         featuredBrands={featuredBrands}
                                         openDropdown={openDropdown}
                                         setOpenDropdown={setOpenDropdown}
@@ -181,9 +190,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                         className="flex items-center gap-1 w-full"
                     >
                         <DesktopNav
-                            categories={categories}
+                            categories={menuCategories}
                             featuredCategories={featuredCategories}
-                            brands={brands}
+                            brands={menuBrands}
                             featuredBrands={featuredBrands}
                             openDropdown={openDropdown}
                             setOpenDropdown={setOpenDropdown}
