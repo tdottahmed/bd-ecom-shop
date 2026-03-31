@@ -16,12 +16,16 @@ class LandingPageController extends Controller
     public function show(string $slug)
     {
         $page = LandingPage::where('slug', $slug)
-            ->where('is_published', true)
             ->with([
                 'product:id,name,sale_price,discounted_sale_price,stock,is_preorder',
                 'product.product_variations.product_attribute',
             ])
             ->firstOrFail();
+
+        // Unpublished pages are only visible to authenticated admin users
+        if (! $page->is_published && ! auth()->check()) {
+            abort(404);
+        }
 
         $deliveryCharges = DeliveryCharge::orderBy('cost')->get(['id', 'name', 'cost']);
 

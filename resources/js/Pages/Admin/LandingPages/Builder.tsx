@@ -1048,10 +1048,7 @@ export default function Builder({
 
     const handleSubmit = () => {
         if (isEdit) {
-            post(route("admin.landing-pages.update", page!.id), {
-                forceFormData: true,
-                _method: "put",
-            } as any);
+            put(route("admin.landing-pages.update", page!.id));
         } else {
             post(route("admin.landing-pages.store"), { forceFormData: true });
         }
