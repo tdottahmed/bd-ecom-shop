@@ -22,6 +22,7 @@ class WebsiteController extends Controller
                 'faqs' => json_decode(get_setting('faqs', '[]'), true),
                 'site_logo' => get_setting('site_logo'),
                 'site_favicon' => get_setting('site_favicon'),
+                'auth_page_image' => get_setting('auth_page_image'),
                 'footer_description' => get_setting('footer_description'),
                 'social_facebook' => get_setting('social_facebook'),
                 'social_instagram' => get_setting('social_instagram'),
@@ -143,6 +144,25 @@ class WebsiteController extends Controller
                 $path = FileUpload::uploadImage($request->file('logo'), 'branding');
                 Setting::updateOrCreate(['key' => 'site_logo'], ['value' => $path]);
                 Cache::forget('setting_site_logo');
+            }
+
+            if ($request->has('deleted_auth_page_image') && $request->deleted_auth_page_image) {
+                $existing = get_setting('auth_page_image');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
+                    Setting::updateOrCreate(['key' => 'auth_page_image'], ['value' => '']);
+                    Cache::forget('setting_auth_page_image');
+                }
+            }
+
+            if ($request->hasFile('auth_page_image')) {
+                $existing = get_setting('auth_page_image');
+                if ($existing) {
+                    FileUpload::deleteImage($existing);
+                }
+                $path = FileUpload::uploadImage($request->file('auth_page_image'), 'branding');
+                Setting::updateOrCreate(['key' => 'auth_page_image'], ['value' => $path]);
+                Cache::forget('setting_auth_page_image');
             }
 
             if ($request->has('deleted_favicon') && $request->deleted_favicon) {

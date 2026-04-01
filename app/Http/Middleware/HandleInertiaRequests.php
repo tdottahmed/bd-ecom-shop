@@ -99,6 +99,7 @@ class HandleInertiaRequests extends Middleware
                 'googleSiteVerification' => get_setting('google_site_verification', ''),
             ],
             'siteLogo' => fn() => get_setting('site_logo'),
+            'authPageImage' => fn() => get_setting('auth_page_image'),
             'siteDescription' => fn() => get_setting('footer_description'),
             'siteFavicon' => fn() => get_setting('site_favicon'),
             'footer' => fn() => [

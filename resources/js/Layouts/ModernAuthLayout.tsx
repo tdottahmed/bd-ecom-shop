@@ -1,6 +1,8 @@
 import React, { ReactNode } from "react";
 import BrandLogo from "@/Components/Utility/BrandLogo";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
+import Logo from "@/Components/Customer/Header/Logo";
+import CustomerLayout from "./CustomerLayout";
 
 interface ModernAuthLayoutProps {
     title: string;
@@ -14,83 +16,163 @@ export default function ModernAuthLayout({
     title,
     subtitle,
     children,
-    quote = "Empowering your business with seamless and efficient management tools.",
-    quoteAuthor = "Paikari World",
+    quote,
+    quoteAuthor,
 }: ModernAuthLayoutProps) {
+    const { seo, siteDescription, authPageImage }: any = usePage().props;
+
+    const displayQuote =
+        quote ||
+        siteDescription ||
+        "Empowering your business with seamless and efficient management tools.";
+
     return (
-        <div className="flex min-h-screen bg-white">
-            {/* Visual Column - Hidden on mobile, visible on lg+ screens */}
-            <div className="hidden lg:flex lg:w-1/2 relative bg-[#0C1311] overflow-hidden flex-col justify-between p-12">
-                {/* Background Details */}
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-[#2DE3A7]/20 via-[#0C1311] to-[#0C1311]"></div>
-                    <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-[#2DE3A7]/10 via-transparent to-transparent"></div>
-                    
-                    {/* Subtle grid pattern */}
-                    <div 
-                        className="absolute inset-0 opacity-[0.03]" 
-                        style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83v58.34h-58.34v-.83h57.51v-57.51h.83z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`
-                        }}
-                    ></div>
-                </div>
+        <CustomerLayout>
+            <div className="flex min-h-screen bg-white p-4 sm:p-6 lg:p-8">
+                <div className="flex w-full max-w-[1400px] mx-auto overflow-hidden">
+                    {/* Visual Column - Hidden on mobile, visible on lg+ screens */}
+                    <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative bg-[#0C1311] overflow-hidden flex-col justify-between p-12 rounded-[2.5rem] shadow-lg">
+                        {/* Background */}
+                        <div className="absolute inset-0 z-0 overflow-hidden">
+                            {authPageImage ? (
+                                <>
+                                    <img
+                                        src={`/storage/${authPageImage}`}
+                                        alt="Authentication Background"
+                                        className="absolute inset-0 w-full h-full object-cover scale-105"
+                                        style={{
+                                            animation:
+                                                "authImgDrift 20s ease-in-out infinite alternate",
+                                        }}
+                                    />
+                                    {/* Multi-layer overlay for depth */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-[#0C1311]/95 via-[#0C1311]/50 to-transparent" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C1311] via-transparent to-transparent" />
+                                    {/* Accent glow */}
+                                    <div
+                                        className="absolute bottom-1/4 left-1/4 w-64 h-64 rounded-full bg-[#2DE3A7]/10 blur-3xl"
+                                        style={{
+                                            animation:
+                                                "authPulse 6s ease-in-out infinite",
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    {/* Base */}
+                                    <div className="absolute inset-0 bg-[#0C1311]" />
 
-                {/* Top Content */}
-                <div className="relative z-10">
-                    <BrandLogo size="lg" withText={true} />
-                </div>
+                                    {/* Animated orbs */}
+                                    <div
+                                        className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-[#2DE3A7]/15 blur-3xl"
+                                        style={{
+                                            animation:
+                                                "authOrb1 12s ease-in-out infinite alternate",
+                                        }}
+                                    />
+                                    <div
+                                        className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[#2DE3A7]/10 blur-3xl"
+                                        style={{
+                                            animation:
+                                                "authOrb2 15s ease-in-out infinite alternate",
+                                        }}
+                                    />
+                                    <div
+                                        className="absolute -bottom-16 left-1/3 w-72 h-72 rounded-full bg-[#2DE3A7]/8 blur-3xl"
+                                        style={{
+                                            animation:
+                                                "authOrb3 10s ease-in-out infinite alternate",
+                                        }}
+                                    />
 
-                {/* Bottom Content / Quote */}
-                <div className="relative z-10 max-w-lg">
-                    <blockquote className="text-2xl font-medium text-white leading-relaxed mb-6">
-                        "{quote}"
-                    </blockquote>
-                    <p className="text-[#2DE3A7] font-semibold text-lg">{quoteAuthor}</p>
-                    <div className="mt-8 flex gap-2">
-                        <div className="w-12 h-1 bg-[#2DE3A7] rounded-full"></div>
-                        <div className="w-2 h-1 bg-gray-700 rounded-full"></div>
-                        <div className="w-2 h-1 bg-gray-700 rounded-full"></div>
-                    </div>
-                </div>
-            </div>
+                                    {/* Dot pattern */}
+                                    <div
+                                        className="absolute inset-0 opacity-[0.06]"
+                                        style={{
+                                            backgroundImage: `radial-gradient(circle, #ffffff 1px, transparent 1px)`,
+                                            backgroundSize: "28px 28px",
+                                        }}
+                                    />
 
-            {/* Form Column - Full width on mobile, 50% on lg+ screens */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 lg:px-24 xl:px-32">
-                <div className="w-full max-w-md">
-                    {/* Mobile Logo - Only shown when visual column is hidden */}
-                    <div className="lg:hidden flex justify-center mb-10">
-                        <div className="bg-[#0C1311] p-4 rounded-2xl shadow-lg border border-gray-100">
-                           <BrandLogo size="md" withText={true} />
+                                    {/* Diagonal accent line */}
+                                    <div
+                                        className="absolute inset-0 opacity-[0.04]"
+                                        style={{
+                                            backgroundImage:
+                                                "linear-gradient(135deg, #2DE3A7 25%, transparent 25%, transparent 75%, #2DE3A7 75%)",
+                                            backgroundSize: "80px 80px",
+                                        }}
+                                    />
+                                </>
+                            )}
+
+                            {/* Shared: top vignette */}
+                            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#0C1311]/60 to-transparent" />
+                        </div>
+
+                        <style>{`
+                        @keyframes authImgDrift {
+                            from { transform: scale(1.05) translate(0, 0); }
+                            to   { transform: scale(1.05) translate(-1.5%, -1%); }
+                        }
+                        @keyframes authPulse {
+                            0%, 100% { opacity: 0.6; transform: scale(1); }
+                            50%       { opacity: 1;   transform: scale(1.15); }
+                        }
+                        @keyframes authOrb1 {
+                            from { transform: translate(0, 0) scale(1); }
+                            to   { transform: translate(40px, 60px) scale(1.2); }
+                        }
+                        @keyframes authOrb2 {
+                            from { transform: translate(0, 0) scale(1); }
+                            to   { transform: translate(-50px, -40px) scale(1.15); }
+                        }
+                        @keyframes authOrb3 {
+                            from { transform: translate(0, 0) scale(1); }
+                            to   { transform: translate(30px, -50px) scale(1.1); }
+                        }
+                    `}</style>
+
+                        {/* Top Content */}
+                        <div className="relative z-10 flex">
+                            <div className="text-white font-bold text-2xl drop-shadow-md">
+                                {seo?.siteName || "True Buy Malaysia"}
+                            </div>
+                        </div>
+
+                        {/* Bottom Content / Quote */}
+                        <div className="relative z-10 max-w-lg mb-8">
+                            <blockquote className="text-3xl xl:text-4xl font-bold text-white leading-[1.2] mb-6 drop-shadow-lg">
+                                {displayQuote}
+                            </blockquote>
                         </div>
                     </div>
 
-                    <div className="mb-8">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-3">
-                            {title}
-                        </h1>
-                        {subtitle && (
-                            <p className="text-gray-500 text-base leading-relaxed">
-                                {subtitle}
-                            </p>
-                        )}
-                    </div>
+                    {/* Form Column */}
+                    <div className="w-full lg:w-[55%] xl:w-1/2 flex flex-col justify-center items-center py-8 px-4 sm:px-12 lg:px-20 xl:px-32">
+                        <div className="w-full max-w-[420px]">
+                            {/* Always show Logo above the form */}
+                            <div className="flex justify-center mb-10">
+                                <Logo />
+                            </div>
 
-                    {/* The Auth Form / Content */}
-                    <div className="bg-white">
-                        {children}
-                    </div>
+                            <div className="mb-10 text-center">
+                                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0C1311] tracking-tight mb-3">
+                                    {title}
+                                </h1>
+                                {subtitle && (
+                                    <p className="text-gray-500 text-[15px] font-medium leading-relaxed">
+                                        {subtitle}
+                                    </p>
+                                )}
+                            </div>
 
-                    {/* Helpful Links */}
-                    <div className="mt-12 text-center">
-                        <p className="text-sm text-gray-500">
-                            By continuing, you agree to our{" "}
-                            <Link href="#" className="font-medium text-gray-900 hover:text-[#2DE3A7] transition-colors underline decoration-gray-300 underline-offset-4">Terms of Service</Link>
-                            {" "}and{" "}
-                            <Link href="#" className="font-medium text-gray-900 hover:text-[#2DE3A7] transition-colors underline decoration-gray-300 underline-offset-4">Privacy Policy</Link>.
-                        </p>
+                            {/* The Auth Form / Content */}
+                            <div className="bg-white">{children}</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </CustomerLayout>
     );
 }

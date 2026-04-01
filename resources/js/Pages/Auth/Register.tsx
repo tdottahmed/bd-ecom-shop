@@ -1,10 +1,9 @@
-import InputError from "@/Components/Ui/InputError";
-import InputLabel from "@/Components/Ui/InputLabel";
-import TextInput from "@/Components/Ui/TextInput";
+import AuthTextInput from "@/Components/Auth/AuthTextInput";
+import AuthButton from "@/Components/Auth/AuthButton";
+import AuthSocialLogin from "@/Components/Auth/AuthSocialLogin";
 import ModernAuthLayout from "@/Layouts/ModernAuthLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
-import { Loader2 } from "lucide-react";
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -25,47 +24,42 @@ export default function Register() {
     return (
         <ModernAuthLayout
             title="Create an account"
-            subtitle="Join us today and discover a world of possibilities."
+            subtitle="Please enter your details to sign up."
             quote="Our journey started with a simple idea: making shopping effortless and delightful for everyone."
         >
             <Head title="Register" />
 
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <InputLabel htmlFor="name" value="Full Name" className="mb-2 text-gray-700 block text-sm font-medium" />
-                    <TextInput
+                    <AuthTextInput
                         id="name"
                         name="name"
                         value={data.name}
-                        placeholder="Enter your full name"
+                        placeholder="Full Name"
                         autoComplete="name"
                         isFocused={true}
                         onChange={(e) => setData("name", e.target.value)}
                         required
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2DE3A7]/50 focus:border-[#2DE3A7] transition-all bg-gray-50/50 hover:bg-gray-50"
+                        error={errors.name}
                     />
-                    <InputError message={errors.name} className="mt-2" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" value="Email" className="mb-2 text-gray-700 block text-sm font-medium" />
-                    <TextInput
+                    <AuthTextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        placeholder="Enter your email"
+                        placeholder="Email address"
                         autoComplete="username"
                         onChange={(e) => setData("email", e.target.value)}
                         required
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2DE3A7]/50 focus:border-[#2DE3A7] transition-all bg-gray-50/50 hover:bg-gray-50"
+                        error={errors.email}
                     />
-                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="Password" className="mb-2 text-gray-700 block text-sm font-medium" />
-                    <TextInput
+                    <AuthTextInput
                         id="password"
                         type="password"
                         name="password"
@@ -74,52 +68,40 @@ export default function Register() {
                         autoComplete="new-password"
                         onChange={(e) => setData("password", e.target.value)}
                         required
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2DE3A7]/50 focus:border-[#2DE3A7] transition-all bg-gray-50/50 hover:bg-gray-50"
+                        error={errors.password}
                     />
-                    <InputError message={errors.password} className="mt-2" />
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password_confirmation" value="Confirm Password" className="mb-2 text-gray-700 block text-sm font-medium" />
-                    <TextInput
+                    <AuthTextInput
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
-                        placeholder="Confirm your password"
+                        placeholder="Confirm password"
                         autoComplete="new-password"
                         onChange={(e) => setData("password_confirmation", e.target.value)}
                         required
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2DE3A7]/50 focus:border-[#2DE3A7] transition-all bg-gray-50/50 hover:bg-gray-50"
+                        error={errors.password_confirmation}
                     />
-                    <InputError message={errors.password_confirmation} className="mt-2" />
                 </div>
 
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-[#0C1311] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0C1311] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {processing ? (
-                            <>
-                                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" />
-                                Creating account...
-                            </>
-                        ) : (
-                            "Create Account"
-                        )}
-                    </button>
+                <div className="pt-6">
+                    <AuthButton type="submit" processing={processing}>
+                        Create Account
+                    </AuthButton>
                 </div>
             </form>
 
-            <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-center gap-2">
-                <p className="text-gray-600 font-medium">Already have an account?</p>
+            <AuthSocialLogin type="Signup" />
+
+            <div className="mt-8 text-center text-sm font-medium text-gray-400">
+                Already have an account?{" "}
                 <Link
                     href={route("login")}
-                    className="font-semibold text-[#2DE3A7] hover:text-[#22c996] transition-colors"
+                    className="text-[#2DE3A7] hover:text-[#22c996] transition-colors"
                 >
-                    Sign in here
+                    Login
                 </Link>
             </div>
         </ModernAuthLayout>

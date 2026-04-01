@@ -1,10 +1,9 @@
-import InputError from "@/Components/Ui/InputError";
-import InputLabel from "@/Components/Ui/InputLabel";
-import TextInput from "@/Components/Ui/TextInput";
+import AuthTextInput from "@/Components/Auth/AuthTextInput";
+import AuthButton from "@/Components/Auth/AuthButton";
 import ModernAuthLayout from "@/Layouts/ModernAuthLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
 import { FormEventHandler } from "react";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPassword({ status }: { status?: string }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -25,7 +24,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot Password" />
 
             {status && (
-                <div className="mb-6 rounded-xl bg-emerald-50/50 p-4 border border-emerald-100 flex items-start gap-3">
+                <div className="mb-6 rounded-2xl bg-emerald-50 p-4 border border-emerald-100 flex items-start gap-3">
                     <div className="text-emerald-500 mt-0.5">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -37,48 +36,35 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 </div>
             )}
 
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <InputLabel htmlFor="email" value="Email Address" className="mb-2 text-gray-700 block text-sm font-medium" />
-                    <TextInput
+                    <AuthTextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        placeholder="Enter your registered email"
+                        placeholder="Registered email address"
                         autoComplete="email"
                         isFocused={true}
                         onChange={(e) => setData("email", e.target.value)}
                         required
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2DE3A7]/50 focus:border-[#2DE3A7] transition-all bg-gray-50/50 hover:bg-gray-50"
+                        error={errors.email}
                     />
-                    <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-[#0C1311] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0C1311] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {processing ? (
-                            <>
-                                <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" />
-                                Sending link...
-                            </>
-                        ) : (
-                            "Send Reset Link"
-                        )}
-                    </button>
+                <div className="pt-6">
+                    <AuthButton type="submit" processing={processing}>
+                        Send Reset Link
+                    </AuthButton>
                 </div>
             </form>
 
-            <div className="mt-8 pt-8 border-t border-gray-100 flex items-center justify-center">
+            <div className="mt-8 text-center">
                 <Link
                     href={route("login")}
-                    className="flex items-center gap-2 font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                    className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to log in
                 </Link>
             </div>

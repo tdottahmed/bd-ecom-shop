@@ -15,6 +15,7 @@ export interface WebsiteSetting {
     banner_images: string[];
     site_logo: string | null;
     site_favicon: string | null;
+    auth_page_image: string | null;
     footer_description: string | null;
     social_facebook: string | null;
     social_instagram: string | null;

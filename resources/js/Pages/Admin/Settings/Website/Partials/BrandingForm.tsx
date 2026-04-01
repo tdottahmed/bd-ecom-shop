@@ -19,10 +19,13 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ settings }) => {
         type: "branding",
         logo: null as File | null,
         favicon: null as File | null,
+        auth_page_image: null as File | null,
         existing_logo: settings.site_logo || null,
         existing_favicon: settings.site_favicon || null,
+        existing_auth_page_image: settings.auth_page_image || null,
         deleted_logo: false,
         deleted_favicon: false,
+        deleted_auth_page_image: false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -33,6 +36,7 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ settings }) => {
             onSuccess: () => {
                 setData("logo", null);
                 setData("favicon", null);
+                setData("auth_page_image", null);
                 toast.success("Branding updated successfully");
             },
         });
@@ -46,11 +50,15 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ settings }) => {
         setData("favicon", (file as File | null) || null);
     };
 
+    const handleAuthImageChange = (file: File | File[] | null) => {
+        setData("auth_page_image", (file as File | null) || null);
+    };
+
     return (
         <form onSubmit={handleSubmit}>
             <Card>
                 <CardHeader>
-                    <CardTitle>Branding (Logo &amp; Favicon)</CardTitle>
+                    <CardTitle>Branding (Logo, Favicon &amp; Auth Image)</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -104,6 +112,32 @@ const BrandingForm: React.FC<BrandingFormProps> = ({ settings }) => {
                                     setData("deleted_favicon", true);
                                 }}
                                 error={errors.favicon as string}
+                            />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <h3 className="text-sm font-semibold text-white">
+                                Auth Pages Image
+                            </h3>
+                            <p className="text-xs text-gray-400 mb-2">
+                                Upload an image for the left column of authentication pages. Recommended size: 1080x1080px (Square) or 1920x1080px (Landscape), JPG or PNG.
+                            </p>
+                            <ImageUploader
+                                label="Auth Page Image"
+                                multiple={false}
+                                maxFiles={1}
+                                value={data.auth_page_image}
+                                existingImages={
+                                    data.existing_auth_page_image
+                                        ? [data.existing_auth_page_image]
+                                        : []
+                                }
+                                onChange={handleAuthImageChange}
+                                onRemoveExisting={() => {
+                                    setData("existing_auth_page_image", null);
+                                    setData("deleted_auth_page_image", true);
+                                }}
+                                error={errors.auth_page_image as string}
                             />
                         </div>
                     </div>
