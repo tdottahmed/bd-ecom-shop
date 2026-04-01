@@ -97,10 +97,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 <div className="bg-white border-b border-gray-100 shadow-sm">
                     <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 relative">
-                            {/* Mobile Left: Menu & Messenger */}
+                            {/* Mobile Left: Menu & Logo */}
                             <div className="flex items-center gap-2 md:hidden relative z-10">
                                 <MobileMenuButton onClick={onMenuClick} />
-                                {messengerLink && <MessengerIcon />}
+                                <Logo />
                             </div>
 
                             {/* Desktop Left: Logo & Messenger */}
@@ -119,12 +119,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 <Logo />
                             </div>
 
-                            {/* Mobile Logo (Centered) */}
-                            <div className="absolute inset-x-0 flex justify-center md:hidden pointer-events-none">
-                                <div className="w-full max-w-md mx-auto pointer-events-auto">
-                                    <Logo />
-                                </div>
-                            </div>
 
                             {/* Desktop Navigation (lg+) - single-row header */}
                             <div className="hidden lg:flex flex-1 items-center justify-center">
@@ -203,34 +197,30 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
                 {/* Mobile Search Modal */}
                 {isMobileSearchOpen && (
-                    <div className="fixed inset-0 z-50 md:hidden">
+                    <div className="fixed inset-0 z-50 md:hidden search-backdrop-in">
                         {/* Backdrop */}
                         <div
-                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                             onClick={() => setIsMobileSearchOpen(false)}
                         />
 
-                        {/* Modal Content */}
-                        <div className="absolute top-0 left-0 right-0 bg-white shadow-lg flex flex-col">
-                            <div className="px-4 py-3 border-b border-gray-200">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1">
-                                        <SearchAutocomplete
-                                            isMobile={true}
-                                            onClose={() =>
-                                                setIsMobileSearchOpen(false)
-                                            }
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={() =>
+                        {/* Slide-down panel */}
+                        <div className="absolute top-0 left-0 right-0 bg-white shadow-2xl rounded-b-2xl search-panel-in">
+                            <div className="flex items-center gap-3 px-4 py-3">
+                                <div className="flex-1">
+                                    <SearchAutocomplete
+                                        isMobile={true}
+                                        onClose={() =>
                                             setIsMobileSearchOpen(false)
                                         }
-                                        className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                                    >
-                                        <X size={24} />
-                                    </button>
+                                    />
                                 </div>
+                                <button
+                                    onClick={() => setIsMobileSearchOpen(false)}
+                                    className="flex-shrink-0 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors px-1 py-1"
+                                >
+                                    Cancel
+                                </button>
                             </div>
                         </div>
                     </div>

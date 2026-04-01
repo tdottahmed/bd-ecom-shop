@@ -112,7 +112,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
                             filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.8))'
                         }}
                     >
-                        {content?.subtitle || "True by Malaysia"}
+                        {content?.subtitle || "True buy Malaysia"}
                     </span>
                     
                     {/* Title */}

@@ -379,7 +379,7 @@ export default function ProductShow({
                                     </div>
 
                                     {/* Variation Selection OR Simple Add to Cart */}
-                                    <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-[0_2px_15px_rgba(15,23,42,0.02)]">
+                                    <div className="bg-slate-50/50 p-3 sm:p-6 rounded-3xl border border-slate-100 shadow-[0_2px_15px_rgba(15,23,42,0.02)]">
                                         {hasVariations ? (
                                             <div className="space-y-6">
                                                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -508,7 +508,7 @@ export default function ProductShow({
                                         )}
 
                                         {/* Trust Badges section beneath Add to Cart */}
-                                        <div className="grid grid-cols-3 gap-3 mt-8 pt-8 border-t border-slate-200/60">
+                                        <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-slate-200/60">
                                             <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
                                                 <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                                                     <ShieldCheck
