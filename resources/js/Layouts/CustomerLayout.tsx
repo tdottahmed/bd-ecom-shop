@@ -1,5 +1,6 @@
-import React, { useState, ReactNode, useEffect } from "react";
-import { Head, usePage } from "@inertiajs/react";
+import React, { useState, ReactNode, useEffect, useRef } from "react";
+import { Head, usePage, router } from "@inertiajs/react";
+import Lenis from "lenis";
 import { ShoppingBag, ArrowUp, MessageCircle } from "lucide-react";
 import Header from "@/Components/Customer/Header";
 import CartSidebar from "@/Components/Customer/CartSidebar";
@@ -19,6 +20,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
     const cartItemCount = getCartCount();
+    const lenisRef = useRef<Lenis | null>(null);
 
     const { url, props } = usePage();
     const isCheckoutPage = url.includes("/checkout");
@@ -40,19 +42,44 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         return () => window.removeEventListener("open-cart", handleOpenCart);
     }, [setIsOpen]);
 
-    // Scroll listener for "Scroll to Top"
+    // Lenis smooth scroll
     useEffect(() => {
-        const handleScroll = () => {
-            // Show after scrolling down 400px
-            setShowScrollTop(window.scrollY > 400); 
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+        lenisRef.current = lenis;
+
+        lenis.on("scroll", ({ scroll }: { scroll: number }) => {
+            setShowScrollTop(scroll > 400);
+        });
+
+        let rafId: number;
+        const raf = (time: number) => {
+            lenis.raf(time);
+            rafId = requestAnimationFrame(raf);
         };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll(); // Check on mount
-        return () => window.removeEventListener("scroll", handleScroll);
+        rafId = requestAnimationFrame(raf);
+
+        // Scroll to top instantly on Inertia page navigation
+        const stopNavigate = router.on("navigate", () => {
+            lenis.scrollTo(0, { immediate: true });
+        });
+
+        return () => {
+            cancelAnimationFrame(rafId);
+            lenis.destroy();
+            lenisRef.current = null;
+            stopNavigate();
+        };
     }, []);
 
     const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        lenisRef.current?.scrollTo(0, { duration: 1.2 });
     };
 
     return (
