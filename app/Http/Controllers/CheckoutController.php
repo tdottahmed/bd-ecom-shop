@@ -7,7 +7,11 @@ use Inertia\Inertia;
 use App\Models\DeliveryCharge;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -25,6 +29,8 @@ class CheckoutController extends Controller
             'customer_name' => 'required|string',
             'customer_phone' => 'required|string',
             'customer_address' => 'required|string',
+            'create_account' => 'nullable|boolean',
+            'customer_email' => 'nullable|email|required_if:create_account,1',
             'delivery_charge_id' => 'required|exists:delivery_charges,id',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -69,9 +75,26 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            $shouldCreateAccount = $request->boolean('create_account');
+            $checkoutUser = $request->user();
+
+            if (!$checkoutUser && $shouldCreateAccount && $request->filled('customer_email')) {
+                $checkoutUser = User::firstOrCreate(
+                    ['email' => $request->customer_email],
+                    [
+                        'name' => $request->customer_name,
+                        'phone' => $request->customer_phone,
+                        'address' => $request->customer_address,
+                        'password' => Hash::make(Str::random(24)),
+                    ]
+                );
+            }
+
             $order = Order::create([
+                'user_id' => $checkoutUser?->id,
                 'customer_name' => $request->customer_name,
                 'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
                 'customer_address' => $request->customer_address,
                 'delivery_charge_id' => $deliveryCharge->id,
                 'delivery_cost' => $deliveryCharge->cost,
@@ -137,6 +160,10 @@ class CheckoutController extends Controller
             }
 
             DB::commit();
+
+            if (!$request->user() && $checkoutUser && $shouldCreateAccount) {
+                Auth::login($checkoutUser);
+            }
 
             return redirect()->route('order.success', ['order' => $order->id])->with('success', 'Order placed successfully!');
         } catch (\Exception $e) {

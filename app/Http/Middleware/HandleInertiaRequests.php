@@ -88,6 +88,7 @@ class HandleInertiaRequests extends Middleware
             'messengerLink' => fn() => get_setting('messenger_link'),
             'additionalCost' => fn() => get_setting('additional_cost', 0),
             'discount' => fn() => get_setting('quantity_discounts'),
+            'customerAuthEnabled' => fn() => get_setting('customer_auth_enabled', '0') === '1',
             'seo' => fn() => [
                 'siteName' => get_setting('seo_site_name', config('app.name')),
                 'defaultTitle' => get_setting('seo_default_title', config('app.name')),

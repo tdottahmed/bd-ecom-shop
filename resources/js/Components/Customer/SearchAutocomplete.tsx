@@ -18,11 +18,15 @@ interface SearchResult {
 
 interface SearchAutocompleteProps {
     isMobile?: boolean;
+    isOverlay?: boolean;
+    autoFocus?: boolean;
     onClose?: () => void;
 }
 
 const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
     isMobile = false,
+    isOverlay = false,
+    autoFocus = false,
     onClose,
 }) => {
     const [query, setQuery] = useState("");
@@ -145,7 +149,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
             {/* Input */}
             <div className="relative group">
                 <Search
-                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-500 transition-colors pointer-events-none ${isMobile ? "h-5 w-5" : "h-4 w-4"}`}
+                    className={`absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-500 transition-colors pointer-events-none ${isMobile || isOverlay ? "h-5 w-5" : "h-4 w-4"}`}
                 />
                 <input
                     ref={inputRef}
@@ -157,16 +161,20 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                     className={`w-full bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-gray-900/8 outline-none transition-all placeholder-gray-400 text-gray-900 ${
                         isMobile
                             ? "pl-11 pr-10 py-3.5 rounded-xl text-base"
+                            : isOverlay
+                            ? "pl-12 pr-10 py-4 rounded-xl text-base"
                             : "pl-10 py-2 rounded-full text-sm pr-20"
                     }`}
                     placeholder={
-                        isMobile ? "Search products, brands…" : "Search…"
+                        isMobile || isOverlay
+                            ? "Search products, brands…"
+                            : "Search…"
                     }
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="none"
                     spellCheck={false}
-                    autoFocus={isMobile}
+                    autoFocus={isMobile || autoFocus}
                 />
                 {/* ⌘K shortcut badge — desktop only, hidden when typing */}
                 {!isMobile && !query && (
@@ -295,7 +303,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                             {/* Footer: view all */}
                             <div className="border-t border-gray-100 p-2">
                                 <Link
-                                    href={`/search?search=${encodeURIComponent(query)}`}
+                                    href={route('products.index', { search: query })}
                                     className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors group/footer"
                                     onClick={closeDropdown}
                                 >

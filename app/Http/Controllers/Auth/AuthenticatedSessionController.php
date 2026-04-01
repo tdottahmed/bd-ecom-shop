@@ -16,11 +16,12 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'isAdminLogin' => $request->routeIs('admin.login'),
         ]);
     }
 
@@ -33,7 +34,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($request->routeIs('admin.login.store')) {
+            $request->session()->put('is_admin_login', true);
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        }
+
+        $request->session()->put('is_admin_login', false);
+        return redirect()->intended(route('account.dashboard', absolute: false));
     }
 
     /**

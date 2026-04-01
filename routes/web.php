@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\PageController;
@@ -38,12 +40,16 @@ Route::get('api/categories/{category}/products', [CustomerController::class, 'ca
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
-Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->name('newsletter.subscribe');
+Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.subscribe');
 
 // Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
 Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name('webhooks.pathao');
 
 Route::get('/dashboard', function () {
+    if (Auth::check() && get_setting('customer_auth_enabled', '0') === '1') {
+        return redirect()->route('account.dashboard');
+    }
+
     return redirect()->route('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -56,10 +62,21 @@ Route::middleware('auth')->group(function () {
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
 Route::get('order-success/{order}', [CheckoutController::class, 'success'])->name('order.success');
 Route::post('api/orders/history', [CheckoutController::class, 'getOrders'])->name('api.orders.history');
 Route::delete('api/orders/{order}', [CheckoutController::class, 'destroy'])->name('api.orders.destroy');
+
+Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders');
+    Route::get('/cart', [CustomerAccountController::class, 'cart'])->name('cart');
+    Route::get('/profile', [CustomerAccountController::class, 'profile'])->name('profile');
+    Route::get('/addresses', [CustomerAccountController::class, 'addresses'])->name('addresses');
+    Route::put('/profile', [CustomerAccountController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/password', [CustomerAccountController::class, 'updatePassword'])->name('password.update');
+    Route::post('/cart/sync', [CustomerAccountController::class, 'syncCart'])->name('cart.sync');
+});
 
 require __DIR__ . '/admin.php';
 

@@ -11,6 +11,7 @@ import FaqForm from "./Partials/FaqForm";
 import ContactInfoForm from "./Partials/ContactInfoForm";
 import AboutSettingsForm from "./Partials/AboutSettingsForm";
 import CtaSettingsForm from "./Partials/CtaSettingsForm";
+import CustomerAuthSettingsForm from "./Partials/CustomerAuthSettingsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -41,6 +42,7 @@ export default function Index({
                 <ContactInfoForm settings={settings} />
                 <AboutSettingsForm settings={settings} />
                 <CtaSettingsForm settings={settings} />
+                <CustomerAuthSettingsForm settings={settings} />
             </div>
         </Master>
     );

@@ -25,6 +25,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const { url, props } = usePage();
     const isCheckoutPage = url.includes("/checkout");
     const seo = (props as any)?.seo || {};
+    const authUser = (props as any)?.auth?.user;
+    const customerAuthEnabled = Boolean((props as any)?.customerAuthEnabled);
     const { messengerLink, whatsappLink } = (props as any) || {};
 
     const baseUrl =
@@ -41,6 +43,50 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         window.addEventListener("open-cart", handleOpenCart);
         return () => window.removeEventListener("open-cart", handleOpenCart);
     }, [setIsOpen]);
+
+    useEffect(() => {
+        if (!customerAuthEnabled || !authUser || typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            const raw = window.localStorage.getItem("cart-storage");
+            if (!raw) return;
+
+            const parsed = JSON.parse(raw) as {
+                state?: { cart?: Record<string, unknown> };
+            };
+            const cart = parsed?.state?.cart;
+            if (!cart || typeof cart !== "object") return;
+            const items = Object.values(
+                cart as Record<string, string | number | boolean | null | object>
+            );
+
+            // Prevent repeated sync calls when nothing changed.
+            const signature = JSON.stringify(items);
+            const syncStorageKey = `customer-cart-sync:${authUser.id}`;
+            const lastSignature =
+                window.sessionStorage.getItem(syncStorageKey);
+            if (lastSignature === signature) {
+                return;
+            }
+            window.sessionStorage.setItem(syncStorageKey, signature);
+
+            router.post(
+                route("account.cart.sync"),
+                { items: items as any },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onError: () => {
+                        window.sessionStorage.removeItem(syncStorageKey);
+                    },
+                }
+            );
+        } catch {
+            // ignore invalid local storage payloads
+        }
+    }, [authUser, customerAuthEnabled]);
 
     // Lenis smooth scroll
     useEffect(() => {

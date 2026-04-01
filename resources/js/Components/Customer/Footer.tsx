@@ -1,4 +1,5 @@
 import { Link, router, usePage } from "@inertiajs/react";
+import axios from "axios";
 import {
     Facebook,
     Instagram,
@@ -8,6 +9,7 @@ import {
     LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import { useAntiSpam } from "@/Hooks/useAntiSpam";
 
 type FooterPage = {
     title: string;
@@ -25,6 +27,7 @@ export default function Footer() {
         "idle" | "loading" | "success" | "error"
     >("idle");
     const [subscribeMessage, setSubscribeMessage] = useState("");
+    const { honeypot, setHoneypot, validate } = useAntiSpam(2);
     const customPages: FooterPage[] = Array.isArray(footerPages)
         ? footerPages
         : [];
@@ -51,29 +54,16 @@ export default function Footer() {
     const submitSubscription = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email.trim() || subscribeState === "loading") return;
+        if (!validate()) return; // silent bot rejection
 
         try {
             setSubscribeState("loading");
             setSubscribeMessage("");
 
-            const response = await fetch(route("newsletter.subscribe"), {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRF-TOKEN":
-                        (
-                            document.querySelector(
-                                'meta[name="csrf-token"]',
-                            ) as HTMLMetaElement | null
-                        )?.content || "",
-                },
-                body: JSON.stringify({ email: email.trim() }),
+            await axios.post(route("newsletter.subscribe"), {
+                email: email.trim(),
+                _hp: honeypot,
             });
-
-            if (!response.ok) {
-                throw new Error("Subscription failed");
-            }
 
             setSubscribeState("success");
             setSubscribeMessage("Thanks! You are subscribed.");
@@ -199,6 +189,17 @@ export default function Footer() {
                             onSubmit={submitSubscription}
                             className="space-y-2"
                         >
+                            {/* Honeypot — bots fill this, humans never see it */}
+                            <input
+                                className="spam-trap"
+                                type="text"
+                                name="_hp"
+                                tabIndex={-1}
+                                autoComplete="off"
+                                aria-hidden="true"
+                                value={honeypot}
+                                onChange={(e) => setHoneypot(e.target.value)}
+                            />
                             <label
                                 htmlFor="footer_newsletter_email"
                                 className="text-sm font-semibold text-gray-800"

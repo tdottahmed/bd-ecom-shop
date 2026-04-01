@@ -9,6 +9,12 @@ class NewsletterSubscriptionController extends Controller
 {
     public function store(Request $request)
     {
+        // Honeypot check — bots fill this field, legitimate browsers leave it empty
+        if ($request->input('_hp', '') !== '') {
+            // Silent success response; don't tell bots they were detected
+            return response()->json(['message' => 'Subscribed successfully.']);
+        }
+
         $data = $request->validate([
             'email' => 'required|email:rfc,dns|max:255',
         ]);

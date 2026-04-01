@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAntiSpam } from "@/Hooks/useAntiSpam";
 import { Head, Link } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import {
@@ -41,6 +42,7 @@ export default function Contact({
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const toggleFaq = (index: number) =>
         setOpenFaq(openFaq === index ? null : index);
+    const { honeypot, setHoneypot, validate } = useAntiSpam(3);
 
     const contactCards = [
         {
@@ -167,8 +169,25 @@ export default function Contact({
 
                                 <form
                                     className="space-y-5"
-                                    onSubmit={(e) => e.preventDefault()}
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (!validate()) return;
+                                        // form submission handler goes here
+                                    }}
                                 >
+                                    {/* Honeypot — bots fill this, humans never see it */}
+                                    <input
+                                        className="spam-trap"
+                                        type="text"
+                                        name="_hp"
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        aria-hidden="true"
+                                        value={honeypot}
+                                        onChange={(e) =>
+                                            setHoneypot(e.target.value)
+                                        }
+                                    />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                         {[
                                             {

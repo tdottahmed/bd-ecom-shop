@@ -4,6 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Honeypot spam trap — positioned off-screen so humans never see it.
+   Must NOT use display:none or visibility:hidden; bots skip those. */
+.spam-trap {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
 @keyframes search-backdrop-in {
     from { opacity: 0; }
     to   { opacity: 1; }

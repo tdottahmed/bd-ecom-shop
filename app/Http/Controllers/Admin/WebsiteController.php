@@ -35,6 +35,7 @@ class WebsiteController extends Controller
                 'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
                 'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
                 'cta_enabled' => get_setting('cta_enabled', '1') === '1',
+                'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
                 'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
                 'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
                 'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
@@ -271,6 +272,20 @@ class WebsiteController extends Controller
             }
 
             return back()->with('success', 'CTA settings updated successfully.');
+        }
+
+        if ($type === 'customer_auth') {
+            $request->validate([
+                'customer_auth_enabled' => 'required|boolean',
+            ]);
+
+            Setting::updateOrCreate(
+                ['key' => 'customer_auth_enabled'],
+                ['value' => $request->boolean('customer_auth_enabled') ? '1' : '0']
+            );
+            Cache::forget('setting_customer_auth_enabled');
+
+            return back()->with('success', 'Customer authentication setting updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');

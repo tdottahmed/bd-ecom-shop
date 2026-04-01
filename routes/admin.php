@@ -19,9 +19,15 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
+  Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+  Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+});
+
+Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->group(function () {
   Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
   // Landing Pages

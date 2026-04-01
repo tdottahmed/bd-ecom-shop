@@ -23,6 +23,8 @@ export default function Checkout({
         customer_name: "",
         customer_phone: "",
         customer_address: "",
+        customer_email: "",
+        create_account: true,
         delivery_charge_id: "",
         items: cartItems.map((item) => ({
             product_id: item.product_id,
