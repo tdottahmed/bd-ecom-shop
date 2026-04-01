@@ -61,7 +61,7 @@ const DesktopNav: React.FC<Props> = ({
                     )
                 }
                 onMouseEnter={() => setOpenDropdown("categories")}
-                onClose={() => setOpenDropdown(null)}
+                onClose={() => setOpenDropdown((prev) => prev === "categories" ? null : prev)}
             />
 
             <BrandsDropdown
@@ -74,7 +74,7 @@ const DesktopNav: React.FC<Props> = ({
                     )
                 }
                 onMouseEnter={() => setOpenDropdown("brands")}
-                onClose={() => setOpenDropdown(null)}
+                onClose={() => setOpenDropdown((prev) => prev === "brands" ? null : prev)}
             />
 
             {isMdRow && <div className="flex-1" />}

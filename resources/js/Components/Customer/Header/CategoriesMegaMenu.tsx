@@ -50,7 +50,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
     );
 
     const scheduleClose = useCallback(() => {
-        closeTimer.current = setTimeout(() => onClose(), 150);
+        closeTimer.current = setTimeout(() => onClose(), 300);
     }, [onClose]);
 
     const cancelClose = useCallback(() => {
@@ -73,8 +73,8 @@ const CategoriesMegaMenu: React.FC<Props> = ({
     const activeCategory =
         allCategories.find((c) => c.slug === activeCategorySlug) ??
         firstCategoryWithProducts;
-    const activeProducts = (activeCategory?.products ?? []).slice(0, 4);
-    const fillerCount = Math.max(0, 4 - activeProducts.length);
+    const activeProducts = (activeCategory?.products ?? []).slice(0, 6);
+    const fillerCount = Math.max(0, 6 - activeProducts.length);
 
     return (
         <div
@@ -100,11 +100,18 @@ const CategoriesMegaMenu: React.FC<Props> = ({
             </button>
 
             {isOpen && (
-                <div
-                    className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
-                    onMouseEnter={cancelClose}
-                    onMouseLeave={scheduleClose}
-                >
+                <>
+                    {/* Invisible bridge fills the gap between trigger and panel so mouseLeave doesn't fire mid-travel */}
+                    <div
+                        className="absolute left-0 top-full w-full h-3 z-50"
+                        onMouseEnter={cancelClose}
+                        onMouseLeave={scheduleClose}
+                    />
+                    <div
+                        className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                        onMouseEnter={cancelClose}
+                        onMouseLeave={scheduleClose}
+                    >
                     {allCategories.length > 0 ? (
                         <div className="flex flex-col md:flex-row max-h-[70vh]">
                             {/* Left: Category List */}
@@ -182,7 +189,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                 </p>
 
                                 {activeProducts.length > 0 ? (
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                                    <div className="grid grid-cols-3 lg:grid-cols-6 gap-2.5">
                                         {activeProducts.map((p) => {
                                             const price = p.has_discount
                                                 ? p.discounted_sale_price
@@ -280,7 +287,8 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                             No categories available
                         </div>
                     )}
-                </div>
+                    </div>
+                </>
             )}
         </div>
     );

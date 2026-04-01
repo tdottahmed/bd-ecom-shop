@@ -49,7 +49,7 @@ const BrandsDropdown: React.FC<Props> = ({
     );
 
     const scheduleClose = useCallback(() => {
-        closeTimer.current = setTimeout(() => onClose(), 150);
+        closeTimer.current = setTimeout(() => onClose(), 300);
     }, [onClose]);
 
     const cancelClose = useCallback(() => {
@@ -71,8 +71,7 @@ const BrandsDropdown: React.FC<Props> = ({
     const activeBrand =
         allBrands.find((b) => b.slug === activeBrandSlug) ??
         firstBrandWithProducts;
-    const activeProducts = (activeBrand?.products ?? []).slice(0, 4);
-    const fillerCount = Math.max(0, 4 - activeProducts.length);
+    const activeProducts = (activeBrand?.products ?? []).slice(0, 6);
 
     return (
         <div
@@ -98,11 +97,18 @@ const BrandsDropdown: React.FC<Props> = ({
             </button>
 
             {isOpen && (
-                <div
-                    className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
-                    onMouseEnter={cancelClose}
-                    onMouseLeave={scheduleClose}
-                >
+                <>
+                    {/* Invisible bridge fills the gap between trigger and panel so mouseLeave doesn't fire mid-travel */}
+                    <div
+                        className="absolute left-0 top-full w-full h-3 z-50"
+                        onMouseEnter={cancelClose}
+                        onMouseLeave={scheduleClose}
+                    />
+                    <div
+                        className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                        onMouseEnter={cancelClose}
+                        onMouseLeave={scheduleClose}
+                    >
                     {allBrands.length > 0 ? (
                         <div className="flex flex-col md:flex-row max-h-[70vh]">
                             {/* Left: Brand List */}
@@ -180,7 +186,7 @@ const BrandsDropdown: React.FC<Props> = ({
                                 </p>
 
                                 {activeProducts.length > 0 ? (
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-3 lg:grid-cols-6 gap-2.5">
                                         {activeProducts.map((p) => {
                                             const price = p.has_discount
                                                 ? p.discounted_sale_price
@@ -197,9 +203,9 @@ const BrandsDropdown: React.FC<Props> = ({
                                                         p.slug,
                                                     )}
                                                     onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-xl rounded-2xl p-3 transition-all duration-300"
+                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm rounded-lg p-1.5 transition-all duration-300"
                                                 >
-                                                    <div className="aspect-square w-full rounded-xl bg-white border border-gray-100 mb-3 overflow-hidden">
+                                                    <div className="aspect-square w-full rounded-md bg-white border border-gray-100 mb-1.5 overflow-hidden">
                                                         {primaryImage ? (
                                                             <Image
                                                                 src={
@@ -217,10 +223,10 @@ const BrandsDropdown: React.FC<Props> = ({
                                                         )}
                                                     </div>
                                                     <div className="flex-1 flex flex-col justify-between">
-                                                        <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 group-hover/card:text-blue-600 transition-colors">
+                                                        <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-blue-600 transition-colors leading-tight">
                                                             {p.name}
                                                         </h4>
-                                                        <div className="text-sm font-bold text-gray-900 mt-auto">
+                                                        <div className="text-[11px] font-bold text-gray-900 mt-auto">
                                                             {formatCurrency(
                                                                 price || 0,
                                                             )}
@@ -229,31 +235,6 @@ const BrandsDropdown: React.FC<Props> = ({
                                                 </Link>
                                             );
                                         })}
-                                        {Array.from({ length: fillerCount }).map(
-                                            (_, index) => (
-                                                <Link
-                                                    key={`filler-${index}`}
-                                                    href={route(
-                                                        "brands.show",
-                                                        activeBrand?.slug,
-                                                    )}
-                                                    onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-2xl p-3 transition-all duration-300 hover:border-gray-300 hover:bg-white"
-                                                >
-                                                    <div className="aspect-square w-full rounded-xl bg-gray-100/80 border border-gray-100 mb-3 flex items-center justify-center">
-                                                        <span className="text-gray-400 text-xs text-center px-2">
-                                                            More from{" "}
-                                                            {activeBrand?.title}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col justify-end">
-                                                        <div className="text-sm font-semibold text-gray-700 group-hover/card:text-blue-600">
-                                                            Explore Brand
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            ),
-                                        )}
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
@@ -267,7 +248,8 @@ const BrandsDropdown: React.FC<Props> = ({
                             No brands available
                         </div>
                     )}
-                </div>
+                    </div>
+                </>
             )}
         </div>
     );
