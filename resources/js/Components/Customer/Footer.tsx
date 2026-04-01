@@ -7,6 +7,7 @@ import {
     Video,
     LogIn,
     LogOut,
+    LayoutDashboard,
 } from "lucide-react";
 import { useState } from "react";
 import { useAntiSpam } from "@/Hooks/useAntiSpam";
@@ -258,23 +259,24 @@ export default function Footer() {
                         {isAuthenticated ? (
                             <div className="flex items-center gap-2">
                                 <Link
-                                    href={route("dashboard")}
+                                    href={route("admin.dashboard")}
                                     className="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-emerald-700 transition-colors"
                                 >
-                                    <LogOut size={14} />
-                                    Dashboard
+                                    <LayoutDashboard size={14} />
+                                    Admin Panel
                                 </Link>
                                 <button
                                     type="button"
                                     onClick={() => router.post(route("logout"))}
-                                    className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+                                    className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors"
                                 >
+                                    <LogOut size={14} />
                                     Logout
                                 </button>
                             </div>
                         ) : (
                             <Link
-                                href={route("login")}
+                                href={route("admin.login")}
                                 className="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-emerald-700 transition-colors"
                             >
                                 <LogIn size={14} />

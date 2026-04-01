@@ -8,9 +8,11 @@ use App\Models\DeliveryCharge;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Mail\WelcomeAccountMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
@@ -77,17 +79,24 @@ class CheckoutController extends Controller
         try {
             $shouldCreateAccount = $request->boolean('create_account');
             $checkoutUser = $request->user();
+            $plainPassword = null;
+            $accountWasJustCreated = false;
 
             if (!$checkoutUser && $shouldCreateAccount && $request->filled('customer_email')) {
+                $plainPassword = Str::random(12);
+                $wasNew = !User::where('email', $request->customer_email)->exists();
+
                 $checkoutUser = User::firstOrCreate(
                     ['email' => $request->customer_email],
                     [
                         'name' => $request->customer_name,
                         'phone' => $request->customer_phone,
                         'address' => $request->customer_address,
-                        'password' => Hash::make(Str::random(24)),
+                        'password' => Hash::make($plainPassword),
                     ]
                 );
+
+                $accountWasJustCreated = $wasNew && $checkoutUser->wasRecentlyCreated;
             }
 
             $order = Order::create([
@@ -163,6 +172,23 @@ class CheckoutController extends Controller
 
             if (!$request->user() && $checkoutUser && $shouldCreateAccount) {
                 Auth::login($checkoutUser);
+            }
+
+            // Send welcome email with credentials for newly-created accounts
+            if ($accountWasJustCreated && $checkoutUser && $plainPassword) {
+                try {
+                    $siteName = get_setting('seo_site_name') ?: get_setting('site_name') ?: config('app.name', 'Our Store');
+                    $loginUrl = route('login');
+                    Mail::to($checkoutUser->email)->send(new WelcomeAccountMail(
+                        customerName: $checkoutUser->name,
+                        customerEmail: $checkoutUser->email,
+                        plainPassword: $plainPassword,
+                        siteName: $siteName,
+                        loginUrl: $loginUrl,
+                    ));
+                } catch (\Exception $mailEx) {
+                    \Illuminate\Support\Facades\Log::warning('Welcome email failed: ' . $mailEx->getMessage());
+                }
             }
 
             return redirect()->route('order.success', ['order' => $order->id])->with('success', 'Order placed successfully!');

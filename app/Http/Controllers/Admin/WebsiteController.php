@@ -17,6 +17,13 @@ class WebsiteController extends Controller
     {
         return Inertia::render('Admin/Settings/Website/Index', [
             'settings' => [
+                'smtp_host' => get_setting('smtp_host', ''),
+                'smtp_port' => get_setting('smtp_port', '587'),
+                'smtp_username' => get_setting('smtp_username', ''),
+                'smtp_password' => get_setting('smtp_password', ''),
+                'smtp_encryption' => get_setting('smtp_encryption', 'tls'),
+                'smtp_from_address' => get_setting('smtp_from_address', ''),
+                'smtp_from_name' => get_setting('smtp_from_name', ''),
                 'banner_active' => get_setting('banner_active', '1') === '1',
                 'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
                 'faqs' => json_decode(get_setting('faqs', '[]'), true),
@@ -292,6 +299,26 @@ class WebsiteController extends Controller
             }
 
             return back()->with('success', 'CTA settings updated successfully.');
+        }
+
+        if ($type === 'smtp') {
+            $request->validate([
+                'smtp_host'         => 'nullable|string|max:255',
+                'smtp_port'         => 'nullable|integer|min:1|max:65535',
+                'smtp_username'     => 'nullable|string|max:255',
+                'smtp_password'     => 'nullable|string|max:500',
+                'smtp_encryption'   => 'nullable|in:tls,ssl,starttls,',
+                'smtp_from_address' => 'nullable|email|max:255',
+                'smtp_from_name'    => 'nullable|string|max:255',
+            ]);
+
+            $smtpKeys = ['smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption', 'smtp_from_address', 'smtp_from_name'];
+            foreach ($smtpKeys as $key) {
+                Setting::updateOrCreate(['key' => $key], ['value' => (string) ($request->input($key) ?? '')]);
+                Cache::forget('setting_' . $key);
+            }
+
+            return back()->with('success', 'SMTP settings updated successfully.');
         }
 
         if ($type === 'customer_auth') {
