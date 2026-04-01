@@ -1,5 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Search, LogOut, User, MessageCircle } from "lucide-react";
+import {
+    Search,
+    LogOut,
+    User,
+    MessageCircle,
+    ChevronDown,
+    LayoutDashboard,
+    ShoppingBag,
+    MapPin,
+    Settings,
+} from "lucide-react";
 import { Link, usePage } from "@inertiajs/react";
 
 import Logo from "./Header/Logo";
@@ -37,6 +47,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const [openDropdown, setOpenDropdown] = useState<
         "categories" | "brands" | null
     >(null);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement | null>(null);
     const dropdownRefLg = useRef<HTMLDivElement | null>(null);
     const dropdownRefMd = useRef<HTMLDivElement | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
@@ -49,7 +61,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const userName =
         (auth?.user?.name as string | undefined)?.split(" ")[0] ?? "";
 
-    // Close mega-menu on outside click
+    // Close mega-menu and user menu on outside click
     useEffect(() => {
         const handleDocClick = (e: MouseEvent) => {
             const t = e.target as Node | null;
@@ -59,6 +71,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             const inMd =
                 !!dropdownRefMd.current && dropdownRefMd.current.contains(t);
             if (!inLg && !inMd) setOpenDropdown(null);
+            if (userMenuRef.current && !userMenuRef.current.contains(t)) {
+                setIsUserMenuOpen(false);
+            }
         };
         document.addEventListener("click", handleDocClick);
         return () => document.removeEventListener("click", handleDocClick);
@@ -150,62 +165,163 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                             {/* lg+: search icon trigger */}
                             <button
                                 onClick={() => setIsDesktopSearchOpen(true)}
-                                className="hidden lg:flex p-2.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                                className="hidden lg:flex p-2.5 text-gray-500 px-2 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
                                 aria-label="Search"
                                 title="Search (⌘K)"
                             >
                                 <Search size={20} strokeWidth={2} />
                             </button>
 
-                            {/* Mobile: search toggle */}
-                            <div className="md:hidden">
-                                <SearchToggle
-                                    onClick={() => setIsMobileSearchOpen(true)}
-                                />
-                            </div>
-
                             {/* Cart */}
                             <button
                                 onClick={() => setIsOpen(true)}
-                                className="flex items-center gap-2  rounded-full transition-colors text-sm font-medium"
+                                className="flex items-center gap-2 mx-2  rounded-full transition-colors text-sm font-medium"
                             >
                                 <CartIcon
                                     count={cartCount}
                                     className="text-gray-950"
                                 />
                             </button>
+
+                            {/* Mobile: search toggle */}
+                            <div className="md:hidden px-2">
+                                <SearchToggle
+                                    onClick={() => setIsMobileSearchOpen(true)}
+                                />
+                            </div>
                             {/* Auth — desktop (md+) */}
                             {customerAuthActive && (
-                                <div className="hidden md:flex items-center gap-1">
+                                <div className="hidden md:flex items-center">
                                     {isLoggedIn ? (
-                                        <>
-                                            <Link
-                                                href={route(
-                                                    "account.dashboard",
-                                                )}
-                                                className="flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full hover:bg-gray-100 transition-colors group"
-                                                title="My account"
+                                        <div
+                                            ref={userMenuRef}
+                                            className="relative"
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    setIsUserMenuOpen((v) => !v)
+                                                }
+                                                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-full hover:bg-gray-100 transition-colors group"
                                             >
-                                                {/* Avatar circle */}
-                                                <span className="w-7 h-7 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                                                    {userInitial}
-                                                </span>
                                                 <span className="hidden lg:block text-sm font-medium text-gray-700 group-hover:text-gray-900 max-w-[80px] truncate">
                                                     {userName}
                                                 </span>
-                                            </Link>
-                                            <Link
-                                                href={route("logout")}
-                                                method="post"
-                                                as="button"
-                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                                                title="Logout"
-                                            >
-                                                <LogOut size={16} />
-                                            </Link>
-                                        </>
+                                                <span className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-bold shrink-0 ring-2 ring-white group-hover:ring-gray-200 transition-all">
+                                                    {userInitial}
+                                                </span>
+
+                                                <ChevronDown
+                                                    size={14}
+                                                    className={`hidden lg:block text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : ""}`}
+                                                />
+                                            </button>
+
+                                            {isUserMenuOpen && (
+                                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-black/5 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                                                    {/* User info header */}
+                                                    <div className="px-4 py-3 border-b border-gray-100">
+                                                        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+                                                            Signed in as
+                                                        </p>
+                                                        <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">
+                                                            {auth?.user?.name}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="py-1">
+                                                        <Link
+                                                            href={route(
+                                                                "account.dashboard",
+                                                            )}
+                                                            onClick={() =>
+                                                                setIsUserMenuOpen(
+                                                                    false,
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                        >
+                                                            <LayoutDashboard
+                                                                size={16}
+                                                                className="text-gray-400"
+                                                            />
+                                                            Dashboard
+                                                        </Link>
+                                                        <Link
+                                                            href={route(
+                                                                "account.orders",
+                                                            )}
+                                                            onClick={() =>
+                                                                setIsUserMenuOpen(
+                                                                    false,
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                        >
+                                                            <ShoppingBag
+                                                                size={16}
+                                                                className="text-gray-400"
+                                                            />
+                                                            My Orders
+                                                        </Link>
+                                                        <Link
+                                                            href={route(
+                                                                "account.addresses",
+                                                            )}
+                                                            onClick={() =>
+                                                                setIsUserMenuOpen(
+                                                                    false,
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                        >
+                                                            <MapPin
+                                                                size={16}
+                                                                className="text-gray-400"
+                                                            />
+                                                            Addresses
+                                                        </Link>
+                                                        <Link
+                                                            href={route(
+                                                                "account.profile",
+                                                            )}
+                                                            onClick={() =>
+                                                                setIsUserMenuOpen(
+                                                                    false,
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                        >
+                                                            <Settings
+                                                                size={16}
+                                                                className="text-gray-400"
+                                                            />
+                                                            Settings
+                                                        </Link>
+                                                    </div>
+
+                                                    <div className="border-t border-gray-100 py-1">
+                                                        <Link
+                                                            href={route(
+                                                                "logout",
+                                                            )}
+                                                            method="post"
+                                                            as="button"
+                                                            onClick={() =>
+                                                                setIsUserMenuOpen(
+                                                                    false,
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                        >
+                                                            <LogOut size={16} />
+                                                            Sign out
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <>
+                                        <div className="flex items-center gap-2">
                                             <Link
                                                 href={route("login")}
                                                 className="px-3.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
@@ -218,7 +334,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                             >
                                                 Register
                                             </Link>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
                             )}
