@@ -26,6 +26,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const isCheckoutPage = url.includes("/checkout");
     const seo = (props as any)?.seo || {};
     const authUser = (props as any)?.auth?.user;
+    // Use the primitive ID as the effect dependency — the full authUser object gets a
+    // new reference on every Inertia re-render (including after cart actions), which
+    // would re-fire the sync effect on every cart change if we depended on the object.
+    const authUserId = authUser?.id as number | undefined;
     const customerAuthEnabled = Boolean((props as any)?.customerAuthEnabled);
     const { messengerLink, whatsappLink } = (props as any) || {};
 
@@ -45,7 +49,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     }, [setIsOpen]);
 
     useEffect(() => {
-        if (!customerAuthEnabled || !authUser || typeof window === "undefined") {
+        if (!customerAuthEnabled || !authUserId || typeof window === "undefined") {
             return;
         }
 
@@ -64,9 +68,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 
             // Prevent repeated sync calls when nothing changed.
             const signature = JSON.stringify(items);
-            const syncStorageKey = `customer-cart-sync:${authUser.id}`;
-            const lastSignature =
-                window.sessionStorage.getItem(syncStorageKey);
+            const syncStorageKey = `customer-cart-sync:${authUserId}`;
+            const lastSignature = window.sessionStorage.getItem(syncStorageKey);
             if (lastSignature === signature) {
                 return;
             }
@@ -86,7 +89,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         } catch {
             // ignore invalid local storage payloads
         }
-    }, [authUser, customerAuthEnabled]);
+    }, [authUserId, customerAuthEnabled]);
 
     // Lenis smooth scroll
     useEffect(() => {
