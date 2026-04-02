@@ -112,46 +112,46 @@ export default function Footer() {
                         <div className="grid grid-cols-1 gap-y-2 text-sm">
                             <Link
                                 href={route("brands.index")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 Brands
                             </Link>
                             {blogEnabled && (
                                 <Link
                                     href={route("blog.index")}
-                                    className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                    className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                                 >
                                     Blog
                                 </Link>
                             )}
                             <Link
                                 href={route("pages.about")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 About Us
                             </Link>
                             <Link
                                 href={route("pages.faq")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 FAQ
                             </Link>
                             <Link
                                 href={route("pages.contact")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 Contact Us
                             </Link>
                             <Link
                                 href={route("pages.privacy-policy")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 Privacy Policy
                             </Link>
 
                             <Link
                                 href={route("pages.terms")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 Terms & Conditions
                             </Link>
@@ -159,7 +159,7 @@ export default function Footer() {
                                 <Link
                                     key={page.slug}
                                     href={route("pages.show", page.slug)}
-                                    className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                    className="w-fit inline-block text-gray-600 hover:text-[#059669] transition-colors"
                                 >
                                     {page.title}
                                 </Link>
@@ -257,11 +257,11 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-xs sm:text-sm text-gray-500 order-2 md:order-1">
-                        & copy; {currentYear}{" "}
+                        &copy; {currentYear}{" "}
                         <span className="font-semibold text-gray-900">
                             {siteName}
                         </span>
-                        .All rights reserved.
+                        . All rights reserved.
                     </p>
 
                     <div className="order-1 md:order-2 flex items-center gap-5">
