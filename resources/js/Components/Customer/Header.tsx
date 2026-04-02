@@ -118,6 +118,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 {/* ── Main row ── */}
                 <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16 gap-3">
+                        <div className="flex items-center gap-2">
+                            <Logo />
+                        </div>
                         {/* Center: nav (lg+) | inline search (md only) */}
                         <div className="flex-1 flex items-center justify-center min-w-0">
                             {/* lg+: desktop nav */}

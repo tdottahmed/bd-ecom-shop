@@ -129,7 +129,6 @@ class HandleInertiaRequests extends Middleware
                 ->select('title', 'slug')
                 ->get(),
         ];
-        // dd($props['categories']());
         return $props;
 
     }

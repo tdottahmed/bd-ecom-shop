@@ -174,7 +174,8 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     mobile = false,
 }) => {
     const { post } = useForm();
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const authUser = (props as any)?.auth?.user;
 
     const handleLogout = () => {
         post(route("logout"));
@@ -228,9 +229,11 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                     <div>
                         <h2 className="text-xl font-semibold">
                             {" "}
-                            Paikari World{" "}
+                            {authUser?.name || "Admin"}
                         </h2>
-                        <p className="text-sm text-gray-400"> pw@gmail.com</p>
+                        <p className="text-sm text-gray-400">
+                            {authUser?.email || ""}
+                        </p>
                     </div>
                     <button
                         onClick={onClose}
