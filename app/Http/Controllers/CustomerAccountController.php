@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CustomerAccountController extends Controller
 {
@@ -30,6 +33,44 @@ class CustomerAccountController extends Controller
     {
         return Inertia::render('Customer/Account/Orders', [
             'orders' => $request->user()->orders()->with('items.product')->latest()->paginate(10),
+        ]);
+    }
+
+    public function orderShow(Request $request, Order $order): Response
+    {
+        $order = $this->orderForCustomer($request, $order);
+
+        return Inertia::render('Customer/Account/OrderShow', [
+            'order' => $order,
+        ]);
+    }
+
+    public function orderInvoice(Request $request, Order $order): Response
+    {
+        $order = $this->orderForCustomer($request, $order);
+
+        return Inertia::render('Customer/Account/OrderInvoice', [
+            'order' => $order,
+        ]);
+    }
+
+    public function orderInvoicePdf(Request $request, Order $order): SymfonyResponse
+    {
+        $order = $this->orderForCustomer($request, $order);
+
+        $pdf = Pdf::loadView('pdf.customer_order_invoice', ['order' => $order]);
+
+        return $pdf->download('order-'.$order->id.'-invoice.pdf');
+    }
+
+    protected function orderForCustomer(Request $request, Order $order): Order
+    {
+        abort_unless($order->user_id === $request->user()->id, 403);
+
+        return $order->load([
+            'items.product',
+            'items.product.product_variations.product_attribute',
+            'deliveryCharge',
         ]);
     }
 

@@ -86,6 +86,7 @@ class HandleInertiaRequests extends Middleware
                 }),
             'cart' => fn() => $request->session()->get('cart', []),
             'messengerLink' => fn() => get_setting('messenger_link'),
+            'whatsappLink' => fn() => get_setting('whatsapp_link'),
             'additionalCost' => fn() => get_setting('additional_cost', 0),
             'discount' => fn() => get_setting('quantity_discounts'),
             'customerAuthEnabled' => fn() => get_setting('customer_auth_enabled', '0') === '1',

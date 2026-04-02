@@ -91,6 +91,7 @@ export interface Order {
     id: number;
     customer_name: string | null;
     customer_phone: string;
+    customer_email?: string | null;
     customer_address: string;
     delivery_charge_id: number;
     delivery_cost: number;

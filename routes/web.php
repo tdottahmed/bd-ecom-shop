@@ -1,24 +1,21 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAccountController;
-use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\RssController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\Payment\BkashController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\SSLCommerzController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RssController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 Route::get('lp/{slug}', [LandingPageController::class, 'show'])->name('landing-page.show');
 Route::post('lp/{slug}/order', [LandingPageController::class, 'order'])->name('landing-page.order');
@@ -52,9 +49,9 @@ Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name
 Route::prefix('payment')->name('payment.')->group(function () {
     // SSLCommerz — all callbacks are POST (browser-redirected + IPN)
     Route::post('sslcommerz/success', [SSLCommerzController::class, 'success'])->name('sslcommerz.success');
-    Route::post('sslcommerz/fail',    [SSLCommerzController::class, 'fail'])->name('sslcommerz.fail');
-    Route::post('sslcommerz/cancel',  [SSLCommerzController::class, 'cancel'])->name('sslcommerz.cancel');
-    Route::post('sslcommerz/ipn',     [SSLCommerzController::class, 'ipn'])->name('sslcommerz.ipn');
+    Route::post('sslcommerz/fail', [SSLCommerzController::class, 'fail'])->name('sslcommerz.fail');
+    Route::post('sslcommerz/cancel', [SSLCommerzController::class, 'cancel'])->name('sslcommerz.cancel');
+    Route::post('sslcommerz/ipn', [SSLCommerzController::class, 'ipn'])->name('sslcommerz.ipn');
 
     // bKash — callback is GET (bKash redirects browser)
     Route::get('bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
@@ -88,6 +85,9 @@ Route::delete('api/orders/{order}', [CheckoutController::class, 'destroy'])->nam
 Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('account.')->group(function () {
     Route::get('/', [CustomerAccountController::class, 'dashboard'])->name('dashboard');
     Route::get('/orders', [CustomerAccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [CustomerAccountController::class, 'orderShow'])->name('orders.show');
+    Route::get('/orders/{order}/invoice', [CustomerAccountController::class, 'orderInvoice'])->name('orders.invoice');
+    Route::get('/orders/{order}/invoice/pdf', [CustomerAccountController::class, 'orderInvoicePdf'])->name('orders.invoice.pdf');
     Route::get('/cart', [CustomerAccountController::class, 'cart'])->name('cart');
     Route::get('/profile', [CustomerAccountController::class, 'profile'])->name('profile');
     Route::get('/addresses', [CustomerAccountController::class, 'addresses'])->name('addresses');
@@ -96,6 +96,6 @@ Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('a
     Route::post('/cart/sync', [CustomerAccountController::class, 'syncCart'])->name('cart.sync');
 });
 
-require __DIR__ . '/admin.php';
+require __DIR__.'/admin.php';
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

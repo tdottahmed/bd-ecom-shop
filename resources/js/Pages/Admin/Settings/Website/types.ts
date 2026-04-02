@@ -28,6 +28,7 @@ export interface WebsiteSetting {
     social_instagram: string | null;
     social_youtube: string | null;
     social_tiktok: string | null;
+    whatsapp_link?: string | null;
     faqs?: FAQ[];
     contact_address?: string | null;
     contact_phone?: string | null;

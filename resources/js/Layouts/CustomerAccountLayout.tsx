@@ -78,7 +78,16 @@ export default function CustomerAccountLayout({ title, children }: Props) {
                                 <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 pb-4 lg:pb-0 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
                                     {links.map((item) => {
                                         const isActive =
-                                            currentRoute === item.href;
+                                            item.href === "account.orders"
+                                                ? [
+                                                      "account.orders",
+                                                      "account.orders.show",
+                                                      "account.orders.invoice",
+                                                      "account.orders.invoice.pdf",
+                                                  ].includes(
+                                                      currentRoute ?? ""
+                                                  )
+                                                : currentRoute === item.href;
                                         const Icon = item.icon;
                                         return (
                                             <Link

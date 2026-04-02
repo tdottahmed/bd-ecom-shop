@@ -108,6 +108,10 @@ interface CartState {
     setIsOpen: (isOpen: boolean) => void;
     getCartTotal: () => number;
     getCartCount: () => number;
+    /** Merge server-saved account cart lines into the local cart (same keys overwrite). */
+    mergeSavedCartFromAccount: (
+        items: (CartItem & { cart_id: string })[]
+    ) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -215,6 +219,21 @@ export const useCartStore = create<CartState>()(
             },
 
             clearCart: () => set({ cart: {} }),
+
+            mergeSavedCartFromAccount: (
+                items: (CartItem & { cart_id: string })[]
+            ) => {
+                set((state) => {
+                    const next = { ...state.cart };
+                    for (const item of items) {
+                        const id =
+                            item.cart_id ||
+                            generateCartKey(item.product_id, item.variations ?? []);
+                        next[id] = { ...item, cart_id: id };
+                    }
+                    return { cart: next };
+                });
+            },
 
             setIsOpen: (isOpen: boolean) => set({ isOpen }),
 

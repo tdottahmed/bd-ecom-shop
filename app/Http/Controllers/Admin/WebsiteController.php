@@ -53,6 +53,7 @@ class WebsiteController extends Controller
             ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
+            'whatsappLink' => get_setting('whatsapp_link'),
         ]);
     }
 
@@ -126,6 +127,20 @@ class WebsiteController extends Controller
             Cache::forget('setting_messenger_link');
 
             return back()->with('success', 'Messenger link updated successfully.');
+        }
+
+        if ($type === 'chat_links') {
+            $request->validate([
+                'messenger_link' => 'nullable|url|max:500',
+                'whatsapp_link'  => 'nullable|url|max:500',
+            ]);
+
+            Setting::updateOrCreate(['key' => 'messenger_link'], ['value' => $request->messenger_link ?? '']);
+            Setting::updateOrCreate(['key' => 'whatsapp_link'],  ['value' => $request->whatsapp_link  ?? '']);
+            Cache::forget('setting_messenger_link');
+            Cache::forget('setting_whatsapp_link');
+
+            return back()->with('success', 'Chat links updated successfully.');
         }
 
         if ($type === 'branding') {

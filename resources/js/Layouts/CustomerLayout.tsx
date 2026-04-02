@@ -1,7 +1,7 @@
 import React, { useState, ReactNode, useEffect, useRef } from "react";
 import { Head, usePage, router } from "@inertiajs/react";
 import Lenis from "lenis";
-import { ShoppingBag, ArrowUp, MessageCircle } from "lucide-react";
+import { ShoppingBag, ArrowUp, MessageCircle, HeadphonesIcon, Phone } from "lucide-react";
 import Header from "@/Components/Customer/Header";
 import CartSidebar from "@/Components/Customer/CartSidebar";
 import NavigationSidebar from "@/Components/Customer/NavigationSidebar";
@@ -19,8 +19,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const { setIsOpen, getCartCount } = useCartStore();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [isSupportOpen, setIsSupportOpen] = useState(false);
     const cartItemCount = getCartCount();
     const lenisRef = useRef<Lenis | null>(null);
+    const supportRef = useRef<HTMLDivElement | null>(null);
 
     const { url, props } = usePage();
     const isCheckoutPage = url.includes("/checkout");
@@ -32,6 +34,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const authUserId = authUser?.id as number | undefined;
     const customerAuthEnabled = Boolean((props as any)?.customerAuthEnabled);
     const { messengerLink, whatsappLink } = (props as any) || {};
+    const hasMessenger = Boolean(messengerLink);
+    const hasWhatsApp = Boolean(whatsappLink);
 
     const baseUrl =
         typeof window !== "undefined"
@@ -126,6 +130,31 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             stopNavigate();
         };
     }, []);
+
+    // Close support popover on outside click / ESC
+    useEffect(() => {
+        if (!isSupportOpen) return;
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setIsSupportOpen(false);
+        };
+
+        const onPointerDown = (e: PointerEvent) => {
+            const el = supportRef.current;
+            if (!el) return;
+            const target = e.target as Node | null;
+            if (target && el.contains(target)) return;
+            setIsSupportOpen(false);
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("pointerdown", onPointerDown);
+
+        return () => {
+            document.removeEventListener("keydown", onKeyDown);
+            document.removeEventListener("pointerdown", onPointerDown);
+        };
+    }, [isSupportOpen]);
 
     const scrollToTop = () => {
         lenisRef.current?.scrollTo(0, { duration: 1.2 });
@@ -228,29 +257,123 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                     <ArrowUp size={22} strokeWidth={2} />
                 </button>
 
-                {/* WhatsApp / Messenger Support Button */}
-                {(messengerLink || whatsappLink) && !isCheckoutPage && (
-                    <a
-                        href={messengerLink || whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pointer-events-auto group relative flex items-center justify-center bg-white text-zinc-900 p-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.16)] transition-all duration-300 hover:bg-zinc-50 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
-                        aria-label="Chat with us"
+                {/* Customer Support */}
+                {!isCheckoutPage && (hasMessenger || hasWhatsApp) && (
+                    <div
+                        ref={supportRef}
+                        className="pointer-events-auto relative"
                     >
-                        {/* Elegant Hover Tooltip */}
-                        <span className="absolute right-full mr-4 whitespace-nowrap rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none shadow-lg">
-                            Chat with us
-                            <span className="absolute top-1/2 -right-1.5 -translate-y-1/2 border-y-4 border-l-4 border-r-0 border-solid border-y-transparent border-l-zinc-900"></span>
-                        </span>
-                        
-                        <MessageCircle size={26} strokeWidth={1.5} className="text-zinc-700 group-hover:text-black transition-colors" />
-                        
-                        {/* Pulsing Status Dot */}
-                        <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-[2.5px] border-white drop-shadow-sm"></span>
-                        </span>
-                    </a>
+                        {hasMessenger && hasWhatsApp ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSupportOpen(!isSupportOpen)}
+                                    className="group flex items-center justify-center bg-white text-zinc-900 p-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.16)] transition-all duration-300 hover:bg-zinc-50 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
+                                    aria-label="Support"
+                                    aria-expanded={isSupportOpen}
+                                    aria-haspopup="true"
+                                >
+                                    {/* Elegant Hover Tooltip */}
+                                    <span className="absolute right-full mr-4 whitespace-nowrap rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                        Support
+                                        <span className="absolute top-1/2 -right-1.5 -translate-y-1/2 border-y-4 border-l-4 border-r-0 border-solid border-y-transparent border-l-zinc-900"></span>
+                                    </span>
+
+                                    <HeadphonesIcon
+                                        size={24}
+                                        strokeWidth={1.7}
+                                        className="text-zinc-700 group-hover:text-black transition-colors"
+                                    />
+
+                                    {/* Pulsing Status Dot */}
+                                    <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-[2.5px] border-white drop-shadow-sm" />
+                                    </span>
+                                </button>
+
+                                {isSupportOpen && (
+                                    <div
+                                        className="absolute bottom-full mb-3 right-0 w-52 rounded-2xl border border-gray-100 bg-white shadow-xl overflow-hidden"
+                                        role="dialog"
+                                        aria-label="Choose chat method"
+                                    >
+                                        <div className="px-4 py-2 text-xs font-semibold text-gray-600">
+                                            Contact us
+                                        </div>
+                                        <div className="p-3 pt-0 grid grid-cols-2 gap-2">
+                                            {hasWhatsApp && (
+                                                <a
+                                                    href={whatsappLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => setIsSupportOpen(false)}
+                                                    className="flex flex-col items-center justify-center gap-1 rounded-xl border border-emerald-100 bg-emerald-50/40 px-3 py-3 transition hover:bg-emerald-50"
+                                                    aria-label="Chat on WhatsApp"
+                                                >
+                                                    <WhatsAppIcon className="h-5 w-5 text-emerald-700" />
+                                                    <span className="text-[11px] font-bold text-emerald-800">
+                                                        WhatsApp
+                                                    </span>
+                                                </a>
+                                            )}
+                                            {hasMessenger && (
+                                                <a
+                                                    href={messengerLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => setIsSupportOpen(false)}
+                                                    className="flex flex-col items-center justify-center gap-1 rounded-xl border border-blue-100 bg-blue-50/40 px-3 py-3 transition hover:bg-blue-50"
+                                                    aria-label="Chat on Messenger"
+                                                >
+                                                    <MessageCircle
+                                                        size={20}
+                                                        strokeWidth={1.7}
+                                                        className="text-blue-700"
+                                                    />
+                                                    <span className="text-[11px] font-bold text-blue-800">
+                                                        Messenger
+                                                    </span>
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <a
+                                href={whatsappLink || messengerLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group relative flex items-center justify-center bg-white text-zinc-900 p-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.16)] transition-all duration-300 hover:bg-zinc-50 hover:-translate-y-1 hover:shadow-2xl active:scale-95 pointer-events-auto"
+                                aria-label={
+                                    hasWhatsApp ? "Chat on WhatsApp" : "Chat on Messenger"
+                                }
+                            >
+                                {/* Tooltip */}
+                                <span className="absolute right-full mr-4 whitespace-nowrap rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                    {hasWhatsApp ? "WhatsApp" : "Messenger"}
+                                    <span className="absolute top-1/2 -right-1.5 -translate-y-1/2 border-y-4 border-l-4 border-r-0 border-solid border-y-transparent border-l-zinc-900"></span>
+                                </span>
+
+                                {hasWhatsApp ? (
+                                    <WhatsAppIcon className="h-[26px] w-[26px] text-emerald-700 group-hover:text-emerald-800 transition-colors" />
+                                ) : (
+                                    <MessageCircle
+                                        size={26}
+                                        strokeWidth={1.5}
+                                        className="text-zinc-700 group-hover:text-black transition-colors"
+                                    />
+                                )}
+
+                                {/* Pulsing Status Dot */}
+                                <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-[2.5px] border-white drop-shadow-sm" />
+                                </span>
+                            </a>
+                        )}
+                    </div>
                 )}
 
                 {/* Floating Mobile Cart Button */}
@@ -278,3 +401,28 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 };
 
 export default CustomerLayout;
+
+function WhatsAppIcon({ className = "" }: { className?: string }) {
+    return <Phone className={className} aria-hidden="true" />;
+    /*
+    return (
+        <svg
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden="true"
+        >
+            <path
+                d="M16 3.5C8.8 3.5 3 9.3 3 16.5c0 2.4.7 4.7 1.9 6.6L4 28.5l5.6-.9c1.8 1 3.9 1.5 6.4 1.5 7.2 0 13-5.8 13-13s-5.8-13.6-13-13.6Z"
+                fill="currentColor"
+                opacity="0.12"
+            />
+            <path
+                d="M23.8 20.7c-.2-.3-1.2-.9-1.6-1.1-.4-.2-.7-.3-1 .1-.3.4-.8 1-.9 1.1-.2.1-.4.2-.7 0-1.2-.6-2.1-1.1-3-2-.7-.8-.8-1.3-.6-1.6.2-.3.3-.5.5-.7.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6-.1-.2-.9-2-1.2-2.7-.3-.7-.6-.6-.9-.6h-.8c-.3 0-.8.1-1.2.6-.4.5-1.6 1.5-1.6 3.6s1.6 4.1 1.8 4.3c.2.2 3.1 4.8 7.6 6.6 1.1.5 2 .7 2.7.9.9.2 1.7.2 2.3.1.7-.1 2.2-.9 2.5-1.7.3-.8.3-1.4.2-1.6Z"
+                fill="currentColor"
+            />
+        </svg>
+    );
+    */
+}

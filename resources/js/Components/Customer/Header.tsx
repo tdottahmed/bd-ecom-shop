@@ -118,25 +118,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 {/* ── Main row ── */}
                 <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16 gap-3">
-                        {/* Left: hamburger (mobile) + optional messenger + logo */}
-                        <div className="flex items-center gap-2 shrink-0">
-                            <div className="md:hidden">
-                                <MobileMenuButton onClick={onMenuClick} />
-                            </div>
-                            {messengerLink && (
-                                <a
-                                    href={messengerLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hidden md:flex p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
-                                    aria-label="Messenger"
-                                >
-                                    <MessageCircle size={18} />
-                                </a>
-                            )}
-                            <Logo />
-                        </div>
-
                         {/* Center: nav (lg+) | inline search (md only) */}
                         <div className="flex-1 flex items-center justify-center min-w-0">
                             {/* lg+: desktop nav */}
