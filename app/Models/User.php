@@ -24,6 +24,8 @@ class User extends Authenticatable
         'address',
         'password',
         'cart_data',
+        'social_provider',
+        'social_id',
     ];
 
     /**

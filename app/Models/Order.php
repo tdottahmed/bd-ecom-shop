@@ -26,6 +26,9 @@ class Order extends Model
         'pathao_city_id',
         'pathao_zone_id',
         'pathao_area_id',
+        'payment_method',
+        'payment_status',
+        'payment_transaction_id',
     ];
 
     public function items()

@@ -89,6 +89,18 @@ class HandleInertiaRequests extends Middleware
             'additionalCost' => fn() => get_setting('additional_cost', 0),
             'discount' => fn() => get_setting('quantity_discounts'),
             'customerAuthEnabled' => fn() => get_setting('customer_auth_enabled', '0') === '1',
+            'socialProviders' => fn() => [
+                'google'   => ['enabled' => env('GOOGLE_LOGIN_ENABLED', '0') === '1' && !empty(env('GOOGLE_CLIENT_ID'))],
+                'facebook' => ['enabled' => env('FACEBOOK_LOGIN_ENABLED', '0') === '1' && !empty(env('FACEBOOK_CLIENT_ID'))],
+            ],
+            'paymentMethods' => fn() => [
+                'cod'        => ['enabled' => get_setting('cod_enabled', '1') === '1',        'label' => 'Cash on Delivery'],
+                'bkash'      => ['enabled' => get_setting('bkash_enabled', '0') === '1',      'label' => 'bKash'],
+                'nagad'      => ['enabled' => get_setting('nagad_enabled', '0') === '1',      'label' => 'Nagad'],
+                'sslcommerz' => ['enabled' => get_setting('sslcommerz_enabled', '0') === '1', 'label' => 'SSLCommerz'],
+                'shurjopay'  => ['enabled' => get_setting('shurjopay_enabled', '0') === '1',  'label' => 'ShurjoPay'],
+                'aamarpay'   => ['enabled' => get_setting('aamarpay_enabled', '0') === '1',   'label' => 'AamarPay'],
+            ],
             'seo' => fn() => [
                 'siteName' => get_setting('seo_site_name', config('app.name')),
                 'defaultTitle' => get_setting('seo_default_title', config('app.name')),

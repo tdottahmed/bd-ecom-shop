@@ -11,6 +11,7 @@ export interface OrderSummaryProps {
     discountAmount?: number;
     total: number;
     processing: boolean;
+    paymentMethod?: string;
     onRemoveItem: (e: React.MouseEvent, id: string) => void;
     onQuantityChange: (
         id: string,
@@ -18,6 +19,15 @@ export interface OrderSummaryProps {
         e?: React.MouseEvent
     ) => void;
 }
+
+const PAYMENT_LABELS: Record<string, string> = {
+    cod: "Place order",
+    bkash: "Pay with bKash",
+    nagad: "Pay with Nagad",
+    sslcommerz: "Pay with SSLCommerz",
+    shurjopay: "Pay with ShurjoPay",
+    aamarpay: "Pay with aamarPay",
+};
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
     cartItems,
@@ -27,6 +37,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     discountAmount = 0,
     total,
     processing,
+    paymentMethod = "cod",
     onRemoveItem,
     onQuantityChange,
 }) => {
@@ -97,7 +108,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     </>
                 ) : (
                     <>
-                        Place order
+                        {PAYMENT_LABELS[paymentMethod] ?? "Place order"}
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>

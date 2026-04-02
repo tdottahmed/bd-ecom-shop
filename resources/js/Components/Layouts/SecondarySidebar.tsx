@@ -15,6 +15,7 @@ import {
     Search,
     Sparkles,
     Mail,
+    LogIn,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -88,6 +89,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Truck size={18} />,
         route: "admin.courier.index",
         urlPattern: "/admin/courier",
+    },
+    {
+        key: "social_login",
+        label: "Social Login",
+        icon: <LogIn size={18} />,
+        route: "admin.social-login.index",
+        urlPattern: "/admin/social-login",
     },
 
     {

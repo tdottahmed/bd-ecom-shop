@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +60,8 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
   Route::post('payment-gateways/update', [PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
   Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
   Route::post('courier/update', [CourierController::class, 'update'])->name('courier.update');
+  Route::get('social-login', [SocialLoginController::class, 'index'])->name('social-login.index');
+  Route::post('social-login/update', [SocialLoginController::class, 'update'])->name('social-login.update');
 
   // Pathao address API
   Route::get('pathao/cities', [PathaoController::class, 'cities'])->name('pathao.cities');

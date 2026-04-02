@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import CustomerForm from "@/Components/Checkout/CustomerForm";
 import DeliveryOptions from "@/Components/Checkout/DeliveryOptions";
 import OrderSummary from "@/Components/Checkout/OrderSummary";
+import PaymentMethod from "@/Components/Checkout/PaymentMethod";
 
 export default function Checkout({
     deliveryCharges,
@@ -26,6 +27,7 @@ export default function Checkout({
         customer_email: "",
         create_account: true,
         delivery_charge_id: "",
+        payment_method: "cod",
         items: cartItems.map((item) => ({
             product_id: item.product_id,
             quantity: item.quantity,
@@ -164,6 +166,12 @@ export default function Checkout({
                                 onChange={handleDeliveryChange}
                                 error={errors.delivery_charge_id}
                             />
+
+                            <PaymentMethod
+                                value={data.payment_method}
+                                onChange={(method) => setData("payment_method", method)}
+                                error={errors.payment_method}
+                            />
                         </div>
 
                         {/* Right Column: Order Summary */}
@@ -180,6 +188,7 @@ export default function Checkout({
                                 discountAmount={discountAmount}
                                 total={total}
                                 processing={processing}
+                                paymentMethod={data.payment_method}
                                 onRemoveItem={handleRemoveItem}
                                 onQuantityChange={handleQuantityChange}
                             />

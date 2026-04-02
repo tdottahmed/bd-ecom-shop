@@ -28,16 +28,17 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'customer_name' => 'required|string',
-            'customer_phone' => 'required|string',
-            'customer_address' => 'required|string',
-            'create_account' => 'nullable|boolean',
-            'customer_email' => 'nullable|email|required_if:create_account,1',
+            'customer_name'      => 'required|string',
+            'customer_phone'     => 'required|string',
+            'customer_address'   => 'required|string',
+            'create_account'     => 'nullable|boolean',
+            'customer_email'     => 'nullable|email|required_if:create_account,1',
             'delivery_charge_id' => 'required|exists:delivery_charges,id',
-            'items' => 'required|array|min:1',
+            'payment_method'     => 'required|string|in:cod,bkash,nagad,sslcommerz,shurjopay,aamarpay',
+            'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.price' => 'required|numeric|min:0',
+            'items.*.quantity'   => 'required|integer|min:1',
+            'items.*.price'      => 'required|numeric|min:0',
             'items.*.variations' => 'nullable|array',
         ]);
 
@@ -99,17 +100,20 @@ class CheckoutController extends Controller
                 $accountWasJustCreated = $wasNew && $checkoutUser->wasRecentlyCreated;
             }
 
+            $paymentMethod = $request->input('payment_method', 'cod');
             $order = Order::create([
-                'user_id' => $checkoutUser?->id,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_email' => $request->customer_email,
-                'customer_address' => $request->customer_address,
+                'user_id'            => $checkoutUser?->id,
+                'customer_name'      => $request->customer_name,
+                'customer_phone'     => $request->customer_phone,
+                'customer_email'     => $request->customer_email,
+                'customer_address'   => $request->customer_address,
                 'delivery_charge_id' => $deliveryCharge->id,
-                'delivery_cost' => $deliveryCharge->cost,
-                'subtotal' => $subtotal,
-                'total' => $total,
-                'status' => 'pending',
+                'delivery_cost'      => $deliveryCharge->cost,
+                'subtotal'           => $subtotal,
+                'total'              => $total,
+                'status'             => 'pending',
+                'payment_method'     => $paymentMethod,
+                'payment_status'     => 'unpaid',
             ]);
 
             foreach ($cart as $item) {
