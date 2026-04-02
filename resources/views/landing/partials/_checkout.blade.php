@@ -18,59 +18,67 @@
 
             {{-- ── Left: product summary ── --}}
             <div class="co-product-panel" data-gsap="fade-up" data-delay="0.1">
+                <div class="co-product-panel-inner">
+                    <div class="co-price-row">
+                        <span class="co-price-main" id="co-display-price">৳{{ number_format($unitPrice, 0) }}</span>
+                        @if($hasDiscount)
+                        <span class="co-price-old">৳{{ number_format($product->sale_price, 0) }}</span>
+                        @php $savings = round((($product->sale_price - $unitPrice) / $product->sale_price) * 100); @endphp
+                        <span class="co-price-badge">Save {{ $savings }}%</span>
+                        @endif
+                    </div>
 
-                <div class="co-price-row">
-                    <span class="co-price-main" id="co-display-price">৳{{ number_format($unitPrice, 0) }}</span>
-                    @if($hasDiscount)
-                    <span class="co-price-old">৳{{ number_format($product->sale_price, 0) }}</span>
-                    @endif
-                </div>
-
-                {{-- Variations --}}
-                @foreach($attrGroups as $attrName => $vars)
-                <div class="co-attr-group">
-                    <span class="co-attr-label">{{ $attrName }}</span>
-                    <div class="co-pills" data-attr="{{ $attrName }}">
-                        @foreach($vars as $v)
-                        <button type="button"
-                            class="co-pill {{ ($v->stock !== null && $v->stock <= 0 && !$product->is_preorder) ? 'oos' : '' }}"
-                            data-id="{{ $v->id }}" data-attr="{{ $attrName }}"
-                            onclick="lpSelectVariation(this)"
-                            {{ ($v->stock !== null && $v->stock <= 0 && !$product->is_preorder) ? 'disabled' : '' }}>
-                            {{ $v->value }}
-                        </button>
+                    {{-- Variations --}}
+                    @if($attrGroups->count() > 0)
+                        <hr class="co-divider" />
+                        @foreach($attrGroups as $attrName => $vars)
+                        <div class="co-attr-group">
+                            <span class="co-attr-label">{{ $attrName }}</span>
+                            <div class="co-pills" data-attr="{{ $attrName }}">
+                                @foreach($vars as $v)
+                                <button type="button"
+                                    class="co-pill {{ ($v->stock !== null && $v->stock <= 0 && !$product->is_preorder) ? 'oos' : '' }}"
+                                    data-id="{{ $v->id }}" data-attr="{{ $attrName }}"
+                                    onclick="lpSelectVariation(this)"
+                                    {{ ($v->stock !== null && $v->stock <= 0 && !$product->is_preorder) ? 'disabled' : '' }}>
+                                    {{ $v->value }}
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
                         @endforeach
-                    </div>
-                </div>
-                @endforeach
+                    @endif
 
-                {{-- Quantity --}}
-                <div class="co-qty-row">
-                    <span class="co-qty-label">Quantity</span>
-                    <div class="co-qty">
-                        <button type="button" class="co-qty-btn" onclick="lpChangeQty(-1)">−</button>
-                        <input type="number" id="co-qty" class="co-qty-input" value="1" min="1" max="100" oninput="lpUpdateSummary()" />
-                        <button type="button" class="co-qty-btn" onclick="lpChangeQty(1)">+</button>
+                    <hr class="co-divider" />
+                    
+                    {{-- Quantity --}}
+                    <div class="co-qty-row">
+                        <span class="co-qty-label">Quantity</span>
+                        <div class="co-qty">
+                            <button type="button" class="co-qty-btn" onclick="lpChangeQty(-1)">−</button>
+                            <input type="number" id="co-qty" class="co-qty-input" value="1" min="1" max="100" oninput="lpUpdateSummary()" />
+                            <button type="button" class="co-qty-btn" onclick="lpChangeQty(1)">+</button>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Summary --}}
-                <div class="co-summary">
-                    <div class="co-sum-row">
-                        <span>Unit price</span>
-                        <span id="co-sum-unit">৳{{ number_format($unitPrice, 0) }}</span>
-                    </div>
-                    <div class="co-sum-row">
-                        <span>Subtotal</span>
-                        <span id="co-sum-sub">৳{{ number_format($unitPrice, 0) }}</span>
-                    </div>
-                    <div class="co-sum-row">
-                        <span>Delivery</span>
-                        <span id="co-sum-del">Select area</span>
-                    </div>
-                    <div class="co-sum-row co-total">
-                        <span>Total</span>
-                        <span class="co-sum-val" id="co-sum-total">—</span>
+                    {{-- Summary --}}
+                    <div class="co-summary">
+                        <div class="co-sum-row">
+                            <span>Unit price</span>
+                            <span id="co-sum-unit">৳{{ number_format($unitPrice, 0) }}</span>
+                        </div>
+                        <div class="co-sum-row">
+                            <span>Subtotal</span>
+                            <span id="co-sum-sub">৳{{ number_format($unitPrice, 0) }}</span>
+                        </div>
+                        <div class="co-sum-row">
+                            <span>Delivery</span>
+                            <span id="co-sum-del">Select area</span>
+                        </div>
+                        <div class="co-sum-row co-total">
+                            <span>Total</span>
+                            <span class="co-sum-val" id="co-sum-total">—</span>
+                        </div>
                     </div>
                 </div>
             </div>

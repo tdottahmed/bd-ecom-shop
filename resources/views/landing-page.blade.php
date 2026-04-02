@@ -30,7 +30,7 @@
 </main>
 
 @include('landing.partials._footer')
-@include('landing.partials._mobile-bar')
+@include('landing.partials._support-bubble')
 @include('landing.partials._lightbox')
 @include('landing.partials._scripts')
 
