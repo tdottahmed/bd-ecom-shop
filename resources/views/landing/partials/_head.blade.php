@@ -9,6 +9,10 @@
 @if($page->meta_description)<meta property="og:description" content="{{ $page->meta_description }}" />@endif
 @if($page->hero_image)<meta property="og:image" content="{{ Storage::url($page->hero_image) }}" />@endif
 
+@if(get_setting('site_favicon'))
+<link rel="icon" href="{{ Storage::url(get_setting('site_favicon')) }}" />
+@endif
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -168,9 +172,9 @@ a   { color: inherit; text-decoration: none; }
    7 · HERO (image as full-screen background)
 ═══════════════════════════════════════════ */
 #hero {
-    position: relative; min-height: 100svh;
+    position: relative; min-height: 80svh; /* Reduced from 100svh */
     background: #1a1a2e no-repeat center / cover;
-    display: flex; align-items: flex-end;
+    display: flex; align-items: center;  /* Changed from flex-end to float text in the middle/upper area */
     overflow: hidden;
 }
 .hero-parallax-img {
@@ -182,16 +186,16 @@ a   { color: inherit; text-decoration: none; }
 .hero-overlay {
     position: absolute; inset: 0;
     background: linear-gradient(
-        170deg,
-        rgba(0,0,0,0.08)  0%,
-        rgba(0,0,0,0.30)  35%,
-        rgba(0,0,0,0.72)  70%,
-        rgba(0,0,0,0.90) 100%
+        to bottom,
+        rgba(0, 0, 0, 0.45) 0%,
+        rgba(0, 0, 0, 0.65) 60%,
+        rgba(0, 0, 0, 0.85) 100%
     );
 }
 .hero-body {
     position: relative; z-index: 2;
-    width: 100%; padding: 0 0 80px;
+    width: 100%; padding: 80px 0 60px; /* Adjusted padding to center text correctly above the wave */
+    text-align: center;
 }
 .hero-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -218,18 +222,19 @@ a   { color: inherit; text-decoration: none; }
     color: rgba(255,255,255,0.78); max-width: 580px;
     line-height: 1.7; margin-bottom: 36px;
     opacity: 0;
+    margin-left: auto; margin-right: auto;
 }
 .hero-actions {
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
     opacity: 0;
 }
 @media (max-width: 640px) { .hero-actions { flex-direction: column; align-items: flex-start; } }
 
 /* Scroll indicator */
 .hero-scroll {
-    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
-    z-index: 2; display: flex; flex-direction: column; align-items: center;
-    gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.7rem;
+    position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+    z-index: 4; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; color: rgba(255,255,255,0.7); font-size: 0.7rem;
     letter-spacing: 0.1em; text-transform: uppercase;
     animation: bounce-scroll 2s ease-in-out infinite;
     opacity: 0;
@@ -239,6 +244,54 @@ a   { color: inherit; text-decoration: none; }
     background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
 }
 @keyframes bounce-scroll { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+/* Hero Shape Divider */
+.hero-shape-divider {
+    position: absolute;
+    bottom: -1px; /* Prevents fractional pixel gaps */
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    z-index: 3;
+}
+.hero-shape-divider svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 70px;
+}
+@media (min-width: 1024px) {
+    .hero-shape-divider svg { height: 110px; }
+}
+.hero-shape-divider .shape-fill {
+    fill: var(--bg); /* Default white */
+    transition: fill 0.3s;
+}
+
+/* Dynamically color wrap the wave to match next section's background seamlessly */
+#hero:has(+ main#lp-content > section.bg-soft:first-child) .shape-fill {
+    fill: var(--bg-soft);
+}
+#hero:has(+ main#lp-content > section.bg-cool:first-child) .shape-fill {
+    fill: var(--bg-cool);
+}
+#hero:has(+ main#lp-content > section.bg-warm:first-child) .shape-fill {
+    fill: var(--bg-warm);
+}
+
+/* Hero Mobile Enhancements */
+@media (max-width: 768px) {
+    #hero { min-height: 65svh; }
+    .hero-body { padding: 90px 0 50px; text-align: center; }
+    .hero-badge { margin: 0 auto 16px; font-size: 0.75rem; padding: 5px 14px; }
+    .hero-actions { justify-content: center; flex-direction: column; width: 100%; gap: 10px; }
+    .hero-actions a { width: 100%; justify-content: center; padding: 14px 24px; font-size: 0.95rem; }
+    .hero-headline { font-size: clamp(2.2rem, 10vw, 2.8rem); margin-bottom: 12px; }
+    .hero-sub { margin-left: auto; margin-right: auto; font-size: 0.95rem; margin-bottom: 24px; }
+    .hero-scroll { display: none; }
+    .hero-shape-divider svg { height: 45px; } /* Sleeker wave for small screens */
+}
 
 /* ═══════════════════════════════════════════
    8 · SECTION: DESCRIPTION
@@ -637,7 +690,24 @@ textarea.co-input { resize: none; }
 #lp-lb-close:hover { background: rgba(255,255,255,0.2); }
 
 /* ═══════════════════════════════════════════
-   19 · GSAP INITIAL STATES (hidden before animate)
+   20 · FOOTER
+═══════════════════════════════════════════ */
+.lp-footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border-light);
+    padding: 40px 0;
+    text-align: center;
+}
+.lp-footer p {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+@media (max-width: 768px) {
+    .lp-footer { padding: 30px 0; }
+}
+
+/* ═══════════════════════════════════════════
+   21 · GSAP INITIAL STATES (hidden before animate)
 ═══════════════════════════════════════════ */
 [data-gsap] { opacity: 0; }
 </style>
