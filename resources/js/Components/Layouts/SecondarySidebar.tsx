@@ -16,6 +16,7 @@ import {
     Sparkles,
     Mail,
     LogIn,
+    NotebookPen,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -118,6 +119,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <FileText size={18} />,
         route: "admin.pages.index",
         urlPattern: "/admin/pages",
+    },
+    {
+        key: "blogs",
+        label: "Blog",
+        icon: <NotebookPen size={18} />,
+        route: "admin.blogs.index",
+        urlPattern: "/admin/blogs",
     },
     {
         key: "newsletter_subscriptions",

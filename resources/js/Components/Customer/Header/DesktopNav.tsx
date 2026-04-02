@@ -26,6 +26,7 @@ interface Props {
     openDropdown: "categories" | "brands" | null;
     setOpenDropdown: (val: "categories" | "brands" | null | ((prev: "categories" | "brands" | null) => "categories" | "brands" | null)) => void;
     isMdRow?: boolean;
+    blogEnabled?: boolean;
 }
 
 const DesktopNav: React.FC<Props> = ({
@@ -36,6 +37,7 @@ const DesktopNav: React.FC<Props> = ({
     openDropdown,
     setOpenDropdown,
     isMdRow = false,
+    blogEnabled = true,
 }) => {
     // Nav link base classes based on context
     const navLinkClass = isMdRow
@@ -82,6 +84,11 @@ const DesktopNav: React.FC<Props> = ({
             <Link href={route("pages.about")} className={navLinkClass}>
                 About Us
             </Link>
+            {blogEnabled && (
+                <Link href={route("blog.index")} className={navLinkClass}>
+                    Blog
+                </Link>
+            )}
             <Link href={route("pages.contact")} className={navLinkClass}>
                 Contact Us
             </Link>

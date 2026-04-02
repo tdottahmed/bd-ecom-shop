@@ -39,6 +39,7 @@ export interface WebsiteSetting {
     about_testimonials?: { name: string; role: string; quote: string; rating: number }[];
     cta_enabled?: boolean;
     customer_auth_enabled?: boolean;
+    blog_enabled?: boolean;
     cta_title?: string | null;
     cta_description?: string | null;
     cta_browse_text?: string | null;

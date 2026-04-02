@@ -119,6 +119,19 @@ export interface Order {
     };
 }
 
+export interface BlogPost {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt?: string | null;
+    content?: string | null;
+    cover_image?: string | null;
+    is_published: boolean;
+    published_at?: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 // Main Product interface
 export interface Product {
     id: number;

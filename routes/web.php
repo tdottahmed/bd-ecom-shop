@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAccountController;
@@ -29,6 +30,8 @@ Route::get('brand/{brand:slug}', [CustomerController::class, 'brand'])->name('br
 
 Route::get('about-us', [PageController::class, 'about'])->name('pages.about');
 Route::get('contact-us', [PageController::class, 'contact'])->name('pages.contact');
+Route::get('blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('faq', [PageController::class, 'faq'])->name('pages.faq');
 Route::get('privacy-policy', [PageController::class, 'privacyPolicy'])->name('pages.privacy-policy');
 Route::get('terms-and-conditions', [PageController::class, 'termsConditions'])->name('pages.terms');

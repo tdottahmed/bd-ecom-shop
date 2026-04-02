@@ -34,6 +34,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const {
         auth,
         customerAuthEnabled,
+        blogEnabled,
         messengerLink,
         categories,
         navCategories,
@@ -135,6 +136,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                     featuredBrands={featuredBrands}
                                     openDropdown={openDropdown}
                                     setOpenDropdown={setOpenDropdown}
+                                    blogEnabled={Boolean(blogEnabled)}
                                 />
                             </div>
 
@@ -350,6 +352,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                             featuredBrands={featuredBrands}
                             openDropdown={openDropdown}
                             setOpenDropdown={setOpenDropdown}
+                            blogEnabled={Boolean(blogEnabled)}
                             isMdRow={true}
                         />
                     </div>

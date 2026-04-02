@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryCharge;
-use App\Models\WebsiteSetting;
 use App\Models\Setting;
 use App\Utility\FileUpload;
 use Illuminate\Http\Request;
@@ -44,6 +43,7 @@ class WebsiteController extends Controller
                 'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
                 'cta_enabled' => get_setting('cta_enabled', '1') === '1',
                 'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
+                'blog_enabled' => get_setting('blog_enabled', '1') === '1',
                 'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
                 'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
                 'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
@@ -112,6 +112,7 @@ class WebsiteController extends Controller
                     ]);
                 }
             }
+
             return back()->with('success', 'Delivery charges updated successfully.');
         }
 
@@ -132,15 +133,29 @@ class WebsiteController extends Controller
         if ($type === 'chat_links') {
             $request->validate([
                 'messenger_link' => 'nullable|url|max:500',
-                'whatsapp_link'  => 'nullable|url|max:500',
+                'whatsapp_link' => 'nullable|url|max:500',
             ]);
 
             Setting::updateOrCreate(['key' => 'messenger_link'], ['value' => $request->messenger_link ?? '']);
-            Setting::updateOrCreate(['key' => 'whatsapp_link'],  ['value' => $request->whatsapp_link  ?? '']);
+            Setting::updateOrCreate(['key' => 'whatsapp_link'], ['value' => $request->whatsapp_link ?? '']);
             Cache::forget('setting_messenger_link');
             Cache::forget('setting_whatsapp_link');
 
             return back()->with('success', 'Chat links updated successfully.');
+        }
+
+        if ($type === 'blog') {
+            $request->validate([
+                'blog_enabled' => 'required|boolean',
+            ]);
+
+            Setting::updateOrCreate(
+                ['key' => 'blog_enabled'],
+                ['value' => $request->boolean('blog_enabled') ? '1' : '0']
+            );
+            Cache::forget('setting_blog_enabled');
+
+            return back()->with('success', 'Blog visibility settings updated successfully.');
         }
 
         if ($type === 'branding') {
@@ -228,7 +243,7 @@ class WebsiteController extends Controller
 
             foreach ($footerSettings as $key => $value) {
                 Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
-                Cache::forget('setting_' . $key);
+                Cache::forget('setting_'.$key);
             }
 
             return back()->with('success', 'Footer settings updated successfully.');
@@ -243,7 +258,7 @@ class WebsiteController extends Controller
 
             // Only keep non-empty faq entries just in case
             $faqs = collect($request->faqs ?? [])->filter(function ($faq) {
-                return !empty($faq['question']) && !empty($faq['answer']);
+                return ! empty($faq['question']) && ! empty($faq['answer']);
             })->values()->toArray();
 
             Setting::updateOrCreate(['key' => 'faqs'], ['value' => json_encode($faqs)]);
@@ -255,15 +270,16 @@ class WebsiteController extends Controller
         if ($type === 'contact') {
             $request->validate([
                 'contact_address' => 'nullable|string|max:500',
-                'contact_phone'   => 'nullable|string|max:100',
-                'contact_email'   => 'nullable|email|max:255',
-                'contact_hours'   => 'nullable|string|max:255',
+                'contact_phone' => 'nullable|string|max:100',
+                'contact_email' => 'nullable|email|max:255',
+                'contact_hours' => 'nullable|string|max:255',
                 'contact_map_embed' => 'nullable|string|max:2000',
             ]);
-            foreach (['contact_address','contact_phone','contact_email','contact_hours','contact_map_embed'] as $key) {
+            foreach (['contact_address', 'contact_phone', 'contact_email', 'contact_hours', 'contact_map_embed'] as $key) {
                 Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key, '')]);
-                Cache::forget('setting_' . $key);
+                Cache::forget('setting_'.$key);
             }
+
             return back()->with('success', 'Contact info updated.');
         }
 
@@ -278,12 +294,13 @@ class WebsiteController extends Controller
                 'about_testimonials.*.quote' => 'required|string|max:1000',
                 'about_testimonials.*.rating' => 'required|integer|min:1|max:5',
             ]);
-            $stats = collect($request->about_stats ?? [])->filter(fn($s) => !empty($s['value']) && !empty($s['label']))->values()->toArray();
-            $testimonials = collect($request->about_testimonials ?? [])->filter(fn($t) => !empty($t['name']) && !empty($t['quote']))->values()->toArray();
+            $stats = collect($request->about_stats ?? [])->filter(fn ($s) => ! empty($s['value']) && ! empty($s['label']))->values()->toArray();
+            $testimonials = collect($request->about_testimonials ?? [])->filter(fn ($t) => ! empty($t['name']) && ! empty($t['quote']))->values()->toArray();
             Setting::updateOrCreate(['key' => 'about_stats'], ['value' => json_encode($stats)]);
             Setting::updateOrCreate(['key' => 'about_testimonials'], ['value' => json_encode($testimonials)]);
             Cache::forget('setting_about_stats');
             Cache::forget('setting_about_testimonials');
+
             return back()->with('success', 'About page settings updated.');
         }
 
@@ -310,7 +327,7 @@ class WebsiteController extends Controller
 
             foreach ($ctaSettings as $key => $value) {
                 Setting::updateOrCreate(['key' => $key], ['value' => $value]);
-                Cache::forget('setting_' . $key);
+                Cache::forget('setting_'.$key);
             }
 
             return back()->with('success', 'CTA settings updated successfully.');
@@ -318,19 +335,19 @@ class WebsiteController extends Controller
 
         if ($type === 'smtp') {
             $request->validate([
-                'smtp_host'         => 'nullable|string|max:255',
-                'smtp_port'         => 'nullable|integer|min:1|max:65535',
-                'smtp_username'     => 'nullable|string|max:255',
-                'smtp_password'     => 'nullable|string|max:500',
-                'smtp_encryption'   => 'nullable|in:tls,ssl,starttls,',
+                'smtp_host' => 'nullable|string|max:255',
+                'smtp_port' => 'nullable|integer|min:1|max:65535',
+                'smtp_username' => 'nullable|string|max:255',
+                'smtp_password' => 'nullable|string|max:500',
+                'smtp_encryption' => 'nullable|in:tls,ssl,starttls,',
                 'smtp_from_address' => 'nullable|email|max:255',
-                'smtp_from_name'    => 'nullable|string|max:255',
+                'smtp_from_name' => 'nullable|string|max:255',
             ]);
 
             $smtpKeys = ['smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption', 'smtp_from_address', 'smtp_from_name'];
             foreach ($smtpKeys as $key) {
                 Setting::updateOrCreate(['key' => $key], ['value' => (string) ($request->input($key) ?? '')]);
-                Cache::forget('setting_' . $key);
+                Cache::forget('setting_'.$key);
             }
 
             return back()->with('success', 'SMTP settings updated successfully.');
@@ -362,7 +379,7 @@ class WebsiteController extends Controller
 
         if ($request->hasFile($fieldName)) {
             $files = $request->file($fieldName);
-            if (!is_array($files)) {
+            if (! is_array($files)) {
                 $files = [$files];
             }
             $newImages = FileUpload::uploadImages($files, $folder);

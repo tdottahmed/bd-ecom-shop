@@ -19,7 +19,7 @@ type FooterPage = {
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
-    const { siteLogo, siteDescription, seo, footer, auth, footerPages }: any =
+    const { siteLogo, siteDescription, seo, footer, auth, footerPages, blogEnabled }: any =
         usePage().props;
     const siteName = seo?.siteName || "Paikari World";
     const isAuthenticated = !!auth?.user;
@@ -100,13 +100,13 @@ export default function Footer() {
                                 "Your one-stop destination for premium products and authentic shopping experience."}
                         </p>
                         <p className="max-w-sm text-xs uppercase tracking-[0.14em] text-emerald-700/80">
-                            Trusted quality. Genuine products. Fast delivery.
+                            Trusted quality.Genuine products.Fast delivery.
                         </p>
                     </div>
 
                     {/* Column 2: Quick Links */}
                     <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-gray-900 uppercase ">
                             Quick Links
                         </h3>
                         <div className="grid grid-cols-1 gap-y-2 text-sm">
@@ -116,11 +116,25 @@ export default function Footer() {
                             >
                                 Brands
                             </Link>
+                            {blogEnabled && (
+                                <Link
+                                    href={route("blog.index")}
+                                    className="block text-gray-600 hover:text-[#059669] transition-colors"
+                                >
+                                    Blog
+                                </Link>
+                            )}
                             <Link
                                 href={route("pages.about")}
                                 className="block text-gray-600 hover:text-[#059669] transition-colors"
                             >
                                 About Us
+                            </Link>
+                            <Link
+                                href={route("pages.faq")}
+                                className="block text-gray-600 hover:text-[#059669] transition-colors"
+                            >
+                                FAQ
                             </Link>
                             <Link
                                 href={route("pages.contact")}
@@ -134,12 +148,7 @@ export default function Footer() {
                             >
                                 Privacy Policy
                             </Link>
-                            <Link
-                                href={route("pages.faq")}
-                                className="block text-gray-600 hover:text-[#059669] transition-colors"
-                            >
-                                FAQ
-                            </Link>
+
                             <Link
                                 href={route("pages.terms")}
                                 className="block text-gray-600 hover:text-[#059669] transition-colors"
@@ -248,11 +257,11 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-xs sm:text-sm text-gray-500 order-2 md:order-1">
-                        &copy; {currentYear}{" "}
+                        & copy; {currentYear}{" "}
                         <span className="font-semibold text-gray-900">
                             {siteName}
                         </span>
-                        . All rights reserved.
+                        .All rights reserved.
                     </p>
 
                     <div className="order-1 md:order-2 flex items-center gap-5">
