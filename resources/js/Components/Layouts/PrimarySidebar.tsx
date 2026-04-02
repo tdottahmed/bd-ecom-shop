@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, ShoppingBag, Package, Grid } from "lucide-react";
+import { Home, ShoppingBag, Package, Grid, FileText } from "lucide-react";
 import { Link, usePage } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
 
@@ -32,7 +32,7 @@ const primaryMenuItems = [
     {
         key: "landing-pages",
         label: "Pages",
-        icon: <Package size={20} />,
+        icon: <FileText size={20} />,
         route: "admin.landing-pages.index",
         urlPattern: "/admin/landing-pages",
     },
