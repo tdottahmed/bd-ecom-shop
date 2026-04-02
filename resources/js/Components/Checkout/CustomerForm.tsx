@@ -99,7 +99,7 @@ export default function CustomerForm({
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                        আপনার নাম <span className="text-red-500">* </span>
+                        Full name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -122,7 +122,7 @@ export default function CustomerForm({
                 <div className="space-y-2">
                     <div className="flex justify-between items-start gap-2">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                            মোবাইল নাম্বার (বাংলাদেশ)
+                            Mobile number (Bangladesh)
                             <span className="text-red-500">*</span>
                         </label>
                         <span
@@ -133,7 +133,7 @@ export default function CustomerForm({
                             }`}
                         >
                             {phoneValid
-                                ? "সঠিক ফরম্যাট"
+                                ? "Valid format"
                                 : `${nationalDigits.length}/10`}
                         </span>
                     </div>
@@ -178,7 +178,7 @@ export default function CustomerForm({
                     >
                         {data.customer_phone ? (
                             <>
-                                সম্পূর্ণ নম্বর:{" "}
+                                Full number:{" "}
                                 <span className="font-mono text-gray-700">
                                     {localPretty}
                                 </span>
@@ -186,16 +186,16 @@ export default function CustomerForm({
                                     nationalDigits.length < 10 && (
                                         <span className="text-gray-400">
                                             {" "}
-                                            — মোট ১১ সংখ্যা (০১ দিয়ে শুরু)
+                                            — 11 digits total, starting with 01
                                         </span>
                                     )}
                             </>
                         ) : (
                             <>
-                                উদাহরণ:{" "}
-                                <span className="font-mono">01712 345 678</span>{" "}
-                                — +880 এর পর ১০ সংখ্যা, অথবা ০১… পুরো নম্বর পেস্ট
-                                করুন।
+                                Example:{" "}
+                                <span className="font-mono">01712 345 678</span>
+                                . Enter 10 digits after +880, or paste a full
+                                01… number.
                             </>
                         )}
                     </p>
@@ -209,8 +209,8 @@ export default function CustomerForm({
                 <div className="space-y-2">
                     <div className="flex justify-between">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                            আপনার ঠিকানা{" "}
-                            <span className="text-red-500">* </span>
+                            Delivery address
+                            <span className="text-red-500">*</span>
                         </label>
                         <span className="text-xs text-gray-400">
                             {data.customer_address.length} / 255

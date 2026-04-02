@@ -16,9 +16,12 @@ class SSLCommerzService
 
     public function __construct()
     {
-        $this->storeId       = env('SSLCOMMERZ_STORE_ID', '');
-        $this->storePassword = env('SSLCOMMERZ_STORE_PASSWORD', '');
-        $this->sandbox       = env('SSLCOMMERZ_SANDBOX', 'false') === 'true';
+        // Read directly from .env file so admin-panel credential updates take effect
+        // without needing a server restart (env() is process-cached after bootstrap).
+        $this->storeId       = $this->readEnv('SSLCOMMERZ_STORE_ID')       ?? env('SSLCOMMERZ_STORE_ID', '');
+        $this->storePassword = $this->readEnv('SSLCOMMERZ_STORE_PASSWORD')  ?? env('SSLCOMMERZ_STORE_PASSWORD', '');
+        $sandboxRaw          = $this->readEnv('SSLCOMMERZ_SANDBOX')         ?? env('SSLCOMMERZ_SANDBOX', 'false');
+        $this->sandbox       = $sandboxRaw === 'true';
 
         if ($this->sandbox) {
             $this->gatewayUrl   = 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php';
@@ -34,6 +37,10 @@ class SSLCommerzService
      */
     public function initiatePayment(Order $order): string
     {
+        if (empty($this->storeId) || empty($this->storePassword)) {
+            throw new \RuntimeException('SSLCommerz credentials are not configured. Please set Store ID and Store Password in Payment Gateway settings.');
+        }
+
         $tranId = 'ORDER-' . $order->id . '-' . time();
 
         $order->update(['payment_transaction_id' => $tranId]);
@@ -90,5 +97,29 @@ class SSLCommerzService
     public function findOrderByTranId(string $tranId): ?Order
     {
         return Order::where('payment_transaction_id', $tranId)->first();
+    }
+
+    /**
+     * Read a single key from the .env file on disk (bypasses PHP process env cache).
+     */
+    private function readEnv(string $key): ?string
+    {
+        $path = base_path('.env');
+        if (! file_exists($path)) {
+            return null;
+        }
+
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (str_starts_with(trim($line), '#')) {
+                continue;
+            }
+            [$envKey, $envValue] = array_pad(explode('=', $line, 2), 2, null);
+            if (trim($envKey) === $key) {
+                return trim($envValue ?? '', " \t\n\r\0\x0B\"'");
+            }
+        }
+
+        return null;
     }
 }

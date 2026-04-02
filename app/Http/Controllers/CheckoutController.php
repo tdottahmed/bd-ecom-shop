@@ -210,7 +210,10 @@ class CheckoutController extends Controller
                     'bkash'      => app(BkashService::class)->createPayment($order),
                     default      => throw new \RuntimeException("Unsupported payment method: {$paymentMethod}"),
                 };
-                return redirect($gatewayUrl);
+                // Use Inertia::location() for external URLs — this triggers a full
+                // browser navigation (window.location) instead of an XHR/fetch redirect,
+                // which would cause a CORS preflight that payment gateways reject.
+                return Inertia::location($gatewayUrl);
             } catch (\Exception $ge) {
                 Log::error('Payment gateway initiation failed', [
                     'order_id' => $order->id,

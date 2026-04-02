@@ -17,12 +17,13 @@ class BkashService
 
     public function __construct()
     {
-        $this->appKey    = env('BKASH_APP_KEY', '');
-        $this->appSecret = env('BKASH_APP_SECRET', '');
-        $this->username  = env('BKASH_USERNAME', '');
-        $this->password  = env('BKASH_PASSWORD', '');
+        $this->appKey    = $this->readEnv('BKASH_APP_KEY')    ?? env('BKASH_APP_KEY', '');
+        $this->appSecret = $this->readEnv('BKASH_APP_SECRET') ?? env('BKASH_APP_SECRET', '');
+        $this->username  = $this->readEnv('BKASH_USERNAME')   ?? env('BKASH_USERNAME', '');
+        $this->password  = $this->readEnv('BKASH_PASSWORD')   ?? env('BKASH_PASSWORD', '');
 
-        $sandbox        = env('BKASH_SANDBOX', 'false') === 'true';
+        $sandboxRaw     = $this->readEnv('BKASH_SANDBOX')     ?? env('BKASH_SANDBOX', 'false');
+        $sandbox        = $sandboxRaw === 'true';
         $this->baseUrl  = $sandbox
             ? 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout'
             : 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout';
@@ -104,6 +105,30 @@ class BkashService
         ]);
 
         return $response->json() ?? [];
+    }
+
+    /**
+     * Read a single key from the .env file on disk (bypasses PHP process env cache).
+     */
+    private function readEnv(string $key): ?string
+    {
+        $path = base_path('.env');
+        if (! file_exists($path)) {
+            return null;
+        }
+
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (str_starts_with(trim($line), '#')) {
+                continue;
+            }
+            [$envKey, $envValue] = array_pad(explode('=', $line, 2), 2, null);
+            if (trim($envKey) === $key) {
+                return trim($envValue ?? '', " \t\n\r\0\x0B\"'");
+            }
+        }
+
+        return null;
     }
 
     /**

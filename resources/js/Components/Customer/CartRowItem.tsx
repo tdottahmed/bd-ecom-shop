@@ -3,85 +3,146 @@ import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { CartItem } from "@/types";
 import { useDebounce } from "@/Hooks/useDebounce";
 import { useCartStore } from "@/Stores/useCartStore";
-import QuantitySelector from "../Ui/QuantitySelector";
-import Image from "../Ui/Image";
+import { Trash2 } from "lucide-react";
+import Image from "@/Components/Ui/Image";
 
 interface CartRowItemProps {
-    item: CartItem;
+    item: CartItem & { cart_id: string };
 }
 
 const CartRowItem: React.FC<CartRowItemProps> = ({ item }) => {
     const { updateQuantity, removeFromCart } = useCartStore();
+    const cartId = item.cart_id;
     const [quantity, setQuantity] = useState(item.quantity);
-    const debouncedQuantity = useDebounce(quantity, 500);
+    const debouncedQuantity = useDebounce(quantity, 400);
+
+    const isUnavailable =
+        !item.is_preorder && (Number(item.stock) ?? 0) <= 0;
+    const maxQty = item.is_preorder
+        ? 999
+        : Math.max(1, Number(item.stock) ?? 1);
 
     useEffect(() => {
         setQuantity(item.quantity);
     }, [item.quantity]);
 
     useEffect(() => {
-        if (debouncedQuantity !== item.quantity && debouncedQuantity > 0) {
-            updateQuantity(item.cart_id, debouncedQuantity);
+        if (
+            debouncedQuantity !== item.quantity &&
+            debouncedQuantity >= 1 &&
+            cartId
+        ) {
+            updateQuantity(cartId, debouncedQuantity);
         }
-    }, [debouncedQuantity, updateQuantity, item.product_id]);
+    }, [
+        debouncedQuantity,
+        item.quantity,
+        updateQuantity,
+        cartId,
+    ]);
 
-    const handleQuantityChange = (newQuantity: number) => {
-        if (newQuantity < 1) return;
-        setQuantity(newQuantity);
+    const handleQuantityChange = (next: number) => {
+        if (next < 1) return;
+        if (!item.is_preorder && next > maxQty) return;
+        setQuantity(next);
     };
 
-    const removeItem = (id: string) => {
-        removeFromCart(id);
-    };
+    const lineTotal = (Number(item.price) || 0) * quantity;
 
     return (
-        <div className= "flex items-center border-b py-4" >
-        <div className="w-24 h-24 mr-4 flex-shrink-0" >
-            <Image
-                    src={ getAssetUrl(item.image) }
-    alt = { item.name }
-    className = "w-full h-full object-cover rounded"
-        />
-        </div>
-        < div className = "flex-grow" >
-            <h3 className="text-lg font-semibold" > { item.name } </h3>
-                < p className = "text-gray-600" >
-                    Price: { formatPrice(item.price) }
-    </p>
-        </div>
-        < div className = "flex items-center" >
-            <QuantitySelector
-                    quantity={ quantity }
-    onDecrease = {() => handleQuantityChange(quantity - 1)}
-onIncrease = {() => handleQuantityChange(quantity + 1)}
-size = "md"
-    />
-    </div>
-    < div className = "ml-4" >
-        <p className="font-semibold" >
-            { formatPrice(item.price * quantity) }
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 sm:p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex gap-4 flex-1 min-w-0">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+                    <Image
+                        src={getAssetUrl(item.image ?? null)}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-semibold text-gray-900 text-base leading-snug">
+                            {item.name}
+                        </h3>
+                        {isUnavailable && (
+                            <p className="text-xs text-amber-600 font-medium mt-1">
+                                Out of stock — remove to continue
+                            </p>
+                        )}
+                        {item.variations && item.variations.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {item.variations.map((v, i) => (
+                                    <span
+                                        key={v.id ?? i}
+                                        className="inline-flex items-center px-2 py-0.5 rounded-md text-xs bg-gray-50 text-gray-600 border border-gray-200"
+                                    >
+                                        <span className="font-medium text-gray-500 mr-1">
+                                            {v.product_attribute?.name ||
+                                                v.attribute?.name ||
+                                                "Option"}
+                                            :
+                                        </span>
+                                        {v.value}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <p className="text-sm text-gray-500 mt-2">
+                            {formatPrice(item.price)} each
+                        </p>
+                    </div>
+                </div>
             </div>
-            < button
-onClick = {() => removeItem(item.cart_id)}
-className = "ml-4 text-red-500 hover:text-red-700"
-    >
-    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-className = "h-6 w-6"
-fill = "none"
-viewBox = "0 0 24 24"
-stroke = "currentColor"
-    >
-    <path
-                        strokeLinecap="round"
-strokeLinejoin = "round"
-strokeWidth = { 2}
-d = "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-    />
-    </svg>
-    </button>
-    </div>
+
+            <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 border-t sm:border-t-0 border-gray-100 pt-4 sm:pt-0">
+                <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 h-10">
+                    <button
+                        type="button"
+                        onClick={() => handleQuantityChange(quantity - 1)}
+                        disabled={quantity <= 1}
+                        className="w-10 h-full flex items-center justify-center text-gray-600 hover:bg-white rounded-l-xl border-r border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        aria-label="Decrease quantity"
+                    >
+                        −
+                    </button>
+                    <span className="w-10 text-center text-sm font-semibold text-gray-900 tabular-nums">
+                        {quantity}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => handleQuantityChange(quantity + 1)}
+                        disabled={!item.is_preorder && quantity >= maxQty}
+                        className="w-10 h-full flex items-center justify-center text-gray-600 hover:bg-white rounded-r-xl border-l border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        aria-label="Increase quantity"
+                    >
+                        +
+                    </button>
+                </div>
+
+                <div className="text-right min-w-[5.5rem]">
+                    {(item.original_price ?? 0) > (Number(item.price) ?? 0) && (
+                        <p className="text-xs text-gray-400 line-through">
+                            {formatPrice(
+                                (Number(item.original_price) || 0) * quantity,
+                            )}
+                        </p>
+                    )}
+                    <p className="text-lg font-bold text-gray-900 tabular-nums">
+                        {formatPrice(lineTotal)}
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => removeFromCart(cartId)}
+                    className="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    aria-label="Remove from cart"
+                >
+                    <Trash2 className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
     );
 };
 
