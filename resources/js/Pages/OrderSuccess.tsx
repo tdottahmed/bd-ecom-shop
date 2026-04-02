@@ -3,8 +3,17 @@ import CustomerLayout from "@/Layouts/CustomerLayout";
 import { Order } from "@/types";
 import { useEffect } from "react";
 import { useCartStore } from "@/Stores/useCartStore";
-import { CheckCircle, ArrowRight, ShoppingBag, Receipt } from "lucide-react";
+import { CheckCircle, ShoppingBag, Receipt, CreditCard, Banknote } from "lucide-react";
 import { formatPrice, addGuestOrder } from "@/Utils/helpers";
+
+const PAYMENT_LABELS: Record<string, { label: string; color: string }> = {
+    cod:        { label: "Cash on Delivery", color: "text-gray-700" },
+    bkash:      { label: "bKash",            color: "text-[#e2136e]" },
+    nagad:      { label: "Nagad",            color: "text-[#f37021]" },
+    sslcommerz: { label: "SSLCommerz",       color: "text-[#2196f3]" },
+    shurjopay:  { label: "ShurjoPay",        color: "text-[#6c3baa]" },
+    aamarpay:   { label: "aamarPay",         color: "text-[#0f9d58]" },
+};
 
 interface OrderSuccessProps {
     order: Order;
@@ -47,54 +56,53 @@ export default function OrderSuccess({ order }: OrderSuccessProps) {
                         <div className="bg-gray-900 px-6 py-4 flex items-center justify-between">
                             <div className="flex items-center gap-2 text-white/90">
                                 <Receipt size={20} />
-                                <span className="font-medium"> Receipt </span>
+                                <span className="font-medium">Receipt</span>
                             </div>
-                            <span className="text-white font-mono font-bold">
-                                #{order.id}{" "}
-                            </span>
+                            <span className="text-white font-mono font-bold">#{order.id}</span>
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                                    <span className="text-gray-600">
-                                        {" "}
-                                        Status{" "}
+                        <div className="p-6 space-y-4">
+                            <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                                <span className="text-gray-600 text-sm">Order status</span>
+                                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-800">
+                                    {order.status}
+                                </span>
+                            </div>
+
+                            {/* Payment method row */}
+                            {(order as any).payment_method && (
+                                <div className="flex justify-between items-center text-sm text-gray-600">
+                                    <span className="flex items-center gap-1.5">
+                                        {(order as any).payment_method === 'cod'
+                                            ? <Banknote size={15} className="text-gray-500" />
+                                            : <CreditCard size={15} className="text-gray-500" />
+                                        }
+                                        Payment
                                     </span>
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-yellow-100 text-yellow-800">
-                                        {order.status}
+                                    <span className={`font-semibold ${PAYMENT_LABELS[(order as any).payment_method]?.color ?? 'text-gray-900'}`}>
+                                        {PAYMENT_LABELS[(order as any).payment_method]?.label ?? (order as any).payment_method}
+                                        {(order as any).payment_status === 'paid' && (
+                                            <span className="ml-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Paid</span>
+                                        )}
                                     </span>
                                 </div>
+                            )}
 
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm text-gray-600">
-                                        <span>Subtotal </span>
-                                        <span className="font-medium text-gray-900">
-                                            {" "}
-                                            {formatPrice(order.subtotal)}{" "}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-sm text-gray-600">
-                                        <span>Delivery </span>
-                                        <span className="font-medium text-gray-900">
-                                            {" "}
-                                            {formatPrice(
-                                                order.delivery_cost,
-                                            )}{" "}
-                                        </span>
-                                    </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm text-gray-600">
+                                    <span>Subtotal</span>
+                                    <span className="font-medium text-gray-900">{formatPrice(order.subtotal)}</span>
                                 </div>
+                                <div className="flex justify-between text-sm text-gray-600">
+                                    <span>Delivery</span>
+                                    <span className="font-medium text-gray-900">{formatPrice(order.delivery_cost)}</span>
+                                </div>
+                            </div>
 
-                                <div className="pt-4 border-t border-gray-100">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-base font-bold text-gray-900">
-                                            {" "}
-                                            Total Amount{" "}
-                                        </span>
-                                        <span className="text-2xl font-extrabold text-indigo-600">
-                                            {formatPrice(order.total)}
-                                        </span>
-                                    </div>
+                            <div className="pt-3 border-t border-gray-100">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-base font-bold text-gray-900">Total Amount</span>
+                                    <span className="text-2xl font-extrabold text-indigo-600">{formatPrice(order.total)}</span>
                                 </div>
                             </div>
                         </div>

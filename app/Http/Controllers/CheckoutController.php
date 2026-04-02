@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BkashService;
+use App\Services\SSLCommerzService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\DeliveryCharge;
@@ -12,6 +14,7 @@ use App\Mail\WelcomeAccountMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -29,7 +32,7 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'customer_name'      => 'required|string',
-            'customer_phone'     => 'required|string',
+            'customer_phone'     => ['required', 'string', 'regex:/^01[3-9]\d{8}$/'],
             'customer_address'   => 'required|string',
             'create_account'     => 'nullable|boolean',
             'customer_email'     => 'nullable|email|required_if:create_account,1',
@@ -195,11 +198,32 @@ class CheckoutController extends Controller
                 }
             }
 
-            return redirect()->route('order.success', ['order' => $order->id])->with('success', 'Order placed successfully!');
+            if ($paymentMethod === 'cod') {
+                return redirect()->route('order.success', ['order' => $order->id])
+                    ->with('success', 'Order placed successfully!');
+            }
+
+            // Online payment — redirect to gateway
+            try {
+                $gatewayUrl = match ($paymentMethod) {
+                    'sslcommerz' => app(SSLCommerzService::class)->initiatePayment($order),
+                    'bkash'      => app(BkashService::class)->createPayment($order),
+                    default      => throw new \RuntimeException("Unsupported payment method: {$paymentMethod}"),
+                };
+                return redirect($gatewayUrl);
+            } catch (\Exception $ge) {
+                Log::error('Payment gateway initiation failed', [
+                    'order_id' => $order->id,
+                    'method'   => $paymentMethod,
+                    'error'    => $ge->getMessage(),
+                ]);
+                return redirect()->route('payment.failed', ['order' => $order->id]);
+            }
+
         } catch (\Exception $e) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('Checkout Error: ' . $e->getMessage());
-            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            Log::error('Checkout Error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return redirect()->back()->with('error', 'Something went wrong. Please try again. Error: ' . $e->getMessage());
         }
     }

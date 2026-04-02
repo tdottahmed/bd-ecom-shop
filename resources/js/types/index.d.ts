@@ -97,6 +97,9 @@ export interface Order {
     subtotal: number;
     total: number;
     status: string;
+    payment_method?: 'cod' | 'bkash' | 'nagad' | 'sslcommerz' | 'shurjopay' | 'aamarpay';
+    payment_status?: 'unpaid' | 'paid' | 'failed' | 'cancelled';
+    payment_transaction_id?: string | null;
     courier?: 'steadfast' | 'pathao' | null;
     consignment_id?: string | null;
     tracking_code?: string | null;

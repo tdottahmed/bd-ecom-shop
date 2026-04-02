@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Head, useForm, Link, usePage } from "@inertiajs/react";
+import React, { useState, useEffect, useRef } from "react";
+import { Head, useForm, usePage } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
-import { DeliveryCharge, CartItem } from "@/types";
+import { DeliveryCharge, CartItem, User } from "@/types";
+import { normalizeToLocalBdPhone } from "@/Utils/bdPhone";
 import { useCartStore } from "@/Stores/useCartStore";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
 import CustomerForm from "@/Components/Checkout/CustomerForm";
 import DeliveryOptions from "@/Components/Checkout/DeliveryOptions";
 import OrderSummary from "@/Components/Checkout/OrderSummary";
@@ -19,6 +19,9 @@ export default function Checkout({
         useCartStore();
     const cartItems: CartItem[] = Object.values(cart);
     const cartTotal = getCartTotal();
+
+    const { auth } = usePage().props as { auth: { user: User | null } };
+    const isLoggedIn = Boolean(auth?.user);
 
     const { data, setData, post, processing, errors } = useForm({
         customer_name: "",
@@ -40,6 +43,35 @@ export default function Checkout({
                 })) || [],
         })),
     });
+
+    const checkoutPrefillDoneForUserId = useRef<number | null>(null);
+
+    useEffect(() => {
+        const user = auth?.user;
+        if (!user?.id) {
+            checkoutPrefillDoneForUserId.current = null;
+            return;
+        }
+        if (checkoutPrefillDoneForUserId.current === user.id) {
+            return;
+        }
+        checkoutPrefillDoneForUserId.current = user.id;
+
+        if (user.name) {
+            setData("customer_name", user.name);
+        }
+        if (user.phone) {
+            setData("customer_phone", normalizeToLocalBdPhone(user.phone));
+        }
+        if (user.address) {
+            setData("customer_address", user.address);
+        }
+        if (user.email) {
+            setData("customer_email", user.email);
+        }
+        setData("create_account", false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth?.user?.id]);
 
     // Sync cart items with form data
     useEffect(() => {
@@ -158,6 +190,7 @@ export default function Checkout({
                                 setData={setData}
                                 errors={errors}
                                 handleSubmit={handleSubmit}
+                                isLoggedIn={isLoggedIn}
                             />
 
                             <DeliveryOptions

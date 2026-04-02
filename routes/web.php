@@ -15,6 +15,9 @@ use App\Http\Controllers\RssController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Payment\BkashController;
+use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\Payment\SSLCommerzController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
 
 Route::get('lp/{slug}', [LandingPageController::class, 'show'])->name('landing-page.show');
@@ -44,6 +47,21 @@ Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 's
 
 // Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
 Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name('webhooks.pathao');
+
+// Payment gateway callbacks (excluded from CSRF — see bootstrap/app.php)
+Route::prefix('payment')->name('payment.')->group(function () {
+    // SSLCommerz — all callbacks are POST (browser-redirected + IPN)
+    Route::post('sslcommerz/success', [SSLCommerzController::class, 'success'])->name('sslcommerz.success');
+    Route::post('sslcommerz/fail',    [SSLCommerzController::class, 'fail'])->name('sslcommerz.fail');
+    Route::post('sslcommerz/cancel',  [SSLCommerzController::class, 'cancel'])->name('sslcommerz.cancel');
+    Route::post('sslcommerz/ipn',     [SSLCommerzController::class, 'ipn'])->name('sslcommerz.ipn');
+
+    // bKash — callback is GET (bKash redirects browser)
+    Route::get('bkash/callback', [BkashController::class, 'callback'])->name('bkash.callback');
+
+    // Generic payment failed page
+    Route::get('failed', [PaymentController::class, 'failed'])->name('failed');
+});
 
 Route::get('/dashboard', function () {
     if (Auth::check() && get_setting('customer_auth_enabled', '0') === '1') {
