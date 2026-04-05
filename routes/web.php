@@ -15,6 +15,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -99,6 +100,26 @@ Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('a
     Route::post('/cart/sync', [CustomerAccountController::class, 'syncCart'])->name('cart.sync');
 });
 
-require __DIR__.'/admin.php';
+Route::get('storage/link', function () {
 
-require __DIR__.'/auth.php';
+
+    Artisan::call('storage:link');
+    $storageLinkOutput = Artisan::output();
+
+    Artisan::call('optimize:clear');
+    $optimizeClearOutput = Artisan::output();
+
+    Artisan::call('config:clear');
+    $configClearOutput = Artisan::output();
+
+    return response()->json([
+        'status' => 'ok',
+        'storage:link' => trim($storageLinkOutput),
+        'optimize:clear' => trim($optimizeClearOutput),
+        'config:clear' => trim($configClearOutput),
+    ]);
+});
+
+require __DIR__ . '/admin.php';
+
+require __DIR__ . '/auth.php';

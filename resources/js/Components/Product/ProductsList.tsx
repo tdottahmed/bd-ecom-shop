@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "@inertiajs/react";
-import { Edit2, Eye, Package, TrendingUp, Layers } from "lucide-react";
+import { Edit2, Eye, Package, TrendingUp, Layers, PackagePlus } from "lucide-react";
 import { getAssetUrl, formatPrice } from "@/Utils/helpers";
 import { Product, ProductVariation } from "@/types";
+import StockUpdateDialog from "./StockUpdateDialog";
 
 interface ProductsListProps {
     products: Product[];
@@ -52,6 +53,8 @@ const Skeleton = () => (
 // ── main ──────────────────────────────────────────────────────────────────────
 
 const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false }) => {
+    const [stockProduct, setStockProduct] = useState<Product | null>(null);
+
     if (isLoading) return <Skeleton />;
 
     if (products.length === 0) {
@@ -64,17 +67,27 @@ const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false
     }
 
     return (
-        <div className="space-y-3">
-            {products.map((product) => (
-                <ProductListItem key={product.id} product={product} />
-            ))}
-        </div>
+        <>
+            <div className="space-y-3">
+                {products.map((product) => (
+                    <ProductListItem
+                        key={product.id}
+                        product={product}
+                        onUpdateStock={() => setStockProduct(product)}
+                    />
+                ))}
+            </div>
+            <StockUpdateDialog
+                product={stockProduct}
+                onClose={() => setStockProduct(null)}
+            />
+        </>
     );
 };
 
 // ── list item ─────────────────────────────────────────────────────────────────
 
-const ProductListItem: React.FC<{ product: Product }> = ({ product }) => {
+const ProductListItem: React.FC<{ product: Product; onUpdateStock: () => void }> = ({ product, onUpdateStock }) => {
     const isVariant = product.product_type === "variant";
     const variations = product.product_variations ?? [];
 
@@ -206,6 +219,13 @@ const ProductListItem: React.FC<{ product: Product }> = ({ product }) => {
                                 <Edit2 size={13} />
                                 Edit
                             </Link>
+                            <button
+                                onClick={onUpdateStock}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/10 text-amber-400 rounded-lg text-sm hover:bg-amber-400/20 transition-colors border border-amber-400/30"
+                            >
+                                <PackagePlus size={13} />
+                                Stock
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import ProductCard from "./ProductCard";
+import StockUpdateDialog from "./StockUpdateDialog";
 import { Product } from "@/types";
 
 interface ProductsGridProps {
@@ -11,6 +12,7 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
     products,
     isLoading = false,
 }) => {
+    const [stockProduct, setStockProduct] = useState<Product | null>(null);
     if (isLoading) {
         return (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
@@ -49,11 +51,21 @@ const ProductsGrid: React.FC<ProductsGridProps> = ({
     }
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-            {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
+        <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                {products.map((product) => (
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                        onUpdateStock={() => setStockProduct(product)}
+                    />
+                ))}
+            </div>
+            <StockUpdateDialog
+                product={stockProduct}
+                onClose={() => setStockProduct(null)}
+            />
+        </>
     );
 };
 

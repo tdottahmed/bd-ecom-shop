@@ -455,6 +455,33 @@ class ProductController extends Controller
         return round(max(0, $discounted), 2);
     }
 
+    public function updateStock(Request $request, Product $product)
+    {
+        $request->validate([
+            'stock'        => 'nullable|integer|min:0',
+            'variations'   => 'nullable|array',
+            'variations.*.id'    => 'required|exists:product_variations,id',
+            'variations.*.stock' => 'required|integer|min:0',
+        ]);
+
+        DB::transaction(function () use ($request, $product) {
+            if ($product->product_type === 'variant') {
+                foreach ($request->variations ?? [] as $variation) {
+                    ProductVariation::where('id', $variation['id'])
+                        ->where('product_id', $product->id)
+                        ->increment('stock', (int) $variation['stock']);
+                }
+            } else {
+                $add = (int) ($request->stock ?? 0);
+                if ($add > 0) {
+                    $product->increment('stock', $add);
+                }
+            }
+        });
+
+        return back()->with('success', 'Stock updated successfully!');
+    }
+
     public function destroy(Product $product)
     {
         // Check if product is in any order

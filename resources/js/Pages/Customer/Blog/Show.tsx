@@ -1,8 +1,9 @@
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import { BlogPost } from "@/types";
 import { Head, Link } from "@inertiajs/react";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronRight, ArrowLeft } from "lucide-react";
 import { formatDate, getAssetUrl } from "@/Utils/helpers";
+import CtaSection from "@/Components/Customer/CtaSection";
 
 interface Props {
     post: BlogPost;
@@ -14,86 +15,104 @@ export default function BlogShow({ post, related }: Props) {
         <CustomerLayout>
             <Head title={post.title} />
 
-            <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
-                <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-                    <Link
-                        href={route("blog.index")}
-                        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#0C1311]"
-                    >
-                        <ChevronLeft size={16} />
-                        Back to blog
-                    </Link>
+            <div className="relative min-h-screen bg-[#fafcff] pb-24 selection:bg-[#2DE3A7] selection:text-white font-sans">
+                {/* Immersive Cover Image Hero */}
+                <div className="relative w-full h-[65vh] min-h-[500px] overflow-hidden bg-slate-900">
+                    <img
+                        src={getAssetUrl(post.cover_image ?? null)}
+                        alt={post.title}
+                        className="absolute inset-0 h-full w-full object-cover opacity-75"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent" />
 
-                    <header className="mb-6">
-                        <p className="mb-3 inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                            <CalendarDays size={12} />
-                            {post.published_at
-                                ? formatDate(post.published_at)
-                                : "Draft"}
-                        </p>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-                            {post.title}
-                        </h1>
-                        {post.excerpt && (
-                            <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                                {post.excerpt}
-                            </p>
-                        )}
-                    </header>
+                    {/* Header Content placed over image */}
+                    <div className="absolute inset-x-0 bottom-0 z-10 mx-auto max-w-4xl px-4 pb-32 sm:px-6 lg:px-8">
+                        <Link
+                            href={route("blog.index")}
+                            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white"
+                        >
+                            <ArrowLeft size={16} />
+                            Back to journal
+                        </Link>
 
-                    <div className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                        <img
-                            src={getAssetUrl(post.cover_image ?? null)}
-                            alt={post.title}
-                            className="h-72 w-full object-cover sm:h-[26rem]"
-                        />
+                        <header>
+                            <div className="mb-6 flex flex-wrap items-center gap-4">
+                                <p className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3 py-1.5 text-xs font-bold tracking-wide text-white border border-white/10 shadow-sm uppercase">
+                                    <CalendarDays size={14} />
+                                    {post.published_at
+                                        ? formatDate(post.published_at)
+                                        : "Draft"}
+                                </p>
+                            </div>
+                            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-7xl drop-shadow-lg leading-tight lg:leading-[1.1]">
+                                {post.title}
+                            </h1>
+                            {post.excerpt && (
+                                <p className="mt-6 text-xl leading-relaxed text-slate-200 max-w-3xl drop-shadow-md">
+                                    {post.excerpt}
+                                </p>
+                            )}
+                        </header>
                     </div>
+                </div>
 
+                {/* Floating Article Body */}
+                <article className="relative z-20 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-24">
                     <div
-                        className="prose prose-slate prose-lg max-w-none rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"
+                        className="prose prose-slate prose-lg md:prose-xl max-w-none rounded-[2.5rem] bg-white p-8 sm:p-12 lg:p-16 shadow-[0_20px_50px_rgba(0,0,0,0.06)] ring-1 ring-slate-100 prose-headings:font-bold prose-headings:tracking-tight prose-a:text-emerald-600 hover:prose-a:text-emerald-500 prose-img:rounded-3xl prose-img:shadow-xl prose-img:ring-1 prose-img:ring-slate-100"
                         dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
                     />
                 </article>
 
+                {/* Related Articles mapped to match Index layout */}
                 {related.length > 0 && (
-                    <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-                        <h2 className="mb-5 text-2xl font-bold text-slate-900">
-                            More articles
-                        </h2>
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                    <section className="mx-auto max-w-7xl px-4 mt-32 sm:px-6 lg:px-8">
+                        <div className="mb-12 flex items-center justify-between border-b border-slate-200/80 pb-6">
+                            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Continue reading
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-3">
                             {related.map((item) => (
                                 <Link
                                     key={item.id}
                                     href={route("blog.show", item.slug)}
-                                    className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                                    className="group relative flex flex-col items-start overflow-hidden rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                                 >
-                                    <div className="h-44 overflow-hidden">
+                                    <div className="aspect-[16/10] w-full overflow-hidden bg-slate-50 border-b border-slate-100 relative">
                                         <img
-                                            src={getAssetUrl(item.cover_image ?? null)}
+                                            src={getAssetUrl(
+                                                item.cover_image ?? null,
+                                            )}
                                             alt={item.title}
-                                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                         />
+                                        <div className="absolute inset-0 rounded-t-[2rem] ring-1 ring-inset ring-slate-900/5 pointer-events-none" />
                                     </div>
-                                    <div className="p-4">
-                                        <h3 className="line-clamp-2 text-lg font-semibold text-slate-900">
+                                    <div className="p-8 w-full flex-grow flex flex-col">
+                                        <h3 className="text-2xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-emerald-600 line-clamp-2">
                                             {item.title}
                                         </h3>
-                                        <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                                        <p className="mt-4 line-clamp-2 text-sm sm:text-base leading-relaxed text-slate-600 flex-grow">
                                             {item.excerpt ||
                                                 "Explore this article for more details."}
                                         </p>
-                                        <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#0C1311] group-hover:text-[#2DE3A7]">
-                                            Read more
-                                            <ChevronRight size={15} />
-                                        </span>
+                                        <div className="mt-8 flex items-center text-sm font-bold text-slate-900 transition-colors group-hover:text-emerald-500">
+                                            Read article
+                                            <ChevronRight
+                                                size={18}
+                                                className="ml-1 transition-transform group-hover:translate-x-1"
+                                            />
+                                        </div>
                                     </div>
                                 </Link>
                             ))}
                         </div>
                     </section>
                 )}
+
+                <CtaSection />
             </div>
         </CustomerLayout>
     );
 }
-

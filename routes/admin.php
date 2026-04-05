@@ -46,6 +46,7 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('products/{product}/update', [ProductController::class, 'update'])->name('product.update');
     Route::delete('products/delete/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
     Route::get('products/show/{product}', [ProductController::class, 'show'])->name('product.show');
+    Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock'])->name('product.update-stock');
 
     Route::resource('categories', CategoryController::class);
     Route::resource('brands', BrandController::class);

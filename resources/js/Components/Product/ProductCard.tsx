@@ -1,12 +1,13 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Edit2, Eye, Box, Layers } from "lucide-react";
+import { Edit2, Eye, Box, Layers, PackagePlus } from "lucide-react";
 import { getAssetUrl, formatPrice } from "@/Utils/helpers";
 import { Product, ProductVariation } from "@/types";
 
 interface ProductCardProps {
     product: Product;
     onEdit?: (product: Product) => void;
+    onUpdateStock?: (product: Product) => void;
 }
 
 function variantStock(variations: ProductVariation[]): number {
@@ -19,7 +20,7 @@ function variantPriceRange(variations: ProductVariation[]): { min: number; max: 
     return { min: Math.min(...prices), max: Math.max(...prices) };
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdateStock }) => {
     const { additionalCost } = usePage().props as any;
     const isVariant = product.product_type === "variant";
     const variations = product.product_variations ?? [];
@@ -63,21 +64,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
                 {/* Hover actions */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
-                    <div className="flex gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <div className="flex gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                         <Link
                             href={route("admin.product.show", product.id)}
                             className="p-2 bg-white text-black rounded-full hover:bg-[#2DE3A7] transition-colors"
                             title="View"
                         >
-                            <Eye size={18} />
+                            <Eye size={16} />
                         </Link>
                         <Link
                             href={route("admin.product.edit", product.id)}
                             className="p-2 bg-white text-black rounded-full hover:bg-[#2DE3A7] transition-colors"
                             title="Edit"
                         >
-                            <Edit2 size={18} />
+                            <Edit2 size={16} />
                         </Link>
+                        <button
+                            onClick={() => onUpdateStock?.(product)}
+                            className="p-2 bg-white text-black rounded-full hover:bg-amber-400 transition-colors"
+                            title="Update Stock"
+                        >
+                            <PackagePlus size={16} />
+                        </button>
                     </div>
                 </div>
             </div>
