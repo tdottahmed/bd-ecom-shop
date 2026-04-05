@@ -24,7 +24,7 @@ class ProductRequest extends FormRequest
             'slug' => 'required|string|unique:products,slug,' . ($productId ?? 'NULL'),
             'description' => 'required|string',
             'purchase_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
+            'sale_price' => 'required_if:product_type,single|nullable|numeric|min:0',
 
             'stock' => 'nullable|integer|min:0',
             'images' => 'nullable|array',
