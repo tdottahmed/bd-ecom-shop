@@ -17,6 +17,7 @@ import {
     Mail,
     LogIn,
     NotebookPen,
+    MessageCircle,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -133,6 +134,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Mail size={18} />,
         route: "admin.newsletter-subscriptions.index",
         urlPattern: "/admin/newsletter-subscriptions",
+    },
+    {
+        key: "contact_messages",
+        label: "Contact Msgs",
+        icon: <MessageCircle size={18} />,
+        route: "admin.contact-messages.index",
+        urlPattern: "/admin/contact-messages",
     },
 ];
 

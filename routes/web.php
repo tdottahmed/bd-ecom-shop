@@ -31,6 +31,7 @@ Route::get('brand/{brand:slug}', [CustomerController::class, 'brand'])->name('br
 
 Route::get('about-us', [PageController::class, 'about'])->name('pages.about');
 Route::get('contact-us', [PageController::class, 'contact'])->name('pages.contact');
+Route::post('contact-us', [PageController::class, 'submitContact'])->name('pages.contact.submit');
 Route::get('blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('faq', [PageController::class, 'faq'])->name('pages.faq');

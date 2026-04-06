@@ -46,6 +46,32 @@ class PageController extends Controller
         ]);
     }
 
+    public function submitContact(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            '_hp' => 'nullable|string|max:0',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        if (!empty($validated['_hp'])) {
+            return redirect()->back(); // Fail silently for bots
+        }
+
+        \App\Models\ContactMessage::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+        ]);
+
+        return redirect()->back()->with('success', 'Thank you! Your message has been sent successfully. We will get back to you shortly.');
+    }
+
     public function faq()
     {
         $faqs = json_decode(get_setting('faqs', '[]'), true);

@@ -82,6 +82,11 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
     Route::resource('pages', PageController::class)->except(['show']);
+    
+    Route::get('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+
     Route::get('newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index'])->name('newsletter-subscriptions.index');
     Route::post('newsletter-subscriptions/{newsletterSubscription}/toggle-status', [NewsletterSubscriptionController::class, 'toggleStatus'])->name('newsletter-subscriptions.toggle-status');
     Route::delete('newsletter-subscriptions/{newsletterSubscription}', [NewsletterSubscriptionController::class, 'destroy'])->name('newsletter-subscriptions.destroy');

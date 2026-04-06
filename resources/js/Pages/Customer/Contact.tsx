@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAntiSpam } from "@/Hooks/useAntiSpam";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import {
     MapPin,
@@ -43,6 +43,14 @@ export default function Contact({
     const toggleFaq = (index: number) =>
         setOpenFaq(openFaq === index ? null : index);
     const { honeypot, setHoneypot, validate } = useAntiSpam(3);
+    const { data, setData, post, processing, reset, errors } = useForm({
+        _hp: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        subject: '',
+        message: '',
+    });
 
     const contactCards = [
         {
@@ -156,7 +164,7 @@ export default function Contact({
                     </div>
 
                     {/* Main Grid: Form + Map */}
-                    <div className="rounded-3xl border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.10)] overflow-hidden mb-16">
+                    <div className="rounded-3xl max-w-7xl mx-auto border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.10)] overflow-hidden mb-16">
                         <div className="grid grid-cols-1 lg:grid-cols-2">
                             {/* Form */}
                             <div className="p-8 sm:p-10 border-b lg:border-b-0 lg:border-r border-slate-100">
@@ -172,53 +180,61 @@ export default function Contact({
                                     onSubmit={(e) => {
                                         e.preventDefault();
                                         if (!validate()) return;
-                                        // form submission handler goes here
+                                        post(route('pages.contact.submit'), {
+                                            preserveScroll: true,
+                                            onSuccess: () => reset(),
+                                        });
                                     }}
                                 >
                                     {/* Honeypot — bots fill this, humans never see it */}
                                     <input
-                                        className="spam-trap"
+                                        className="spam-trap opacity-0 absolute -z-50"
                                         type="text"
                                         name="_hp"
                                         tabIndex={-1}
                                         autoComplete="off"
                                         aria-hidden="true"
                                         value={honeypot}
-                                        onChange={(e) =>
-                                            setHoneypot(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setHoneypot(e.target.value);
+                                            setData('_hp', e.target.value);
+                                        }}
                                     />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                        {[
-                                            {
-                                                id: "first_name",
-                                                label: "First Name",
-                                                placeholder: "John",
-                                            },
-                                            {
-                                                id: "last_name",
-                                                label: "Last Name",
-                                                placeholder: "Doe",
-                                            },
-                                        ].map(({ id, label, placeholder }) => (
-                                            <div
-                                                key={id}
-                                                className="space-y-1.5"
+                                        <div className="space-y-1.5">
+                                            <label
+                                                htmlFor="first_name"
+                                                className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
                                             >
-                                                <label
-                                                    htmlFor={id}
-                                                    className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                                                >
-                                                    {label}
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id={id}
-                                                    placeholder={placeholder}
-                                                    className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                                                />
-                                            </div>
-                                        ))}
+                                                First Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="first_name"
+                                                value={data.first_name}
+                                                onChange={(e) => setData('first_name', e.target.value)}
+                                                placeholder="John"
+                                                className={`w-full bg-slate-50 border ${errors.first_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                            />
+                                            {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label
+                                                htmlFor="last_name"
+                                                className="text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                                            >
+                                                Last Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="last_name"
+                                                value={data.last_name}
+                                                onChange={(e) => setData('last_name', e.target.value)}
+                                                placeholder="Doe"
+                                                className={`w-full bg-slate-50 border ${errors.last_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                            />
+                                            {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
+                                        </div>
                                     </div>
 
                                     <div className="space-y-1.5">
@@ -231,9 +247,12 @@ export default function Contact({
                                         <input
                                             type="email"
                                             id="email"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
                                             placeholder="john@example.com"
-                                            className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                                            className={`w-full bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
                                         />
+                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                     </div>
 
                                     <div className="space-y-1.5">
@@ -246,9 +265,12 @@ export default function Contact({
                                         <input
                                             type="text"
                                             id="subject"
+                                            value={data.subject}
+                                            onChange={(e) => setData('subject', e.target.value)}
                                             placeholder="How can we help?"
-                                            className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                                            className={`w-full bg-slate-50 border ${errors.subject ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
                                         />
+                                        {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
                                     </div>
 
                                     <div className="space-y-1.5">
@@ -261,17 +283,21 @@ export default function Contact({
                                         <textarea
                                             id="message"
                                             rows={5}
+                                            value={data.message}
+                                            onChange={(e) => setData('message', e.target.value)}
                                             placeholder="Tell us everything..."
-                                            className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y"
+                                            className={`w-full bg-slate-50 border ${errors.message ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y`}
                                         />
+                                        {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                                     </div>
 
                                     <button
                                         type="submit"
-                                        className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-semibold px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg hover:shadow-xl active:translate-y-0"
+                                        disabled={processing}
+                                        className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-semibold px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
                                     >
                                         <Send size={15} />
-                                        Send Message
+                                        {processing ? 'Sending...' : 'Send Message'}
                                     </button>
                                 </form>
                             </div>

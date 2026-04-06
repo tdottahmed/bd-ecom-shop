@@ -19,8 +19,15 @@ type FooterPage = {
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
-    const { siteLogo, siteDescription, seo, footer, auth, footerPages, blogEnabled }: any =
-        usePage().props;
+    const {
+        siteLogo,
+        siteDescription,
+        seo,
+        footer,
+        auth,
+        footerPages,
+        blogEnabled,
+    }: any = usePage().props;
     const siteName = seo?.siteName || "Paikari World";
     const isAuthenticated = !!auth?.user;
     const [email, setEmail] = useState("");
@@ -263,36 +270,6 @@ export default function Footer() {
                         </span>
                         . All rights reserved.
                     </p>
-
-                    <div className="order-1 md:order-2 flex items-center gap-5">
-                        {isAuthenticated ? (
-                            <div className="flex items-center gap-2">
-                                <Link
-                                    href={route("admin.dashboard")}
-                                    className="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-emerald-700 transition-colors"
-                                >
-                                    <LayoutDashboard size={14} />
-                                    Admin Panel
-                                </Link>
-                                <button
-                                    type="button"
-                                    onClick={() => router.post(route("logout"))}
-                                    className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors"
-                                >
-                                    <LogOut size={14} />
-                                    Logout
-                                </button>
-                            </div>
-                        ) : (
-                            <Link
-                                href={route("admin.login")}
-                                className="inline-flex items-center gap-1.5 text-sm text-gray-700 hover:text-emerald-700 transition-colors"
-                            >
-                                <LogIn size={14} />
-                                Staff Login
-                            </Link>
-                        )}
-                    </div>
                 </div>
             </div>
         </footer>
