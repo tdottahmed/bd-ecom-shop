@@ -214,15 +214,11 @@ class CustomerController extends Controller
         }
         if ($request->input('stock_out') === 'true') {
             $query->where('stock', '<=', 0)->orderBy('updated_at', 'desc');
-        } else {
-            $query->where('stock', '>', 0);
         }
 
         // Preorder status
         if ($request->input('is_preorder') === 'true') {
             $query->where('is_preorder', true);
-        } else {
-            $query->where('is_preorder', false);
         }
 
         // Sorting
