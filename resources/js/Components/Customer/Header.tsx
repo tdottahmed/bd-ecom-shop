@@ -53,6 +53,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const dropdownRefLg = useRef<HTMLDivElement | null>(null);
     const dropdownRefMd = useRef<HTMLDivElement | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isHidden, setIsHidden] = useState(false);
+    const lastScrollY = useRef(0);
 
     const customerAuthActive = Boolean(customerAuthEnabled);
     const isLoggedIn = Boolean(auth?.user);
@@ -80,9 +82,28 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         return () => document.removeEventListener("click", handleDocClick);
     }, []);
 
-    // Scroll shadow
+    // Scroll shadow + hide-on-scroll-down
     useEffect(() => {
-        const onScroll = () => setIsScrolled(window.scrollY > 8);
+        const onScroll = () => {
+            const y = window.scrollY;
+            setIsScrolled(y > 8);
+
+            if (y > 120) {
+                if (y > lastScrollY.current + 6) {
+                    // Scrolling down — hide header and close open menus
+                    setIsHidden(true);
+                    setOpenDropdown(null);
+                    setIsUserMenuOpen(false);
+                } else if (y < lastScrollY.current - 6) {
+                    // Scrolling up — reveal header
+                    setIsHidden(false);
+                }
+            } else {
+                setIsHidden(false);
+            }
+
+            lastScrollY.current = y;
+        };
         onScroll();
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
@@ -110,11 +131,13 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     return (
         <>
             <header
-                className={`sticky top-0 z-40 transition-all duration-200 ${
+                className={`sticky top-0 z-40 border-b border-gray-100 transition-all duration-300 ${
+                    isHidden ? "-translate-y-full shadow-none" : "translate-y-0"
+                } ${
                     isScrolled
                         ? "bg-white/95 backdrop-blur-md shadow-sm"
                         : "bg-white"
-                } border-b border-gray-100`}
+                }`}
             >
                 {/* ── Main row ── */}
                 <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">

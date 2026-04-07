@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Head, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import ProductCard from "@/Components/Customer/ProductCard";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
 import ProductFilters from "@/Components/Customer/ProductFilters";
-import Pagination from "@/Components/Ui/Pagination";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
 import { Category, PaginatedData, Product } from "@/types";
-import NewsletterSection from "@/Components/Customer/CtaSection";
 import CtaSection from "@/Components/Customer/CtaSection";
 
 interface ProductListProps {
@@ -28,6 +26,17 @@ interface ProductListProps {
     brands?: { id: number; title: string; slug: string }[];
 }
 
+const ProductSkeleton = () => (
+    <div className="animate-pulse rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm">
+        <div className="bg-slate-200 aspect-square w-full" />
+        <div className="p-3 space-y-2">
+            <div className="h-3 bg-slate-200 rounded w-3/4" />
+            <div className="h-3 bg-slate-200 rounded w-1/2" />
+            <div className="h-4 bg-slate-200 rounded w-2/5 mt-1" />
+        </div>
+    </div>
+);
+
 const ProductList: React.FC<ProductListProps> = ({
     products,
     category,
@@ -42,6 +51,73 @@ const ProductList: React.FC<ProductListProps> = ({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [sort, setSort] = useState(filters.sort || "latest");
 
+    // Infinite scroll state
+    const [allProducts, setAllProducts] = useState<Product[]>(products.data);
+    const [nextPageUrl, setNextPageUrl] = useState<string | null>(
+        products.next_page_url,
+    );
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Refs to avoid stale closures
+    const isLoadMoreRef = useRef(false);
+    const isLoadingMoreRef = useRef(false);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    // Sync when products prop changes (filter/sort navigation resets; load-more appends)
+    useEffect(() => {
+        if (isLoadMoreRef.current) {
+            setAllProducts((prev) => {
+                const existingIds = new Set(prev.map((p) => p.id));
+                const newItems = products.data.filter(
+                    (p) => !existingIds.has(p.id),
+                );
+                return [...prev, ...newItems];
+            });
+            isLoadMoreRef.current = false;
+        } else {
+            setAllProducts(products.data);
+        }
+        setNextPageUrl(products.next_page_url);
+        setIsLoadingMore(false);
+        isLoadingMoreRef.current = false;
+    }, [products]);
+
+    const loadMore = useCallback(() => {
+        if (!nextPageUrl || isLoadingMoreRef.current) return;
+        isLoadingMoreRef.current = true;
+        isLoadMoreRef.current = true;
+        setIsLoadingMore(true);
+
+        router.visit(nextPageUrl, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ["products"],
+        });
+    }, [nextPageUrl]);
+
+    // IntersectionObserver on sentinel
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (
+                    entries[0].isIntersecting &&
+                    nextPageUrl &&
+                    !isLoadingMoreRef.current
+                ) {
+                    loadMore();
+                }
+            },
+            { threshold: 0, rootMargin: "300px" },
+        );
+
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [nextPageUrl, loadMore]);
+
+    // Sort change navigation (reset, not load-more)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             if (sort !== (filters.sort || "latest")) {
@@ -97,6 +173,9 @@ const ProductList: React.FC<ProductListProps> = ({
         });
     };
 
+    const hasMore = !!nextPageUrl;
+    const isEmpty = allProducts.length === 0;
+
     return (
         <CustomerLayout>
             <Head title={title} />
@@ -119,7 +198,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 />
 
                 <div className="relative mx-auto flex max-w-full flex-col gap-6 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
-                    {/* Header Layout */}
+                    {/* Header */}
                     <ScrollReveal animation="fade-up" delay="delay-100">
                         <div className="text-center mb-6 mt-4">
                             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
@@ -145,16 +224,7 @@ const ProductList: React.FC<ProductListProps> = ({
                             />
 
                             <div className="p-4 sm:p-6 lg:p-8">
-                                {products.data?.length ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
-                                        {products.data.map((product) => (
-                                            <ProductCard
-                                                key={product.id}
-                                                product={product}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
+                                {isEmpty ? (
                                     <div className="flex flex-col items-center justify-center py-24 text-center">
                                         <div className="rounded-full bg-indigo-50 p-6 mb-4">
                                             <svg
@@ -181,22 +251,86 @@ const ProductList: React.FC<ProductListProps> = ({
                                             for.
                                         </p>
                                     </div>
+                                ) : (
+                                    <>
+                                        {/* Product grid — 2 cols mobile → 3 tablet → 4 md → 5 desktop */}
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+                                            {allProducts.map((product) => (
+                                                <ProductCard
+                                                    key={product.id}
+                                                    product={product}
+                                                />
+                                            ))}
+
+                                            {/* Skeleton cards during load */}
+                                            {isLoadingMore &&
+                                                Array.from({ length: 5 }).map(
+                                                    (_, i) => (
+                                                        <ProductSkeleton
+                                                            key={`skeleton-${i}`}
+                                                        />
+                                                    ),
+                                                )}
+                                        </div>
+
+                                        {/* Sentinel + status footer */}
+                                        <div
+                                            ref={sentinelRef}
+                                            className="mt-8 flex flex-col items-center gap-3"
+                                        >
+                                            {isLoadingMore && (
+                                                <div className="flex items-center gap-2 text-sm text-slate-500">
+                                                    <svg
+                                                        className="h-4 w-4 animate-spin text-indigo-500"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <circle
+                                                            className="opacity-25"
+                                                            cx="12"
+                                                            cy="12"
+                                                            r="10"
+                                                            stroke="currentColor"
+                                                            strokeWidth="4"
+                                                        />
+                                                        <path
+                                                            className="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                                        />
+                                                    </svg>
+                                                    Loading more products…
+                                                </div>
+                                            )}
+
+                                            {!hasMore && !isLoadingMore && (
+                                                <div className="flex items-center gap-3 text-sm text-slate-400 py-4">
+                                                    <span className="h-px w-16 bg-slate-200" />
+                                                    Showing all {products.total}{" "}
+                                                    products
+                                                    <span className="h-px w-16 bg-slate-200" />
+                                                </div>
+                                            )}
+
+                                            {/* Manual fallback button when auto-scroll missed */}
+                                            {hasMore && !isLoadingMore && (
+                                                <button
+                                                    onClick={loadMore}
+                                                    className="text-sm text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
+                                                >
+                                                    Load more
+                                                </button>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
                             </div>
-
-                            {/* Pagination Component */}
-                            {products.last_page > 1 && (
-                                <div className="border-t border-gray-100 overflow-hidden">
-                                    <Pagination
-                                        data={products}
-                                        preserveScroll={true}
-                                    />
-                                </div>
-                            )}
                         </div>
                     </ScrollReveal>
                 </div>
             </div>
+
             <div className="max-w-full mx-auto px-4 md:px-6 py-8 md:py-12">
                 <CtaSection />
             </div>
