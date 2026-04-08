@@ -114,14 +114,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 <div className="flex items-center gap-2 shrink-0">
                     {/* Count — desktop only */}
                     <p className="hidden lg:block text-sm text-gray-400 shrink-0 whitespace-nowrap">
-                        {totalCount != null ? (
+                        Showing {totalCount != null ? (
                             <>
                                 <span className="font-semibold text-brand-dark">
                                     {totalCount.toLocaleString()}
                                 </span>{" "}
                                 item{totalCount !== 1 ? "s" : ""}
                             </>
-                        ) : null}
+                        ) : null} 
                     </p>
 
                     {/* Divider */}
@@ -140,9 +140,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                             <option value="price_high">Price: High → Low</option>
                             <option value="name">Name: A – Z</option>
                         </select>
-                        <svg className="w-3.5 h-3.5 text-gray-400 shrink-0 -ml-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                        </svg>
+                       
                     </div>
 
                     {/* Filter button */}

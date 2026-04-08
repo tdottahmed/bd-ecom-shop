@@ -17,11 +17,6 @@ const Logo: React.FC = () => {
         ) {
             return raw;
         }
-
-        // Common stored formats:
-        // - "foo.png"
-        // - "storage/foo.png"
-        // - "/storage/foo.png"
         const clean = raw.replace(/^\/+/, "").replace(/^storage\//, "");
         return `/storage/${clean}`;
     })();
@@ -33,7 +28,7 @@ const Logo: React.FC = () => {
         >
             <img
                 src={resolvedLogoSrc}
-                alt="Paikari World"
+                alt="Nix Logo"
                 className="h-10 sm:h-14 w-auto"
             />
         </Link>

@@ -60,7 +60,7 @@ class CustomerAccountController extends Controller
 
         $pdf = Pdf::loadView('pdf.customer_order_invoice', ['order' => $order]);
 
-        return $pdf->download('order-'.$order->id.'-invoice.pdf');
+        return $pdf->download('order-' . $order->id . '-invoice.pdf');
     }
 
     protected function orderForCustomer(Request $request, Order $order): Order
@@ -124,14 +124,11 @@ class CustomerAccountController extends Controller
 
     public function syncCart(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'items' => ['required', 'array'],
-        ]);
-
-        $request->user()->update([
-            'cart_data' => $validated['items'],
-        ]);
-
+        if ($request->has('items')) {
+            $request->user()->update([
+                'cart_data' => $request->items,
+            ]);
+        }
         return back();
     }
 }

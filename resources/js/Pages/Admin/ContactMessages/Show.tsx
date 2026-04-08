@@ -65,7 +65,7 @@ export default function ContactMessageShow({ message }: Props) {
         <Master title="Contact Message Details" head={<Header title="Contact Message" showUserMenu={true} />}>
             <Head title={`Message from ${message.first_name}`} />
 
-            <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6 space-y-6 max-w-8xl mx-auto">
                 <div className="flex items-center justify-between">
                     <Link
                         href={route("admin.contact-messages.index")}
