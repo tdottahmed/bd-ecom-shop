@@ -156,14 +156,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         currentSelectionStock,
         cartBatch,
     ]);
-    // NOTE: Removed cartBatch dependency to avoid loop.
-    // We only want to trigger this when SELECTION changes.
-    // However, selectedVariations changes on click.
-    // If we add to batch, we don't change selection, so this shouldn't loop unless logic is wrong.
-    // BUT checking existsIndex depends on cartBatch.
-    // We can use a ref or careful dependency management.
-    // Actually, simply including cartBatch in deps is fine because we only add if existsIndex is -1.
-    // Once added, existsIndex will be found, so it won't add again.
+    
 
     const handleBatchQuantityUpdate = (index: number, newQty: number) => {
         const minQty = 1;
@@ -245,8 +238,8 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                     <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm" />
                 </Transition.Child>
 
-                <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div className="fixed inset-0 overflow-hidden">
+                    <div className="flex h-full items-center justify-center p-4 text-center">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -256,8 +249,9 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <div className="flex justify-between items-center mb-6">
+                            <Dialog.Panel className="w-full max-w-md transform rounded-2xl bg-white text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+                                {/* Sticky Header */}
+                                <div className="flex justify-between items-center px-6 pt-6 pb-4 flex-shrink-0 border-b border-gray-100">
                                     <Dialog.Title
                                         as="h3"
                                         className="text-xl font-bold text-gray-900"
@@ -272,7 +266,8 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     </button>
                                 </div>
 
-                                <div className="mt-2 text-sm">
+                                {/* Scrollable Content */}
+                                <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-4 text-sm custom-scrollbar">
                                     <div className="flex gap-4 mb-6">
                                         {/* Product Thumbnail */}
                                         <div className="relative w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
@@ -358,7 +353,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     </div>
 
                                     {/* Attributes */}
-                                    <div className="space-y-5 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    <div className="space-y-5">
                                         {Object.entries(
                                             variationsByAttribute,
                                         ).map(([attrId, group]) => (
@@ -470,7 +465,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 No items selected yet.
                                             </div>
                                         ) : (
-                                            <div className="space-y-3 max-h-[180px] overflow-y-auto px-1 custom-scrollbar">
+                                            <div className="space-y-3 px-1">
                                                 {cartBatch.map(
                                                     (item, index) => {
                                                         // Calculate price for this specific row
@@ -641,7 +636,8 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     )}
                                 </div>
 
-                                <div className="mt-6 flex flex-col gap-3">
+                                {/* Sticky Footer */}
+                                <div className="flex-shrink-0 px-6 pb-6 pt-4 border-t border-gray-100 flex flex-col gap-3">
                                     <button
                                         type="button"
                                         className={`w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${

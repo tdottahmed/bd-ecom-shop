@@ -325,7 +325,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 </div>
 
                 {/* ── Row 2: Navigation bar (md+) ── */}
-                <div className="hidden md:block bg-brand-ivory border-b border-brand-primary/15">
+                <div className="hidden md:block bg-white border-b border-brand-primary/15">
                     <div
                         ref={navRowRef}
                         className="max-w-full mx-auto px-4 sm:px-6 lg:px-8"
