@@ -29,7 +29,7 @@ const Logo: React.FC = () => {
     return (
         <Link
             href="/"
-            className="flex-shrink-0 flex items-center justify-center transition-opacity hover:opacity-90"
+            className="flex items-center justify-center transition-opacity hover:opacity-90"
         >
             <img
                 src={resolvedLogoSrc}
