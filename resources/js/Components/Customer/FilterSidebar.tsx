@@ -123,7 +123,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 }
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                                     selected
-                                                        ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             >
@@ -158,7 +158,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 }
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                                     selected
-                                                        ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             >
@@ -193,7 +193,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                         onClick={() => setSort(option.value)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                             sort === option.value
-                                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                 : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                         }`}
                                     >
@@ -224,7 +224,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 setMinPrice(e.target.value)
                                             }
                                             placeholder="0"
-                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent transition-all duration-200"
                                         />
                                     </div>
                                 </div>
@@ -243,7 +243,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 setMaxPrice(e.target.value)
                                             }
                                             placeholder="10000"
-                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent transition-all duration-200"
                                         />
                                     </div>
                                 </div>
@@ -262,7 +262,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                 <div
                                     className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all duration-200 ${
                                         inStock
-                                            ? "bg-gray-900 border-gray-900"
+                                            ? "bg-brand-primary border-brand-primary"
                                             : "bg-white border-gray-300"
                                     }`}
                                 >
@@ -289,7 +289,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     <div className="border-t border-gray-100 p-6 space-y-3 bg-white">
                         <button
                             onClick={applyFilters}
-                            className="w-full bg-gray-900 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-all duration-200 shadow-lg shadow-gray-200 active:scale-[0.98]"
+                            className="w-full bg-brand-primary text-white px-6 py-3.5 rounded-xl font-bold hover:bg-brand-primary/90 transition-all duration-200 shadow-lg shadow-brand-bg active:scale-[0.98]"
                         >
                             Apply Filters
                         </button>

@@ -44,7 +44,7 @@ const ExpandableDescription = ({ htmlContent }: { htmlContent: string }) => {
             >
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="inline-flex items-center px-6 py-2.5 rounded-full bg-slate-50 hover:bg-slate-100 font-bold text-indigo-600 transition-colors group border border-slate-100 shadow-sm"
+                    className="inline-flex items-center px-6 py-2.5 rounded-full bg-slate-50 hover:bg-slate-100 font-bold text-brand-primary transition-colors group border border-slate-100 shadow-sm"
                 >
                     {isExpanded ? "Read Less" : "Read More"}
                     <ChevronDown
@@ -136,7 +136,7 @@ export default function ProductShow({
                                 <nav className="flex items-center text-sm text-slate-500">
                                     <Link
                                         href="/"
-                                        className="hover:text-indigo-600 transition-colors"
+                                        className="hover:text-brand-primary transition-colors"
                                     >
                                         Home
                                     </Link>
@@ -146,7 +146,7 @@ export default function ProductShow({
                                     />
                                     <Link
                                         href={route("products.index")}
-                                        className="hover:text-indigo-600 transition-colors"
+                                        className="hover:text-brand-primary transition-colors"
                                     >
                                         Products
                                     </Link>
@@ -161,7 +161,7 @@ export default function ProductShow({
                                                     "products.category",
                                                     product.category.slug,
                                                 )}
-                                                className="hover:text-indigo-600 transition-colors"
+                                                className="hover:text-brand-primary transition-colors"
                                             >
                                                 {product.category.title}
                                             </Link>
@@ -217,8 +217,8 @@ export default function ProductShow({
                                                                         product
                                                                             .images[0]) ===
                                                                     image
-                                                                        ? "border-indigo-600 ring-4 ring-indigo-600/20 translate-y-[-2px]"
-                                                                        : "border-slate-200 hover:border-indigo-400 opacity-70 hover:opacity-100"
+                                                                        ? "border-brand-primary ring-4 ring-brand-primary/20 translate-y-[-2px]"
+                                                                        : "border-slate-200 hover:border-brand-tint opacity-70 hover:opacity-100"
                                                                 }`}
                                                             >
                                                                 <img
@@ -238,7 +238,7 @@ export default function ProductShow({
                                     {/* Product Description Block (Moved to Left Column) */}
                                     <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex-grow">
                                         <h3 className="text-xl font-extrabold text-slate-900 mb-5 pb-4 border-b border-slate-100 flex items-center">
-                                            <span className="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                                            <span className="w-2 h-6 bg-brand-primary rounded-full mr-3"></span>
                                             Details & Features
                                         </h3>
                                         <ExpandableDescription
@@ -266,7 +266,7 @@ export default function ProductShow({
                                                     selectedVariationPrice > 0
                                                 ) {
                                                     return (
-                                                        <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                        <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
                                                             ৳
                                                             {
                                                                 selectedVariationPrice
@@ -316,14 +316,14 @@ export default function ProductShow({
                                                             maxPrice
                                                         ) {
                                                             return (
-                                                                <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                                <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
                                                                     ৳{minPrice}
                                                                 </span>
                                                             );
                                                         }
 
                                                         return (
-                                                            <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                            <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
                                                                 ৳{minPrice} - ৳
                                                                 {maxPrice}
                                                             </span>
@@ -344,7 +344,7 @@ export default function ProductShow({
                                                 ) {
                                                     return (
                                                         <div className="flex items-center gap-3">
-                                                            <span className="text-4xl font-extrabold text-emerald-600 drop-shadow-sm">
+                                                            <span className="text-4xl font-extrabold text-brand-primary drop-shadow-sm">
                                                                 ৳
                                                                 {
                                                                     product.discounted_sale_price
@@ -356,7 +356,7 @@ export default function ProductShow({
                                                                     product.sale_price
                                                                 }
                                                             </span>
-                                                            <span className="text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                            <span className="text-sm font-bold text-brand-primary bg-brand-bg px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                                                                 Sale
                                                             </span>
                                                         </div>
@@ -364,7 +364,7 @@ export default function ProductShow({
                                                 }
 
                                                 return (
-                                                    <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
+                                                    <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
                                                         ৳
                                                         {product.sale_price ||
                                                             0}
@@ -386,7 +386,7 @@ export default function ProductShow({
                                                     <h3 className="text-lg font-bold text-slate-900">
                                                         Select Options
                                                     </h3>
-                                                    <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
+                                                    <span className="text-xs font-semibold text-brand-primary bg-brand-bg px-2 py-1 rounded-md">
                                                         Required
                                                     </span>
                                                 </div>
@@ -472,8 +472,8 @@ export default function ProductShow({
                                                 <button
                                                     className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
                                                         isInCart
-                                                            ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30"
-                                                            : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20"
+                                                            ? "bg-brand-success hover:bg-brand-success/90 text-white shadow-brand-success/30"
+                                                            : "bg-brand-dark hover:bg-brand-dark/80 text-white shadow-brand-dark/20"
                                                     }`}
                                                     disabled={
                                                         !product.is_preorder &&
@@ -510,7 +510,7 @@ export default function ProductShow({
                                         {/* Trust Badges section beneath Add to Cart */}
                                         <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-slate-200/60">
                                             <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
-                                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                                <div className="w-10 h-10 rounded-full bg-brand-success/10 flex items-center justify-center text-brand-success">
                                                     <ShieldCheck
                                                         size={20}
                                                         strokeWidth={2.5}
@@ -523,7 +523,7 @@ export default function ProductShow({
                                                 </span>
                                             </div>
                                             <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
-                                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                                <div className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-primary">
                                                     <Truck
                                                         size={20}
                                                         strokeWidth={2.5}
@@ -564,8 +564,8 @@ export default function ProductShow({
                                             </div>
                                         )}
                                         {product.category && (
-                                            <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2.5 rounded-xl border border-indigo-100 shadow-sm">
-                                                <span className="text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                                            <div className="flex items-center gap-2 bg-brand-bg px-4 py-2.5 rounded-xl border border-brand-bg shadow-sm">
+                                                <span className="text-brand-primary/60 text-xs font-bold uppercase tracking-wider">
                                                     Category
                                                 </span>
                                                 <Link
@@ -573,7 +573,7 @@ export default function ProductShow({
                                                         "products.category",
                                                         product.category.slug,
                                                     )}
-                                                    className="text-indigo-700 hover:text-indigo-800 transition-colors text-sm font-bold"
+                                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors text-sm font-bold"
                                                 >
                                                     {product.category.title}
                                                 </Link>

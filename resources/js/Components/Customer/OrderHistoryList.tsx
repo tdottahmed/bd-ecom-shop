@@ -151,7 +151,7 @@ const OrderHistoryList = () => {
                                 {" "}
                                 {formatPrice(order.total)}{" "}
                             </span>
-                            <div className="flex items-center text-indigo-600 text-sm font-medium group-hover:translate-x-1 transition-transform">
+                            <div className="flex items-center text-brand-primary text-sm font-medium group-hover:translate-x-1 transition-transform">
                                 Details <ChevronRight size={16} />
                             </div>
                         </div>

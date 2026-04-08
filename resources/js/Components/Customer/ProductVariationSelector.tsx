@@ -254,7 +254,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                 isOutOfStock
                                                     ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
                                                     : isSelected
-                                                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
+                                                        ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
                                                         : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
                                             } rounded-lg group`}
                                         >
@@ -310,7 +310,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                         Your Selection
                     </h5>
                     {cartBatch.length > 0 && (
-                        <span className="text-indigo-600 text-xs font-bold bg-indigo-50 px-2 py-1 rounded-full">
+                        <span className="text-brand-primary text-xs font-bold bg-brand-bg px-2 py-1 rounded-full">
                             {cartBatch.length} items
                         </span>
                     )}
@@ -350,7 +350,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                         key={index}
                                         className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                                             isCurrent
-                                                ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-100"
+                                                ? "bg-brand-bg border-brand-bg ring-1 ring-brand-bg"
                                                 : "bg-white border-gray-200 hover:border-gray-300"
                                         }`}
                                     >
@@ -440,7 +440,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
 
                             <button
                                 type="button"
-                                className="w-full inline-flex justify-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-gray-800 hover:shadow-xl transition-all transform active:scale-[0.98]"
+                                className="w-full inline-flex justify-center rounded-lg bg-brand-primary px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-primary/90 hover:shadow-xl transition-all transform active:scale-[0.98]"
                                 onClick={handleAddToCart}
                             >
                                 Add All to Cart

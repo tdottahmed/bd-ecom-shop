@@ -42,7 +42,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                             <select
                                 value={sort}
                                 onChange={(e) => setSort(e.target.value)}
-                                className="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 pr-8"
+                                className="w-full appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary/40 focus:border-brand-primary block p-2.5 pr-8"
                             >
                                 <option value="latest"> Latest </option>
                                 <option value="price_low">Price: Low to High</option>
@@ -78,37 +78,37 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                     (filters.sort && filters.sort !== "latest")) && (
                     <div className="mt-4 flex flex-wrap gap-2">
                         {filters.search && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Search: {filters.search}
                             </span>
                         )}
                         {filters.min_price && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Min: ৳{filters.min_price}
                             </span>
                         )}
                         {filters.max_price && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Max: ৳{filters.max_price}
                             </span>
                         )}
                         {filters.in_stock === "true" && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 In Stock Only
                             </span>
                         )}
                         {filters.category_id && categories.length > 0 && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Category: {categories.find(c => c.id.toString() === filters.category_id)?.title || filters.category_id}
                             </span>
                         )}
                         {filters.brand_id && brands.length > 0 && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Brand: {brands.find(b => b.id.toString() === filters.brand_id)?.title || filters.brand_id}
                             </span>
                         )}
                         {filters.sort && filters.sort !== "latest" && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-bg text-brand-primary">
                                 Sort:{" "}
                                 {filters.sort === "price_low"
                                     ? "Price Low to High"

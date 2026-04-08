@@ -142,11 +142,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                         >
                             <div className="mb-4 md:mb-6">
                                 <div className="flex items-center gap-3 mb-3">
-                                    <span className="h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-[0_0_0_4px_rgba(99,102,241,0.12)]" />
+                                    <span className="h-2.5 w-2.5 rounded-full bg-brand-primary shadow-[0_0_0_4px_rgba(225,29,109,0.12)]" />
                                     <h2 className="text-lg md:text-xl font-semibold text-slate-800 truncate">
                                         {category.title}
                                     </h2>
-                                    <div className="h-px flex-1 bg-gradient-to-r from-indigo-200/80 via-slate-200 to-transparent" />
+                                    <div className="h-px flex-1 bg-gradient-to-r from-brand-bg via-slate-200 to-transparent" />
                                 </div>
                                 <div className="flex justify-end">
                                     <Link
@@ -154,7 +154,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                                             "products.category",
                                             category.slug,
                                         )}
-                                        className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 shrink-0"
+                                        className="inline-flex items-center gap-1 text-sm font-medium text-brand-primary hover:text-brand-primary/80 shrink-0"
                                     >
                                         View all
                                         <ChevronRight className="w-4 h-4" />

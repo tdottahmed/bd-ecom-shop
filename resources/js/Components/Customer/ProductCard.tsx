@@ -112,16 +112,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {/* Badges */}
                 <div className="absolute top-3 left-3 z-10 flex gap-2">
                 {product.stock > 0 ? (
-                    <span className="bg-green-300 text-green-900 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                    <span className="bg-brand-success/15 text-brand-success text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
                         <Check size={10} strokeWidth={4} />
                         In Stock
                     </span>
                 ) : product.is_preorder ? (
-                    <span className="bg-orange-100 text-orange-800 text-[10px] font-bold px-2 py-1 rounded-md">
+                    <span className="bg-brand-accent/15 text-brand-accent text-[10px] font-bold px-2 py-1 rounded-md">
                         Pre Order
                     </span>
                 ) : (
-                    <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-1 rounded-md">
+                    <span className="bg-brand-primary/10 text-brand-primary text-[10px] font-bold px-2 py-1 rounded-md">
                         Out of Stock
                     </span>
                 )}
@@ -216,7 +216,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         {formatPrice(effectivePrice)}
                                     </span>
                                     {hasDiscount && (
-                                        <span className="text-xs font-semibold text-green-600">
+                                        <span className="text-xs font-semibold text-brand-primary">
                                             Sale
                                         </span>
                                     )}
@@ -228,10 +228,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                 <div className="mt-auto">
                     {isInCart ? (
-                        <div className="flex items-center justify-between border-solid border-rose-200 rounded-3xl border-2 p-2 bg-slate-100/30 text-rose-600">
+                        <div className="flex items-center justify-between border-solid border-brand-bg rounded-3xl border-2 p-2 bg-brand-bg/30 text-brand-primary">
                             <button
                                 onClick={handleRemoveFromCart}
-                                className="w-8 h-8 flex items-center justify-center rounded-full border border-rose-800 text-rose-800 hover:bg-rose-50 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center rounded-full border border-brand-primary text-brand-primary hover:bg-brand-bg transition-colors"
                             >
                                 <Trash2 size={16} />
                             </button>
@@ -261,7 +261,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             }
                             className={`w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300 ${
                                 product.stock > 0 || product.is_preorder
-                                    ? "bg-[#1A1B2E] text-white hover:bg-[#2D2E45] shadow-lg hover:shadow-xl"
+                                    ? "bg-brand-dark text-white hover:bg-brand-dark/85 shadow-lg hover:shadow-xl"
                                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                             }`}
                         >

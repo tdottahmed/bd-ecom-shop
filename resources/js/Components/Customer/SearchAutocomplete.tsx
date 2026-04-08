@@ -276,14 +276,14 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                                                         <span
                                                             className={`inline-flex items-center gap-1 text-[11px] font-medium ${
                                                                 product.in_stock
-                                                                    ? "text-emerald-600"
+                                                                    ? "text-brand-success"
                                                                     : "text-red-500"
                                                             }`}
                                                         >
                                                             <span
                                                                 className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
                                                                     product.in_stock
-                                                                        ? "bg-emerald-500"
+                                                                        ? "bg-brand-success"
                                                                         : "bg-red-400"
                                                                 }`}
                                                             />

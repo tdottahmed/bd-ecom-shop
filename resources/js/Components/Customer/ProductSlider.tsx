@@ -30,10 +30,10 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ products, title = "You Mi
         <div className="relative w-full py-8 md:py-12">
             <div className="flex items-center justify-between mb-8 md:mb-10 px-2 md:px-6">
                 <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight flex items-center">
-                    <span className="w-2 h-8 bg-indigo-500 rounded-full mr-3 sm:mr-4 hidden sm:block"></span>
+                    <span className="w-2 h-8 bg-brand-primary rounded-full mr-3 sm:mr-4 hidden sm:block"></span>
                     {title.split(' ').map((word, i, arr) => (
                         i === arr.length - 1 ? (
-                            <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-sky-400 ml-1 sm:ml-2">{word}</span>
+                            <span key={i} className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-tint ml-1 sm:ml-2">{word}</span>
                         ) : (
                             <span key={i} className="mr-1 sm:mr-2">{word}</span>
                         )
@@ -41,7 +41,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ products, title = "You Mi
                 </h2>
                 
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                    <Link href={route("products.index")} className="hidden md:flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-5 py-2.5 rounded-full transition-all mr-2">
+                    <Link href={route("products.index")} className="hidden md:flex items-center text-sm font-bold text-brand-primary hover:text-brand-primary/80 bg-brand-bg hover:bg-brand-bg/70 px-5 py-2.5 rounded-full transition-all mr-2">
                         View All
                     </Link>
                     <button

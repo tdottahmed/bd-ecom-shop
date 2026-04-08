@@ -183,10 +183,10 @@ const ProductList: React.FC<ProductListProps> = ({
             <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
                 {/* Background accents */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-40 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-accent opacity-20 blur-3xl" />
                 </div>
-                <div className="pointer-events-none absolute -bottom-32 left-0 h-64 w-64 rounded-full bg-emerald-300/25 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-indigo-300/25 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-32 left-0 h-64 w-64 rounded-full bg-brand-success/15 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-brand-primary/15 blur-3xl" />
 
                 <FilterSidebar
                     isOpen={isFilterOpen}
@@ -226,9 +226,9 @@ const ProductList: React.FC<ProductListProps> = ({
                             <div className="p-4 sm:p-6 lg:p-8">
                                 {isEmpty ? (
                                     <div className="flex flex-col items-center justify-center py-24 text-center">
-                                        <div className="rounded-full bg-indigo-50 p-6 mb-4">
+                                        <div className="rounded-full bg-brand-bg p-6 mb-4">
                                             <svg
-                                                className="h-12 w-12 text-indigo-400"
+                                                className="h-12 w-12 text-brand-primary/50"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
@@ -281,7 +281,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                             {isLoadingMore && (
                                                 <div className="flex items-center gap-2 text-sm text-slate-500">
                                                     <svg
-                                                        className="h-4 w-4 animate-spin text-indigo-500"
+                                                        className="h-4 w-4 animate-spin text-brand-primary"
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         fill="none"
                                                         viewBox="0 0 24 24"
@@ -317,7 +317,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                             {hasMore && !isLoadingMore && (
                                                 <button
                                                     onClick={loadMore}
-                                                    className="text-sm text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
+                                                    className="text-sm text-brand-primary hover:text-brand-primary/80 underline underline-offset-2"
                                                 >
                                                     Load more
                                                 </button>

@@ -22,6 +22,15 @@ export default {
                 luxury: {
                     accent: '#6366f1',
                 },
+                brand: {
+                    primary:  '#E11D6D', // Rose 600 — primary CTA
+                    tint:     '#F87BB4', // Rose 300 — icons / tints
+                    dark:     '#1A111A', // Deep Plum — dark surfaces
+                    accent:   '#FF9545', // Peach 400 — promo / countdown
+                    success:  '#16B57D', // Emerald 500 — Halal / success
+                    bg:       '#FFEBF2', // Rose 50 — background tints
+                    ivory:    '#FDF9F4', // Ivory — page base
+                },
             },
             boxShadow: {
                 luxury: '0 20px 50px rgba(0,0,0,0.05)',

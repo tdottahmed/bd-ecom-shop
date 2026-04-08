@@ -262,7 +262,7 @@ export default function NavigationSidebar({ isOpen, onClose }: NavigationSidebar
                         {!isAuthenticated ? (
                             <Link
                                 href={route("login")}
-                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
                                 onClick={onClose}
                             >
                                 <LogIn size={18} />
@@ -272,7 +272,7 @@ export default function NavigationSidebar({ isOpen, onClose }: NavigationSidebar
                             <div className="grid grid-cols-2 gap-2">
                                 <Link
                                     href={route("admin.dashboard")}
-                                    className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+                                    className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/80 transition-colors"
                                     onClick={onClose}
                                 >
                                     <span className="font-semibold">Dashboard</span>

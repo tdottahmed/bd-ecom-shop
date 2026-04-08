@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    Search,
     LogOut,
     User,
-    MessageCircle,
     ChevronDown,
     LayoutDashboard,
     ShoppingBag,
@@ -29,13 +27,11 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     const cartCount = getCartCount();
 
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-    const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
 
     const {
         auth,
         customerAuthEnabled,
         blogEnabled,
-        messengerLink,
         categories,
         navCategories,
         brands,
@@ -50,8 +46,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     >(null);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const userMenuRef = useRef<HTMLDivElement | null>(null);
-    const dropdownRefLg = useRef<HTMLDivElement | null>(null);
-    const dropdownRefMd = useRef<HTMLDivElement | null>(null);
+    const navRowRef = useRef<HTMLDivElement | null>(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isHidden, setIsHidden] = useState(false);
     const lastScrollY = useRef(0);
@@ -69,11 +64,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         const handleDocClick = (e: MouseEvent) => {
             const t = e.target as Node | null;
             if (!t) return;
-            const inLg =
-                !!dropdownRefLg.current && dropdownRefLg.current.contains(t);
-            const inMd =
-                !!dropdownRefMd.current && dropdownRefMd.current.contains(t);
-            if (!inLg && !inMd) setOpenDropdown(null);
+            if (navRowRef.current && !navRowRef.current.contains(t)) {
+                setOpenDropdown(null);
+            }
             if (userMenuRef.current && !userMenuRef.current.contains(t)) {
                 setIsUserMenuOpen(false);
             }
@@ -90,12 +83,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
             if (y > 120) {
                 if (y > lastScrollY.current + 6) {
-                    // Scrolling down — hide header and close open menus
                     setIsHidden(true);
                     setOpenDropdown(null);
                     setIsUserMenuOpen(false);
                 } else if (y < lastScrollY.current - 6) {
-                    // Scrolling up — reveal header
                     setIsHidden(false);
                 }
             } else {
@@ -109,275 +100,245 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    // ⌘K / Ctrl+K → open desktop overlay; Escape → close everything
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-                e.preventDefault();
-                setIsDesktopSearchOpen(true);
-            }
-            if (e.key === "Escape") {
-                setIsDesktopSearchOpen(false);
-                setIsMobileSearchOpen(false);
-            }
-        };
-        document.addEventListener("keydown", handler);
-        return () => document.removeEventListener("keydown", handler);
-    }, []);
-
     const featuredCategories = menuCategories.slice(0, 8);
     const featuredBrands = menuBrands.slice(0, 8);
 
     return (
         <>
             <header
-                className={`sticky top-0 z-40 border-b border-gray-100 transition-all duration-300 ${
-                    isHidden ? "-translate-y-full shadow-none" : "translate-y-0"
-                } ${
-                    isScrolled
-                        ? "bg-white/95 backdrop-blur-md shadow-sm"
-                        : "bg-white"
+                className={`sticky top-0 z-40 transition-transform duration-300 ${
+                    isHidden ? "-translate-y-full" : "translate-y-0"
                 }`}
             >
-                {/* ── Main row ── */}
-                <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16 gap-3">
-                        <div className="flex items-center gap-2">
-                            <Logo />
-                        </div>
-                        {/* Center: nav (lg+) | inline search (md only) */}
-                        <div className="flex-1 flex items-center justify-center min-w-0">
-                            {/* lg+: desktop nav */}
-                            <div
-                                ref={dropdownRefLg}
-                                className="hidden lg:flex items-center gap-1"
-                            >
-                                <DesktopNav
-                                    categories={menuCategories}
-                                    featuredCategories={featuredCategories}
-                                    brands={menuBrands}
-                                    featuredBrands={featuredBrands}
-                                    openDropdown={openDropdown}
-                                    setOpenDropdown={setOpenDropdown}
-                                    blogEnabled={Boolean(blogEnabled)}
-                                />
+                {/* ── Row 1: Brand bar (dark) ── */}
+                <div
+                    className={`bg-brand-dark transition-shadow duration-300 ${
+                        isScrolled ? "shadow-lg shadow-black/20" : ""
+                    }`}
+                >
+                    <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-14 gap-3">
+                            {/* Left: hamburger (mobile) + logo */}
+                            <div className="flex items-center gap-2 shrink-0">
+                                <div className="md:hidden">
+                                    <MobileMenuButton onClick={onMenuClick} />
+                                </div>
+                                <Logo />
                             </div>
 
-                            {/* md only: inline search bar */}
-                            <div className="hidden md:flex lg:hidden w-full max-w-lg">
+                            {/* Center: search bar (md+) */}
+                            <div className="hidden md:flex flex-1 max-w-sm lg:max-w-lg xl:max-w-xl">
                                 <SearchAutocomplete />
                             </div>
-                        </div>
 
-                        {/* Right: actions */}
-                        <div className="flex items-center gap-1.5 shrink-0">
-                            {/* lg+: search icon trigger */}
-                            <button
-                                onClick={() => setIsDesktopSearchOpen(true)}
-                                className="hidden lg:flex p-2.5 text-gray-500 px-2 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                                aria-label="Search"
-                                title="Search (⌘K)"
-                            >
-                                <Search size={20} strokeWidth={2} />
-                            </button>
-
-                            {/* Cart */}
-                            <button
-                                onClick={() => setIsOpen(true)}
-                                className="flex items-center gap-2 mx-2  rounded-full transition-colors text-sm font-medium"
-                            >
-                                <CartIcon
-                                    count={cartCount}
-                                    className="text-gray-950"
-                                />
-                            </button>
-
-                            {/* Mobile: search toggle */}
-                            <div className="md:hidden px-2">
-                                <SearchToggle
-                                    onClick={() => setIsMobileSearchOpen(true)}
-                                />
-                            </div>
-                            {/* Auth — desktop (md+) */}
-                            {customerAuthActive && (
-                                <div className="hidden md:flex items-center">
-                                    {isLoggedIn ? (
-                                        <div
-                                            ref={userMenuRef}
-                                            className="relative"
-                                        >
-                                            <button
-                                                onClick={() =>
-                                                    setIsUserMenuOpen((v) => !v)
-                                                }
-                                                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-full hover:bg-gray-100 transition-colors group"
-                                            >
-                                                <span className="hidden lg:block text-sm font-medium text-gray-700 group-hover:text-gray-900 max-w-[80px] truncate">
-                                                    {userName}
-                                                </span>
-                                                <span className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-bold shrink-0 ring-2 ring-white group-hover:ring-gray-200 transition-all">
-                                                    {userInitial}
-                                                </span>
-
-                                                <ChevronDown
-                                                    size={14}
-                                                    className={`hidden lg:block text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? "rotate-180" : ""}`}
-                                                />
-                                            </button>
-
-                                            {isUserMenuOpen && (
-                                                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-black/5 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                                                    {/* User info header */}
-                                                    <div className="px-4 py-3 border-b border-gray-100">
-                                                        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-                                                            Signed in as
-                                                        </p>
-                                                        <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">
-                                                            {auth?.user?.name}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="py-1">
-                                                        <Link
-                                                            href={route(
-                                                                "account.dashboard",
-                                                            )}
-                                                            onClick={() =>
-                                                                setIsUserMenuOpen(
-                                                                    false,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                                        >
-                                                            <LayoutDashboard
-                                                                size={16}
-                                                                className="text-gray-400"
-                                                            />
-                                                            Dashboard
-                                                        </Link>
-                                                        <Link
-                                                            href={route(
-                                                                "account.orders",
-                                                            )}
-                                                            onClick={() =>
-                                                                setIsUserMenuOpen(
-                                                                    false,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                                        >
-                                                            <ShoppingBag
-                                                                size={16}
-                                                                className="text-gray-400"
-                                                            />
-                                                            My Orders
-                                                        </Link>
-                                                        <Link
-                                                            href={route(
-                                                                "account.addresses",
-                                                            )}
-                                                            onClick={() =>
-                                                                setIsUserMenuOpen(
-                                                                    false,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                                        >
-                                                            <MapPin
-                                                                size={16}
-                                                                className="text-gray-400"
-                                                            />
-                                                            Addresses
-                                                        </Link>
-                                                        <Link
-                                                            href={route(
-                                                                "account.profile",
-                                                            )}
-                                                            onClick={() =>
-                                                                setIsUserMenuOpen(
-                                                                    false,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                                        >
-                                                            <Settings
-                                                                size={16}
-                                                                className="text-gray-400"
-                                                            />
-                                                            Settings
-                                                        </Link>
-                                                    </div>
-
-                                                    <div className="border-t border-gray-100 py-1">
-                                                        <Link
-                                                            href={route(
-                                                                "logout",
-                                                            )}
-                                                            method="post"
-                                                            as="button"
-                                                            onClick={() =>
-                                                                setIsUserMenuOpen(
-                                                                    false,
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                                        >
-                                                            <LogOut size={16} />
-                                                            Sign out
-                                                        </Link>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <Link
-                                                href={route("login")}
-                                                className="px-3.5 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                                            >
-                                                Login
-                                            </Link>
-                                            <Link
-                                                href={route("register")}
-                                                className="px-3.5 py-1.5 text-sm font-medium bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors"
-                                            >
-                                                Register
-                                            </Link>
-                                        </div>
-                                    )}
+                            {/* Right: actions */}
+                            <div className="flex items-center gap-1 shrink-0">
+                                {/* Mobile search toggle */}
+                                <div className="md:hidden">
+                                    <SearchToggle
+                                        onClick={() =>
+                                            setIsMobileSearchOpen(true)
+                                        }
+                                    />
                                 </div>
-                            )}
 
-                            {/* Mobile: account icon (logged-in only) */}
-                            {customerAuthActive && isLoggedIn && (
-                                <Link
-                                    href={route("account.dashboard")}
-                                    className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
-                                    aria-label="My account"
+                                {/* Cart */}
+                                <button
+                                    onClick={() => setIsOpen(true)}
+                                    className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                    aria-label="Open cart"
                                 >
-                                    <User size={20} />
-                                </Link>
-                            )}
+                                    <CartIcon count={cartCount} />
+                                </button>
+
+                                {/* Auth — desktop (md+) */}
+                                {customerAuthActive && (
+                                    <div className="hidden md:flex items-center ml-1">
+                                        {isLoggedIn ? (
+                                            <div
+                                                ref={userMenuRef}
+                                                className="relative"
+                                            >
+                                                <button
+                                                    onClick={() =>
+                                                        setIsUserMenuOpen(
+                                                            (v) => !v,
+                                                        )
+                                                    }
+                                                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-white/10 transition-colors group"
+                                                >
+                                                    <span className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center text-sm font-bold shrink-0">
+                                                        {userInitial}
+                                                    </span>
+                                                    <span className="hidden lg:block text-sm font-medium text-white/80 group-hover:text-white max-w-[80px] truncate">
+                                                        {userName}
+                                                    </span>
+                                                    <ChevronDown
+                                                        size={14}
+                                                        className={`hidden lg:block text-white/40 transition-transform duration-200 ${
+                                                            isUserMenuOpen
+                                                                ? "rotate-180"
+                                                                : ""
+                                                        }`}
+                                                    />
+                                                </button>
+
+                                                {isUserMenuOpen && (
+                                                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-black/5 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                                                        <div className="px-4 py-3 border-b border-gray-100">
+                                                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+                                                                Signed in as
+                                                            </p>
+                                                            <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">
+                                                                {auth?.user?.name}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="py-1">
+                                                            <Link
+                                                                href={route(
+                                                                    "account.dashboard",
+                                                                )}
+                                                                onClick={() =>
+                                                                    setIsUserMenuOpen(
+                                                                        false,
+                                                                    )
+                                                                }
+                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-bg hover:text-brand-primary transition-colors"
+                                                            >
+                                                                <LayoutDashboard
+                                                                    size={16}
+                                                                    className="text-gray-400"
+                                                                />
+                                                                Dashboard
+                                                            </Link>
+                                                            <Link
+                                                                href={route(
+                                                                    "account.orders",
+                                                                )}
+                                                                onClick={() =>
+                                                                    setIsUserMenuOpen(
+                                                                        false,
+                                                                    )
+                                                                }
+                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-bg hover:text-brand-primary transition-colors"
+                                                            >
+                                                                <ShoppingBag
+                                                                    size={16}
+                                                                    className="text-gray-400"
+                                                                />
+                                                                My Orders
+                                                            </Link>
+                                                            <Link
+                                                                href={route(
+                                                                    "account.addresses",
+                                                                )}
+                                                                onClick={() =>
+                                                                    setIsUserMenuOpen(
+                                                                        false,
+                                                                    )
+                                                                }
+                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-bg hover:text-brand-primary transition-colors"
+                                                            >
+                                                                <MapPin
+                                                                    size={16}
+                                                                    className="text-gray-400"
+                                                                />
+                                                                Addresses
+                                                            </Link>
+                                                            <Link
+                                                                href={route(
+                                                                    "account.profile",
+                                                                )}
+                                                                onClick={() =>
+                                                                    setIsUserMenuOpen(
+                                                                        false,
+                                                                    )
+                                                                }
+                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-brand-bg hover:text-brand-primary transition-colors"
+                                                            >
+                                                                <Settings
+                                                                    size={16}
+                                                                    className="text-gray-400"
+                                                                />
+                                                                Settings
+                                                            </Link>
+                                                        </div>
+
+                                                        <div className="border-t border-gray-100 py-1">
+                                                            <Link
+                                                                href={route(
+                                                                    "logout",
+                                                                )}
+                                                                method="post"
+                                                                as="button"
+                                                                onClick={() =>
+                                                                    setIsUserMenuOpen(
+                                                                        false,
+                                                                    )
+                                                                }
+                                                                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg transition-colors"
+                                                            >
+                                                                <LogOut
+                                                                    size={16}
+                                                                />
+                                                                Sign out
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <Link
+                                                    href={route("login")}
+                                                    className="px-3.5 py-1.5 text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                                >
+                                                    Login
+                                                </Link>
+                                                <Link
+                                                    href={route("register")}
+                                                    className="px-3.5 py-1.5 text-sm font-semibold bg-brand-primary text-white rounded-full hover:bg-brand-primary/85 transition-colors"
+                                                >
+                                                    Register
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Mobile: account icon (logged-in only) */}
+                                {customerAuthActive && isLoggedIn && (
+                                    <Link
+                                        href={route("account.dashboard")}
+                                        className="md:hidden p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                        aria-label="My account"
+                                    >
+                                        <User size={20} />
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ── md-only navigation row ── */}
-                <div className="hidden md:block lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur">
+                {/* ── Row 2: Navigation bar (md+) ── */}
+                <div className="hidden md:block bg-brand-ivory border-b border-brand-primary/15">
                     <div
-                        ref={dropdownRefMd}
-                        className="max-w-7xl mx-auto px-4 sm:px-6 py-1.5"
+                        ref={navRowRef}
+                        className="max-w-full mx-auto px-4 sm:px-6 lg:px-8"
                     >
-                        <DesktopNav
-                            categories={menuCategories}
-                            featuredCategories={featuredCategories}
-                            brands={menuBrands}
-                            featuredBrands={featuredBrands}
-                            openDropdown={openDropdown}
-                            setOpenDropdown={setOpenDropdown}
-                            blogEnabled={Boolean(blogEnabled)}
-                            isMdRow={true}
-                        />
+                        <div className="flex items-center gap-0.5 h-11">
+                            <DesktopNav
+                                categories={menuCategories}
+                                featuredCategories={featuredCategories}
+                                brands={menuBrands}
+                                featuredBrands={featuredBrands}
+                                openDropdown={openDropdown}
+                                setOpenDropdown={setOpenDropdown}
+                                blogEnabled={Boolean(blogEnabled)}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -385,7 +346,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                 {isMobileSearchOpen && (
                     <div className="fixed inset-0 z-50 md:hidden search-backdrop-in">
                         <div
-                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                             onClick={() => setIsMobileSearchOpen(false)}
                         />
                         <div className="absolute top-0 left-0 right-0 bg-white shadow-2xl rounded-b-2xl search-panel-in">
@@ -409,38 +370,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                     </div>
                 )}
             </header>
-
-            {/* ── Desktop search overlay (lg+) ── */}
-            {isDesktopSearchOpen && (
-                <div
-                    className="fixed inset-0 z-50 hidden lg:flex items-start justify-center pt-20 px-4 search-backdrop-in"
-                    onClick={() => setIsDesktopSearchOpen(false)}
-                >
-                    {/* Backdrop */}
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-
-                    {/* Search panel */}
-                    <div
-                        className="relative w-full max-w-2xl search-panel-in"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="bg-white rounded-2xl shadow-[0_25px_60px_-10px_rgba(0,0,0,0.25)] ring-1 ring-black/5">
-                            <SearchAutocomplete
-                                isOverlay
-                                autoFocus
-                                onClose={() => setIsDesktopSearchOpen(false)}
-                            />
-                        </div>
-                        <p className="text-center text-xs text-white/60 mt-3">
-                            Press{" "}
-                            <kbd className="px-1.5 py-0.5 bg-white/20 rounded text-white text-[10px]">
-                                Esc
-                            </kbd>{" "}
-                            to close
-                        </p>
-                    </div>
-                </div>
-            )}
         </>
     );
 };

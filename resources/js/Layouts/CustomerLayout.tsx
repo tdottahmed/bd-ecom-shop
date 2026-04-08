@@ -55,7 +55,7 @@ function ScrollToTopButton({
                     cy="18"
                     r={RING_R}
                     fill="none"
-                    stroke="#6366f1"
+                    stroke="#E11D6D"
                     strokeWidth="2"
                     strokeDasharray={`${RING_CIRCUM}`}
                     strokeDashoffset={`${RING_CIRCUM}`}
@@ -212,7 +212,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-inter antialiased flex flex-col justify-between relative">
+        <div className="min-h-screen bg-brand-ivory font-inter antialiased flex flex-col justify-between relative">
             <Head>
                 <title>{seo?.defaultTitle || "Home"}</title>
                 {seo?.defaultDescription && <meta name="description" content={seo.defaultDescription} />}
@@ -248,7 +248,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             */}
             <div
                 ref={progressBarRef}
-                className="fixed top-0 left-0 z-[60] h-[2.5px] w-full origin-left pointer-events-none bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+                className="fixed top-0 left-0 z-[60] h-[2.5px] w-full origin-left pointer-events-none bg-gradient-to-r from-brand-primary via-brand-tint to-brand-accent"
                 style={{ transform: "scaleX(0)" }}
                 aria-hidden="true"
             />
@@ -287,8 +287,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                                     </span>
                                     <HeadphonesIcon size={24} strokeWidth={1.7} className="text-zinc-700 group-hover:text-black transition-colors" />
                                     <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-[2.5px] border-white drop-shadow-sm" />
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-success opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-brand-success border-[2.5px] border-white drop-shadow-sm" />
                                     </span>
                                 </button>
 
@@ -360,7 +360,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                 {cartItemCount > 0 && !isCheckoutPage && (
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="md:hidden pointer-events-auto bg-zinc-900 text-white px-6 py-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex items-center gap-3 hover:bg-black transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
+                        className="md:hidden pointer-events-auto bg-brand-primary text-white px-6 py-4 rounded-full shadow-[0_8px_30px_rgba(225,29,109,0.35)] flex items-center gap-3 hover:bg-brand-primary/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
                     >
                         <div className="relative">
                             <ShoppingBag size={22} strokeWidth={1.5} />

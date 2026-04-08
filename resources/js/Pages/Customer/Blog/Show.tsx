@@ -15,7 +15,7 @@ export default function BlogShow({ post, related }: Props) {
         <CustomerLayout>
             <Head title={post.title} />
 
-            <div className="relative min-h-screen bg-[#fafcff] pb-24 selection:bg-[#2DE3A7] selection:text-white font-sans">
+            <div className="relative min-h-screen bg-brand-ivory pb-24 selection:bg-brand-primary selection:text-white font-sans">
                 {/* Immersive Cover Image Hero */}
                 <div className="relative w-full h-[65vh] min-h-[500px] overflow-hidden bg-slate-900">
                     <img
@@ -59,7 +59,7 @@ export default function BlogShow({ post, related }: Props) {
                 {/* Floating Article Body */}
                 <article className="relative z-20 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-24">
                     <div
-                        className="prose prose-slate prose-lg md:prose-xl max-w-none rounded-[2.5rem] bg-white p-8 sm:p-12 lg:p-16 shadow-[0_20px_50px_rgba(0,0,0,0.06)] ring-1 ring-slate-100 prose-headings:font-bold prose-headings:tracking-tight prose-a:text-emerald-600 hover:prose-a:text-emerald-500 prose-img:rounded-3xl prose-img:shadow-xl prose-img:ring-1 prose-img:ring-slate-100"
+                        className="prose prose-slate prose-lg md:prose-xl max-w-none rounded-[2.5rem] bg-white p-8 sm:p-12 lg:p-16 shadow-[0_20px_50px_rgba(0,0,0,0.06)] ring-1 ring-slate-100 prose-headings:font-bold prose-headings:tracking-tight prose-a:text-brand-primary hover:prose-a:text-brand-primary/80 prose-img:rounded-3xl prose-img:shadow-xl prose-img:ring-1 prose-img:ring-slate-100"
                         dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
                     />
                 </article>
@@ -77,7 +77,7 @@ export default function BlogShow({ post, related }: Props) {
                                 <Link
                                     key={item.id}
                                     href={route("blog.show", item.slug)}
-                                    className="group relative flex flex-col items-start overflow-hidden rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                                    className="group relative flex flex-col items-start overflow-hidden rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:ring-offset-2"
                                 >
                                     <div className="aspect-[16/10] w-full overflow-hidden bg-slate-50 border-b border-slate-100 relative">
                                         <img
@@ -90,14 +90,14 @@ export default function BlogShow({ post, related }: Props) {
                                         <div className="absolute inset-0 rounded-t-[2rem] ring-1 ring-inset ring-slate-900/5 pointer-events-none" />
                                     </div>
                                     <div className="p-8 w-full flex-grow flex flex-col">
-                                        <h3 className="text-2xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-emerald-600 line-clamp-2">
+                                        <h3 className="text-2xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-brand-primary line-clamp-2">
                                             {item.title}
                                         </h3>
                                         <p className="mt-4 line-clamp-2 text-sm sm:text-base leading-relaxed text-slate-600 flex-grow">
                                             {item.excerpt ||
                                                 "Explore this article for more details."}
                                         </p>
-                                        <div className="mt-8 flex items-center text-sm font-bold text-slate-900 transition-colors group-hover:text-emerald-500">
+                                        <div className="mt-8 flex items-center text-sm font-bold text-slate-900 transition-colors group-hover:text-brand-primary">
                                             Read article
                                             <ChevronRight
                                                 size={18}

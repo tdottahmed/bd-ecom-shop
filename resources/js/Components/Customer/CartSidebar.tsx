@@ -108,28 +108,28 @@ const CartSidebar = () => {
                                 onClick={() => setActiveTab("cart")}
                                 className={`flex items-center gap-2 pb-2 text-sm font-semibold transition-colors relative ${
                                     activeTab === "cart"
-                                        ? "text-gray-900"
+                                        ? "text-brand-primary"
                                         : "text-gray-400 hover:text-gray-600"
                                 }`}
                             >
                                 <ShoppingCart size={18} />
                                 Cart({cartItems.length})
                                 {activeTab === "cart" && (
-                                    <span className="absolute bottom-[-17px] left-0 w-full h-0.5 bg-gray-900" />
+                                    <span className="absolute bottom-[-17px] left-0 w-full h-0.5 bg-brand-primary" />
                                 )}
                             </button>
                             <button
                                 onClick={() => setActiveTab("orders")}
                                 className={`flex items-center gap-2 pb-2 text-sm font-semibold transition-colors relative ${
                                     activeTab === "orders"
-                                        ? "text-gray-900"
+                                        ? "text-brand-primary"
                                         : "text-gray-400 hover:text-gray-600"
                                 }`}
                             >
                                 <History size={18} />
                                 Orders
                                 {activeTab === "orders" && (
-                                    <span className="absolute bottom-[-17px] left-0 w-full h-0.5 bg-gray-900" />
+                                    <span className="absolute bottom-[-17px] left-0 w-full h-0.5 bg-brand-primary" />
                                 )}
                             </button>
                         </div>
@@ -156,7 +156,7 @@ const CartSidebar = () => {
                                         </p>
                                         <button
                                             onClick={onClose}
-                                            className="text-indigo-600 hover:text-indigo-700 font-medium"
+                                            className="text-brand-primary hover:text-brand-primary/80 font-medium"
                                         >
                                             Continue Shopping
                                         </button>
@@ -185,7 +185,7 @@ const CartSidebar = () => {
                                         <span>{formatPrice(cartTotal)}</span>
                                     </div>
                                     {productSavings > 0 && (
-                                        <div className="flex items-center justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
+                                        <div className="flex items-center justify-between text-sm text-brand-success font-medium bg-brand-success/10 rounded-lg px-3 py-2">
                                             <span className="flex items-center gap-1.5">
                                                 <Sparkles size={14} />
                                                 Product discount
@@ -194,7 +194,7 @@ const CartSidebar = () => {
                                         </div>
                                     )}
                                     {discountAmount > 0 && (
-                                        <div className="flex items-center justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
+                                        <div className="flex items-center justify-between text-sm text-brand-success font-medium bg-brand-success/10 rounded-lg px-3 py-2">
                                             <span>Quantity discount</span>
                                             <span>-{formatPrice(discountAmount)}</span>
                                         </div>
@@ -210,7 +210,7 @@ const CartSidebar = () => {
                                 <div className="flex flex-col gap-3">
                                     <Link
                                         href={route("checkout.index")}
-                                        className="w-full flex items-center justify-center gap-2 rounded-full bg-gray-900 px-6 py-4 text-base font-bold text-white shadow-lg hover:bg-gray-800 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:translate-y-0 active:shadow-md"
+                                        className="w-full flex items-center justify-center gap-2 rounded-full bg-brand-primary px-6 py-4 text-base font-bold text-white shadow-[0_8px_24px_rgba(225,29,109,0.35)] hover:bg-brand-primary/90 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 active:translate-y-0 active:shadow-md"
                                         onClick={handleCheckout}
                                     >
                                         Proceed to Checkout

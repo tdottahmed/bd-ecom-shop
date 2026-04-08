@@ -141,7 +141,7 @@ const Hero: React.FC<HeroProps> = ({ bannerImages, bannerActive = false, content
                     <div className="animate-fade-in-up-hero" style={{ animationDelay: '600ms' }}>
                         <Link
                             href={content?.button_link || route("products.index")}
-                            className="group inline-flex items-center justify-center gap-3 bg-slate-900 px-8 py-4 md:px-12 md:py-5 text-[11px] sm:text-xs md:text-sm font-extrabold tracking-[0.2em] text-white transition-all duration-300 hover:bg-slate-800 hover:shadow-[0_12px_30px_rgba(15,23,42,0.4)] hover:-translate-y-1 uppercase rounded-full shadow-xl"
+                            className="group inline-flex items-center justify-center gap-3 bg-brand-primary px-8 py-4 md:px-12 md:py-5 text-[11px] sm:text-xs md:text-sm font-extrabold tracking-[0.2em] text-white transition-all duration-300 hover:bg-brand-primary/90 hover:shadow-[0_12px_30px_rgba(225,29,109,0.45)] hover:-translate-y-1 uppercase rounded-full shadow-xl"
                         >
                             <span>{content?.button_text || "Shop New Arrivals"}</span>
                             <ChevronRight size={16} strokeWidth={3} className="transition-transform duration-300 group-hover:translate-x-1" />

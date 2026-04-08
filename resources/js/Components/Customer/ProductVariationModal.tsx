@@ -312,7 +312,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 {product.name}
                                             </h4>
                                             {/* Show base price or range here since dynamic price is per-item now */}
-                                            <div className="text-indigo-600 font-bold mt-1 text-lg">
+                                            <div className="text-brand-primary font-bold mt-1 text-lg">
                                                 {useMemo(() => {
                                                     const priceVariation = Object.values(selectedVariations)
                                                         .find(v => v.price !== null && v.price !== undefined && parseFloat(String(v.price)) > 0);
@@ -404,7 +404,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                         isOutOfStock
                                                                             ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
                                                                             : isSelected
-                                                                                ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
+                                                                                ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
                                                                                 : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
                                                                     } rounded-lg group`}
                                                                 >
@@ -459,7 +459,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                         <h5 className="font-semibold text-gray-900 mb-3 text-sm flex items-center justify-between">
                                             <span>Your Selection </span>
                                             {cartBatch.length > 0 && (
-                                                <span className="text-indigo-600 text-xs font-normal">
+                                                <span className="text-brand-primary text-xs font-normal">
                                                     {cartBatch.length} items
                                                 </span>
                                             )}
@@ -515,7 +515,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                 key={index}
                                                                 className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                                                                     isCurrent
-                                                                        ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-100"
+                                                                        ? "bg-brand-bg border-brand-bg ring-1 ring-brand-bg"
                                                                         : "bg-white border-gray-200 hover:border-gray-300"
                                                                 }`}
                                                             >
@@ -644,9 +644,9 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                 <div className="mt-6 flex flex-col gap-3">
                                     <button
                                         type="button"
-                                        className={`w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
+                                        className={`w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
                                             cartBatch.length > 0
-                                                ? "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
+                                                ? "bg-brand-primary hover:bg-brand-primary/90 hover:shadow-lg"
                                                 : "bg-gray-300 cursor-not-allowed"
                                         }`}
                                         onClick={handleAddToCart}

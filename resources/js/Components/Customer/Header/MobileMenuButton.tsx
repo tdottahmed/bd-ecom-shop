@@ -10,10 +10,10 @@ const MobileMenuButton: React.FC<MobileMenuButtonProps> = ({ onClick }) => {
         <button
             type="button"
             onClick={onClick}
-            className="p-2 -ml-2 rounded-md text-gray-600 hover:text-gray-900"
+            className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             aria-label="Open menu"
         >
-            <Menu size={24} />
+            <Menu size={22} />
         </button>
     );
 };

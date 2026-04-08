@@ -11,9 +11,9 @@ const CartIcon: React.FC<CartIconProps> = ({ count, className = "" }) => {
         <div
             className={`relative inline-flex items-center justify-center ${className}`}
         >
-            <ShoppingCart size={24} />
+            <ShoppingCart size={22} />
             {count > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
                     {count}
                 </span>
             )}

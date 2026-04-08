@@ -107,7 +107,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between px-6 py-12 md:px-16 md:py-20 min-h-[400px]">
                 {/* Left Content */}
                 <div className="w-full lg:w-3/5 flex flex-col items-start text-left">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-xs sm:text-sm font-semibold mb-6 backdrop-blur-md border border-amber-500/20 uppercase tracking-wider shadow-sm">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-brand-accent/10 text-brand-accent text-xs sm:text-sm font-semibold mb-6 backdrop-blur-md border border-brand-accent/20 uppercase tracking-wider shadow-sm">
                         <Sparkles className="w-4 h-4" />
                         <span>{badge}</span>
                     </div>
@@ -123,22 +123,22 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
                     {/* Countdown Timer */}
                     <div className="flex items-center gap-3 sm:gap-4 mb-10">
                         <div className="flex flex-col items-center justify-center bg-white/10 border border-white/20 backdrop-blur-md rounded-xl w-16 h-16 sm:w-20 sm:h-20 shadow-lg">
-                            <span className="text-2xl sm:text-3xl font-bold text-amber-400">{String(timeLeft.days).padStart(2, '0')}</span>
+                            <span className="text-2xl sm:text-3xl font-bold text-brand-accent">{String(timeLeft.days).padStart(2, '0')}</span>
                             <span className="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-medium mt-1">Days</span>
                         </div>
                         <span className="text-2xl font-bold text-white/50 -mt-4 animate-pulse">:</span>
                         <div className="flex flex-col items-center justify-center bg-white/10 border border-white/20 backdrop-blur-md rounded-xl w-16 h-16 sm:w-20 sm:h-20 shadow-lg">
-                            <span className="text-2xl sm:text-3xl font-bold text-amber-400">{String(timeLeft.hours).padStart(2, '0')}</span>
+                            <span className="text-2xl sm:text-3xl font-bold text-brand-accent">{String(timeLeft.hours).padStart(2, '0')}</span>
                             <span className="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-medium mt-1">Hours</span>
                         </div>
                         <span className="text-2xl font-bold text-white/50 -mt-4 animate-pulse">:</span>
                         <div className="flex flex-col items-center justify-center bg-white/10 border border-white/20 backdrop-blur-md rounded-xl w-16 h-16 sm:w-20 sm:h-20 shadow-lg">
-                            <span className="text-2xl sm:text-3xl font-bold text-amber-400">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                            <span className="text-2xl sm:text-3xl font-bold text-brand-accent">{String(timeLeft.minutes).padStart(2, '0')}</span>
                             <span className="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-medium mt-1">Mins</span>
                         </div>
                         <span className="text-2xl font-bold text-white/50 -mt-4 animate-pulse">:</span>
                         <div className="flex flex-col items-center justify-center bg-white/10 border border-white/20 backdrop-blur-md rounded-xl w-16 h-16 sm:w-20 sm:h-20 shadow-lg">
-                            <span className="text-2xl sm:text-3xl font-bold text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                            <span className="text-2xl sm:text-3xl font-bold text-brand-accent">{String(timeLeft.seconds).padStart(2, '0')}</span>
                             <span className="text-[10px] sm:text-xs text-slate-300 uppercase tracking-wider font-medium mt-1">Secs</span>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                         <button
                             onClick={handleShopClick}
-                            className="group inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-900 bg-gradient-to-r from-amber-400 to-amber-300 rounded-xl hover:from-amber-300 hover:to-amber-200 transition-all duration-300 shadow-[0_10px_30px_rgba(251,191,36,0.3)] hover:shadow-[0_15px_40px_rgba(251,191,36,0.5)] hover:-translate-y-1 w-full sm:w-auto overflow-hidden relative"
+                            className="group inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-brand-primary to-brand-tint rounded-xl hover:from-brand-primary/90 hover:to-brand-tint/90 transition-all duration-300 shadow-[0_10px_30px_rgba(225,29,109,0.35)] hover:shadow-[0_15px_40px_rgba(225,29,109,0.5)] hover:-translate-y-1 w-full sm:w-auto overflow-hidden relative"
                         >
                             <span className="absolute inset-0 w-full h-full bg-white/30 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                             <ShoppingBag className="w-5 h-5 mr-2" />
@@ -166,7 +166,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
                 <div className="hidden lg:flex w-2/5 flex-col gap-6 items-end mt-12 md:mt-0">
                     <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl w-full max-w-[340px] transform transition-all duration-500 hover:translate-x-[-15px] hover:bg-slate-800/80 shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-default group/card">
                         <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 shadow-lg group-hover/card:scale-110 transition-transform duration-300">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-accent to-brand-primary flex items-center justify-center shrink-0 shadow-lg group-hover/card:scale-110 transition-transform duration-300">
                                 <Sparkles className="w-7 h-7 text-white" />
                             </div>
                             <div>
@@ -178,7 +178,7 @@ const PromoBanner: React.FC<PromoBannerProps> = ({
                     
                     <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl w-full max-w-[340px] transform transition-all duration-500 hover:translate-x-[-15px] hover:bg-slate-800/80 shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-default group/card translate-x-4">
                         <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0 shadow-lg group-hover/card:scale-110 transition-transform duration-300">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-success to-teal-600 flex items-center justify-center shrink-0 shadow-lg group-hover/card:scale-110 transition-transform duration-300">
                                 <Clock className="w-7 h-7 text-white" />
                             </div>
                             <div>

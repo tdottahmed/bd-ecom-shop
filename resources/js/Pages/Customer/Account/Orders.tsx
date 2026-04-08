@@ -7,11 +7,11 @@ import { ChevronRight, FileText, Package } from "lucide-react";
 function statusBadgeClass(status: string): string {
     switch (status) {
         case "completed":
-            return "bg-emerald-50 text-emerald-800 ring-emerald-600/20";
+            return "bg-brand-success/10 text-brand-success ring-brand-success/20";
         case "shipping":
             return "bg-sky-50 text-sky-800 ring-sky-600/20";
         case "preparing":
-            return "bg-amber-50 text-amber-800 ring-amber-600/20";
+            return "bg-brand-accent/10 text-brand-accent ring-brand-accent/20";
         case "cancelled":
         case "returned":
             return "bg-red-50 text-red-800 ring-red-600/20";

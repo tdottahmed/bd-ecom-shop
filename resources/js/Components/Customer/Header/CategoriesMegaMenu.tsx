@@ -89,13 +89,13 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                     onMouseEnter();
                 }}
                 onClick={onToggle}
-                className="px-2 py-2 md:px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-full transition-colors inline-flex items-center gap-2"
+                className="px-3 py-1.5 text-sm font-medium text-brand-dark hover:text-brand-primary hover:bg-brand-bg rounded-full transition-colors inline-flex items-center gap-1.5"
                 aria-expanded={isOpen}
             >
                 Categories
                 <ChevronDown
-                    size={16}
-                    className={`text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    size={15}
+                    className={`text-brand-dark/40 transition-transform duration-200 ${isOpen ? "rotate-180 text-brand-primary" : ""}`}
                 />
             </button>
 
@@ -108,7 +108,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                         onMouseLeave={scheduleClose}
                     />
                     <div
-                        className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-16 xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                        className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-[100px] xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
                         onMouseEnter={cancelClose}
                         onMouseLeave={scheduleClose}
                     >
@@ -142,8 +142,8 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                                     className={`flex items-center gap-3 px-2 py-2 rounded-xl group transition-colors ${
                                                         activeCategory?.slug ===
                                                         c.slug
-                                                            ? "bg-gray-100"
-                                                            : "hover:bg-gray-50"
+                                                            ? "bg-brand-bg text-brand-primary"
+                                                            : "hover:bg-brand-bg/60"
                                                     }`}
                                                 >
                                                     <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
@@ -172,7 +172,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                     <Link
                                         href={route("products.index")}
                                         onClick={onClose}
-                                        className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-colors"
+                                        className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-brand-primary/10 hover:bg-brand-primary/15 text-brand-primary text-sm font-medium rounded-xl transition-colors"
                                     >
                                         <LayoutGrid size={14} />
                                         Browse All
@@ -226,7 +226,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                                                         )}
                                                     </div>
                                                     <div className="flex-1 flex flex-col justify-between">
-                                                        <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-blue-600 transition-colors leading-tight">
+                                                        <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-brand-primary transition-colors leading-tight">
                                                             {p.name}
                                                         </h4>
                                                         <div className="text-[11px] font-bold text-gray-900 mt-auto">
