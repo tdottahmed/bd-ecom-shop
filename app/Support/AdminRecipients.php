@@ -19,39 +19,40 @@ class AdminRecipients
             $raw === '' ? [] : explode(',', $raw)
         )));
 
-        $fromSettings = [];
-        try {
-            $contactEmail = (string) get_setting('contact_email');
-            if ($contactEmail !== '') {
-                $fromSettings[] = $contactEmail;
-            }
-        } catch (\Throwable) {
-            // settings helper may not be available in some contexts
-        }
+        // NOTE: contact_email is the store's public contact address shown to customers.
+        // It must NOT be used here — it would route notifications to a customer account.
+        // Configure ADMIN_NOTIFICATION_EMAILS in .env to override the default admin user.
 
         $fallback = array_filter([
             config('mail.from.address'),
         ]);
 
-        return array_values(array_unique(array_filter(array_merge($fromEnv, $fromSettings, $fallback))));
+        return array_values(array_unique(array_filter(array_merge($fromEnv, $fallback))));
     }
 
     /**
      * Users that should receive in-app (DB) notifications.
+     * Always resolves to admin users only — never customer accounts.
      */
     public static function users(): Collection
     {
-        $emails = self::emails();
+        $raw = (string) env('ADMIN_NOTIFICATION_EMAILS', '');
 
-        if (! empty($emails)) {
-            $users = User::query()->whereIn('email', $emails)->get();
-            if ($users->isNotEmpty()) {
-                return $users;
+        if ($raw !== '') {
+            $emails = array_values(array_filter(array_map(
+                static fn (string $email) => trim($email),
+                explode(',', $raw)
+            )));
+
+            if (! empty($emails)) {
+                $users = User::query()->whereIn('email', $emails)->get();
+                if ($users->isNotEmpty()) {
+                    return $users;
+                }
             }
         }
 
-        // Safe-ish fallback so the feature works in fresh installs:
-        // if no recipient emails are configured yet, notify the earliest user.
+        // Fallback: the earliest user (ID 1) is always the admin account.
         return User::query()->orderBy('id')->limit(1)->get();
     }
 }

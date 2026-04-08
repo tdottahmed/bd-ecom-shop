@@ -15,6 +15,7 @@ import CtaSettingsForm from "./Partials/CtaSettingsForm";
 import CustomerAuthSettingsForm from "./Partials/CustomerAuthSettingsForm";
 import BlogSettingsForm from "./Partials/BlogSettingsForm";
 import SmtpSettingsForm from "./Partials/SmtpSettingsForm";
+import SchedulerSettingsForm from "./Partials/SchedulerSettingsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -100,6 +101,7 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                         <>
                             <CustomerAuthSettingsForm settings={settings} />
                             <SmtpSettingsForm settings={settings} />
+                            <SchedulerSettingsForm settings={settings} />
                         </>
                     )}
                 </div>

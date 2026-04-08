@@ -25,6 +25,22 @@ function getCsrfToken(): string {
     );
 }
 
+function getXsrfTokenFromCookie(): string {
+    if (typeof document === "undefined") return "";
+    const raw = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("XSRF-TOKEN="))
+        ?.split("=")[1];
+
+    if (!raw) return "";
+
+    try {
+        return decodeURIComponent(raw);
+    } catch {
+        return raw;
+    }
+}
+
 export default function NotificationBell() {
     const { url } = usePage();
     const isAdminRoute = useMemo(() => url?.startsWith("/admin"), [url]);
@@ -113,12 +129,17 @@ export default function NotificationBell() {
 
     const markAllRead = async () => {
         try {
+            const csrf = getCsrfToken();
+            const xsrf = getXsrfTokenFromCookie();
             await fetch(route("admin.notifications.read-all"), {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
-                    "X-CSRF-TOKEN": getCsrfToken(),
+                    "X-Requested-With": "XMLHttpRequest",
+                    ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+                    ...(xsrf ? { "X-XSRF-TOKEN": xsrf } : {}),
                 },
+                credentials: "same-origin",
             });
             unreadRef.current = 0;
             setUnreadCount(0);
@@ -130,13 +151,22 @@ export default function NotificationBell() {
 
     const markRead = async (id: string) => {
         try {
-            const res = await fetch(route("admin.notifications.read", id), {
+            const csrf = getCsrfToken();
+            const xsrf = getXsrfTokenFromCookie();
+            const res = await fetch(
+                route("admin.notifications.read", { notificationId: id }),
+                {
                 method: "POST",
                 headers: {
                     Accept: "application/json",
-                    "X-CSRF-TOKEN": getCsrfToken(),
+                    "X-Requested-With": "XMLHttpRequest",
+                    ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+                    ...(xsrf ? { "X-XSRF-TOKEN": xsrf } : {}),
                 },
-            });
+                    credentials: "same-origin",
+                    keepalive: true,
+                }
+            );
             const data = await res.json().catch(() => ({}));
             if (typeof data.unread_count === "number") {
                 unreadRef.current = data.unread_count;
@@ -162,12 +192,44 @@ export default function NotificationBell() {
 
     const openNotification = async (n: AdminNotification) => {
         const actionUrl = n.data?.action_url;
+
+        // Optimistically mark read for instant UI response.
         if (n.read_at == null) {
-            await markRead(n.id);
+            unreadRef.current = Math.max(0, unreadRef.current - 1);
+            setUnreadCount((c) => Math.max(0, c - 1));
+            setItems((prev) =>
+                prev.map((item) =>
+                    item.id === n.id
+                        ? {
+                              ...item,
+                              read_at:
+                                  item.read_at ?? new Date().toISOString(),
+                          }
+                        : item
+                )
+            );
+            // Fire and forget (keepalive) so route navigation doesn't cancel it.
+            void markRead(n.id);
         }
+
         setOpen(false);
         if (actionUrl) {
-            router.visit(actionUrl);
+            try {
+                // Notifications store absolute URLs. Compare hostname only (not port)
+                // so dev (localhost:8000) and prod (localhost:80) both resolve correctly.
+                const parsed = new URL(actionUrl, window.location.origin);
+                const isSameHost = parsed.hostname === window.location.hostname;
+                const target = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+
+                if (isSameHost) {
+                    router.visit(target);
+                } else {
+                    window.location.assign(actionUrl);
+                }
+            } catch {
+                // If URL parsing fails, fall back to hard navigation.
+                window.location.assign(actionUrl);
+            }
         }
     };
 

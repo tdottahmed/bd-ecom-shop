@@ -13,7 +13,7 @@ class AdminContactMessageMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public ContactMessage $message) {}
+    public function __construct(public ContactMessage $contactMessage) {}
 
     public function envelope(): Envelope
     {

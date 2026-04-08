@@ -42,22 +42,22 @@
                 <div class="meta">
                     <div class="row">
                         <div class="label">From</div>
-                        <div class="value">{{ $message->first_name }} {{ $message->last_name }}</div>
+                        <div class="value">{{ $contactMessage->first_name }} {{ $contactMessage->last_name }}</div>
                     </div>
                     <div class="row">
                         <div class="label">Email</div>
-                        <div class="value">{{ $message->email }}</div>
+                        <div class="value">{{ $contactMessage->email }}</div>
                     </div>
                     <div class="row">
                         <div class="label">Subject</div>
-                        <div class="value">{{ $message->subject }}</div>
+                        <div class="value">{{ $contactMessage->subject }}</div>
                     </div>
                 </div>
 
-                <div class="messageBox">{{ $message->message }}</div>
+                <div class="messageBox">{{ $contactMessage->message }}</div>
 
                 <div class="cta">
-                    <a class="btn" href="{{ route('admin.contact-messages.show', $message->id) }}">View in Admin Panel</a>
+                    <a class="btn" href="{{ route('admin.contact-messages.show', $contactMessage->id) }}">View in Admin Panel</a>
                 </div>
             </div>
         </div>

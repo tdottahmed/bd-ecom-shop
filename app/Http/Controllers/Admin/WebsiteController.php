@@ -7,7 +7,9 @@ use App\Models\DeliveryCharge;
 use App\Models\Setting;
 use App\Utility\FileUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 
 class WebsiteController extends Controller
@@ -50,6 +52,9 @@ class WebsiteController extends Controller
                 'cta_browse_link' => get_setting('cta_browse_link', '/products'),
                 'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
                 'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
+                'additional_cost' => get_setting('additional_cost', '0'),
+                'scheduled_product_update_enabled' => get_setting('scheduled_product_update_enabled', '0') === '1',
+                'scheduled_product_update_cron' => get_setting('scheduled_product_update_cron', '0 0 * * *'),
             ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
@@ -350,7 +355,44 @@ class WebsiteController extends Controller
                 Cache::forget('setting_'.$key);
             }
 
+            // Persist to .env as source-of-truth for workers/CLI
+            $encryption = (string) $request->input('smtp_encryption', '');
+            $scheme = $encryption === 'ssl' ? 'smtps' : 'smtp';
+            $this->updateEnvValues([
+                'MAIL_MAILER' => $request->filled('smtp_host') ? 'smtp' : 'log',
+                'MAIL_HOST' => (string) $request->input('smtp_host', ''),
+                'MAIL_PORT' => (string) $request->input('smtp_port', ''),
+                'MAIL_USERNAME' => (string) $request->input('smtp_username', ''),
+                'MAIL_PASSWORD' => (string) $request->input('smtp_password', ''),
+                // Keep both keys for broad compatibility with custom/legacy configs
+                'MAIL_ENCRYPTION' => $encryption,
+                'MAIL_SCHEME' => $request->filled('smtp_host') ? $scheme : 'null',
+                'MAIL_FROM_ADDRESS' => (string) $request->input('smtp_from_address', ''),
+                'MAIL_FROM_NAME' => (string) $request->input('smtp_from_name', ''),
+            ]);
+
+            // Ensure new env values are reflected in app config immediately
+            Artisan::call('config:clear');
+
             return back()->with('success', 'SMTP settings updated successfully.');
+        }
+
+        if ($type === 'scheduler') {
+            $request->validate([
+                'additional_cost'                    => 'nullable|numeric|min:0',
+                'scheduled_product_update_enabled'   => 'required|boolean',
+                'scheduled_product_update_cron'      => 'nullable|string|max:100',
+            ]);
+
+            Setting::updateOrCreate(['key' => 'additional_cost'], ['value' => (string) ($request->input('additional_cost', 0))]);
+            Setting::updateOrCreate(['key' => 'scheduled_product_update_enabled'], ['value' => $request->boolean('scheduled_product_update_enabled') ? '1' : '0']);
+            Setting::updateOrCreate(['key' => 'scheduled_product_update_cron'], ['value' => $request->input('scheduled_product_update_cron', '0 0 * * *')]);
+
+            Cache::forget('setting_additional_cost');
+            Cache::forget('setting_scheduled_product_update_enabled');
+            Cache::forget('setting_scheduled_product_update_cron');
+
+            return back()->with('success', 'Scheduler settings updated successfully.');
         }
 
         if ($type === 'customer_auth') {
@@ -387,5 +429,49 @@ class WebsiteController extends Controller
         }
 
         return array_values($currentImages);
+    }
+
+    /**
+     * Update or append key-value pairs in .env safely.
+     *
+     * @param  array<string, string>  $values
+     */
+    private function updateEnvValues(array $values): void
+    {
+        $envPath = base_path('.env');
+
+        if (! File::exists($envPath)) {
+            return;
+        }
+
+        $content = File::get($envPath);
+
+        foreach ($values as $key => $value) {
+            $escapedValue = $this->formatEnvValue($value);
+            $pattern = "/^{$key}=.*$/m";
+            $line = "{$key}={$escapedValue}";
+
+            if (preg_match($pattern, $content)) {
+                $content = preg_replace($pattern, $line, $content) ?? $content;
+            } else {
+                $content .= PHP_EOL.$line;
+            }
+        }
+
+        File::put($envPath, $content);
+    }
+
+    private function formatEnvValue(string $value): string
+    {
+        if ($value === '' || strtolower($value) === 'null') {
+            return 'null';
+        }
+
+        // Quote values containing spaces, #, or quotes
+        if (preg_match('/\s|#|"|\'/', $value)) {
+            return '"'.str_replace('"', '\"', $value).'"';
+        }
+
+        return $value;
     }
 }

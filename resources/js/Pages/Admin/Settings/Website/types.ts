@@ -46,5 +46,8 @@ export interface WebsiteSetting {
     cta_browse_link?: string | null;
     cta_contact_text?: string | null;
     cta_contact_link?: string | null;
+    additional_cost?: string | number | null;
+    scheduled_product_update_enabled?: boolean;
+    scheduled_product_update_cron?: string | null;
 }
 
