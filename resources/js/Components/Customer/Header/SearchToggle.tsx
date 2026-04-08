@@ -10,7 +10,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({ onClick }) => {
         <button
             type="button"
             onClick={onClick}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 text-white/70 hover:text-white rounded-full transition-colors text-sm border border-white/10"
+            className="flex items-center gap-1.5 px-3 py-2 bg-brand-bg hover:bg-brand-primary/15 text-brand-dark hover:text-brand-primary rounded-full transition-colors text-sm"
             aria-label="Open search"
         >
             <Search size={16} strokeWidth={2.2} />

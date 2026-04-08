@@ -110,16 +110,18 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                     isHidden ? "-translate-y-full" : "translate-y-0"
                 }`}
             >
-                {/* ── Row 1: Brand bar (dark) ── */}
+                {/* ── Row 1: Brand bar ── */}
                 <div
-                    className={`bg-brand-dark transition-shadow duration-300 ${
-                        isScrolled ? "shadow-lg shadow-black/20" : ""
+                    className={`bg-brand-ivory transition-all duration-300 ${
+                        isScrolled
+                            ? "shadow-sm border-b border-gray-100"
+                            : "border-b border-gray-100"
                     }`}
                 >
                     <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-14 gap-3">
+                        <div className="flex items-center justify-between h-16 gap-3">
                             {/* Left: hamburger (mobile) + logo */}
-                            <div className="flex items-center gap-2 shrink-0">
+                            <div className="flex items-center gap-1 shrink-0">
                                 <div className="md:hidden">
                                     <MobileMenuButton onClick={onMenuClick} />
                                 </div>
@@ -145,7 +147,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 {/* Cart */}
                                 <button
                                     onClick={() => setIsOpen(true)}
-                                    className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                    className="p-2 text-brand-dark hover:text-brand-primary hover:bg-brand-bg rounded-full transition-colors"
                                     aria-label="Open cart"
                                 >
                                     <CartIcon count={cartCount} />
@@ -165,19 +167,19 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                                             (v) => !v,
                                                         )
                                                     }
-                                                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-white/10 transition-colors group"
+                                                    className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full hover:bg-brand-bg transition-colors group"
                                                 >
                                                     <span className="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center text-sm font-bold shrink-0">
                                                         {userInitial}
                                                     </span>
-                                                    <span className="hidden lg:block text-sm font-medium text-white/80 group-hover:text-white max-w-[80px] truncate">
+                                                    <span className="hidden lg:block text-sm font-medium text-brand-dark group-hover:text-brand-primary max-w-[80px] truncate">
                                                         {userName}
                                                     </span>
                                                     <ChevronDown
                                                         size={14}
-                                                        className={`hidden lg:block text-white/40 transition-transform duration-200 ${
+                                                        className={`hidden lg:block text-gray-400 transition-transform duration-200 ${
                                                             isUserMenuOpen
-                                                                ? "rotate-180"
+                                                                ? "rotate-180 text-brand-primary"
                                                                 : ""
                                                         }`}
                                                     />
@@ -292,7 +294,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                             <div className="flex items-center gap-2">
                                                 <Link
                                                     href={route("login")}
-                                                    className="px-3.5 py-1.5 text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                                    className="px-3.5 py-1.5 text-sm font-medium text-brand-dark hover:text-brand-primary hover:bg-brand-bg rounded-full transition-colors"
                                                 >
                                                     Login
                                                 </Link>
@@ -311,7 +313,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 {customerAuthActive && isLoggedIn && (
                                     <Link
                                         href={route("account.dashboard")}
-                                        className="md:hidden p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                        className="md:hidden p-2 text-brand-dark hover:text-brand-primary hover:bg-brand-bg rounded-full transition-colors"
                                         aria-label="My account"
                                     >
                                         <User size={20} />

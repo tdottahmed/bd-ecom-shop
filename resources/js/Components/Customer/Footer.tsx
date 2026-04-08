@@ -16,7 +16,6 @@ export default function Footer() {
         siteDescription,
         seo,
         footer,
-        auth,
         footerPages,
         blogEnabled,
     }: any = usePage().props;
@@ -39,7 +38,7 @@ export default function Footer() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 border border-white/10 text-white/60 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-all duration-300 group"
+                className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-brand-primary hover:border-brand-primary hover:text-white transition-all duration-300 group shadow-sm"
                 aria-label={label}
             >
                 <Icon
@@ -74,10 +73,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="bg-brand-dark mt-auto">
-            {/* Top accent bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-brand-primary via-brand-accent to-brand-success" />
-
+        <footer className="bg-brand-ivory  mt-auto">
             <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-6">
                 <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-14">
                     {/* Column 1: Logo + Brand Awareness */}
@@ -87,25 +83,29 @@ export default function Footer() {
                                 <img
                                     src={`/storage/${siteLogo}`}
                                     alt={siteName}
-                                    className="h-10 sm:h-12 w-auto brightness-0 invert"
+                                    className="h-10 sm:h-12 w-auto"
                                 />
                             ) : (
-                                <span className="font-bold text-white text-2xl uppercase tracking-wider">
+                                <span className="font-bold text-brand-dark text-2xl uppercase tracking-wider">
                                     {siteName}
                                 </span>
                             )}
                         </Link>
 
-                        <p className="max-w-sm text-sm leading-relaxed text-white/60">
+                        <p className="max-w-sm text-sm leading-relaxed text-gray-500">
                             {siteDescription ||
                                 "Your one-stop destination for premium products and authentic shopping experience."}
                         </p>
 
                         <div className="flex flex-wrap gap-2 text-xs">
-                            {["Trusted Quality", "Genuine Products", "Fast Delivery"].map((badge) => (
+                            {[
+                                "Trusted Quality",
+                                "Genuine Products",
+                                "Fast Delivery",
+                            ].map((badge) => (
                                 <span
                                     key={badge}
-                                    className="px-2.5 py-1 rounded-full border border-brand-success/30 text-brand-success font-medium tracking-wide"
+                                    className="px-2.5 py-1 rounded-full bg-brand-bg border border-brand-primary/20 text-brand-primary font-medium tracking-wide"
                                 >
                                     {badge}
                                 </span>
@@ -115,51 +115,51 @@ export default function Footer() {
 
                     {/* Column 2: Quick Links */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-brand-tint uppercase tracking-widest">
+                        <h3 className="text-xs font-bold text-brand-primary uppercase tracking-widest">
                             Quick Links
                         </h3>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
                             <Link
                                 href={route("brands.index")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 Brands
                             </Link>
                             {blogEnabled && (
                                 <Link
                                     href={route("blog.index")}
-                                    className="text-white/60 hover:text-brand-primary transition-colors"
+                                    className="text-gray-600 hover:text-brand-primary transition-colors"
                                 >
                                     Blog
                                 </Link>
                             )}
                             <Link
                                 href={route("pages.about")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 About Us
                             </Link>
                             <Link
                                 href={route("pages.faq")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 FAQ
                             </Link>
                             <Link
                                 href={route("pages.contact")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 Contact Us
                             </Link>
                             <Link
                                 href={route("pages.privacy-policy")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 Privacy Policy
                             </Link>
                             <Link
                                 href={route("pages.terms")}
-                                className="text-white/60 hover:text-brand-primary transition-colors"
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 Terms & Conditions
                             </Link>
@@ -167,7 +167,7 @@ export default function Footer() {
                                 <Link
                                     key={page.slug}
                                     href={route("pages.show", page.slug)}
-                                    className="text-white/60 hover:text-brand-primary transition-colors"
+                                    className="text-gray-600 hover:text-brand-primary transition-colors"
                                 >
                                     {page.title}
                                 </Link>
@@ -178,7 +178,7 @@ export default function Footer() {
                     {/* Column 3: Social + Newsletter */}
                     <div className="flex flex-col space-y-6">
                         <div>
-                            <h3 className="text-xs font-bold text-brand-tint uppercase tracking-widest mb-4">
+                            <h3 className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-4">
                                 Stay Connected
                             </h3>
                             <div className="flex items-center gap-2.5">
@@ -222,7 +222,7 @@ export default function Footer() {
                             />
                             <label
                                 htmlFor="footer_newsletter_email"
-                                className="block text-sm font-semibold text-white"
+                                className="block text-sm font-semibold text-brand-dark"
                             >
                                 Subscribe for updates
                             </label>
@@ -235,7 +235,7 @@ export default function Footer() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email"
                                     autoComplete="email"
-                                    className="w-full px-3 py-2.5 rounded-lg bg-white/10 border border-white/15 text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary/60 transition-all"
+                                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-brand-dark placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary/50 transition-all"
                                     disabled={subscribeState === "loading"}
                                     required
                                 />
@@ -254,7 +254,7 @@ export default function Footer() {
                                 <p
                                     className={`text-xs ${
                                         subscribeState === "error"
-                                            ? "text-brand-tint"
+                                            ? "text-brand-primary"
                                             : "text-brand-success"
                                     }`}
                                 >
@@ -265,15 +265,15 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-xs sm:text-sm text-white/40 order-2 md:order-1">
+                <div className="pt-6 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p className="text-xs sm:text-sm text-gray-500 order-2 md:order-1">
                         &copy; {currentYear}{" "}
-                        <span className="font-semibold text-white/70">
+                        <span className="font-semibold text-brand-dark">
                             {siteName}
                         </span>
                         . All rights reserved.
                     </p>
-                    <p className="text-xs text-white/30 order-1 md:order-2 tracking-wide uppercase">
+                    <p className="text-xs text-gray-400 order-1 md:order-2 tracking-wide uppercase">
                         Crafted with care in Malaysia
                     </p>
                 </div>
