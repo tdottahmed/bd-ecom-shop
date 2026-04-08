@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendAdminOrderEventEmail;
 use App\Services\BkashService;
 use App\Services\SSLCommerzService;
 use Illuminate\Http\Request;
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use App\Support\AdminRecipients;
 
 class CheckoutController extends Controller
 {
@@ -176,6 +179,13 @@ class CheckoutController extends Controller
             }
 
             DB::commit();
+
+            // Admin notifications (in-app + queued email)
+            Notification::send(
+                AdminRecipients::users(),
+                new \App\Notifications\Admin\OrderEvent(order: $order, event: 'created')
+            );
+            SendAdminOrderEventEmail::dispatch(orderId: $order->id, event: 'created')->afterCommit();
 
             if (!$request->user() && $checkoutUser && $shouldCreateAccount) {
                 Auth::login($checkoutUser);

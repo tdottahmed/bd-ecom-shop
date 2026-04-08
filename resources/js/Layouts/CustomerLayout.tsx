@@ -7,10 +7,31 @@ import CartSidebar from "@/Components/Customer/CartSidebar";
 import NavigationSidebar from "@/Components/Customer/NavigationSidebar";
 import Footer from "@/Components/Customer/Footer";
 import { useCartStore } from "@/Stores/useCartStore";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 
 interface CustomerLayoutProps {
     children: ReactNode;
+}
+
+function hasMeaningfulErrors(errors: unknown): boolean {
+    if (!errors || typeof errors !== "object") return false;
+
+    // Inertia/Laravel can return either:
+    // - { field: "message" }
+    // - { default: { field: "message" }, someBag: { ... } }
+    const values = Object.values(errors as Record<string, unknown>);
+
+    // Plain field errors
+    const hasDirect = values.some((v) => typeof v === "string" && v.trim().length > 0);
+    if (hasDirect) return true;
+
+    // Bagged errors
+    return values.some((bag) => {
+        if (!bag || typeof bag !== "object") return false;
+        return Object.values(bag as Record<string, unknown>).some(
+            (v) => typeof v === "string" && v.trim().length > 0
+        );
+    });
 }
 
 // Circumference for r=15.9 circle (≈ 99.9)
@@ -90,6 +111,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const { messengerLink, whatsappLink } = (props as any) || {};
     const hasMessenger = Boolean(messengerLink);
     const hasWhatsApp = Boolean(whatsappLink);
+    const { flash, errors } = props as any;
 
     const baseUrl =
         typeof window !== "undefined"
@@ -103,6 +125,19 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         window.addEventListener("open-cart", handleOpenCart);
         return () => window.removeEventListener("open-cart", handleOpenCart);
     }, [setIsOpen]);
+
+    // Inertia flash + validation errors → toasts (customer-facing)
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+        if (hasMeaningfulErrors(errors)) {
+            toast.error("There are errors in the form. Please check the fields.");
+        }
+    }, [flash, errors]);
 
     useEffect(() => {
         if (!customerAuthEnabled || !authUserId || typeof window === "undefined") return;

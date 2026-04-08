@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminOrderEventEmail;
 use App\Models\Order;
+use App\Support\AdminRecipients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -38,6 +41,8 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
+        $previousStatus = $order->status;
+
         $request->validate([
             'status'           => 'required|in:pending,unreachable,preparing,shipping,completed,cancelled,returned',
             'create_consignment' => 'nullable|boolean',
@@ -100,6 +105,25 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => $request->status]);
+
+        if ($previousStatus !== $request->status) {
+            Notification::send(
+                AdminRecipients::users(),
+                new \App\Notifications\Admin\OrderEvent(
+                    order: $order,
+                    event: 'status_updated',
+                    oldStatus: $previousStatus,
+                    newStatus: $request->status
+                )
+            );
+
+            SendAdminOrderEventEmail::dispatch(
+                orderId: $order->id,
+                event: 'status_updated',
+                oldStatus: $previousStatus,
+                newStatus: $request->status
+            )->afterCommit();
+        }
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
     }

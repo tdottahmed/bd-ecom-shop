@@ -3,6 +3,7 @@ import { Link } from "@inertiajs/react";
 import { Globe } from "lucide-react";
 import UserMenu from "./UserMenu";
 import BrandLogo from "../Utility/BrandLogo";
+import NotificationBell from "@/Components/Admin/NotificationBell";
 
 interface User {
     id: number;
@@ -101,6 +102,8 @@ const Header: React.FC<HeaderProps> = ({
                             {actions}
                         </div>
                     )}
+
+                    <NotificationBell />
 
                     {/* View Frontend Button */}
                     {showUserMenu && (
