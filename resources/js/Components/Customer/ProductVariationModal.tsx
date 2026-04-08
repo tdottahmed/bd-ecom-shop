@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useMemo } from "react";
+import React, { Fragment, useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Product, ProductVariation } from "@/types";
 import { X, Check } from "lucide-react";
@@ -18,6 +18,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
     product,
     onAddToCart,
 }) => {
+    const scrollContentRef = useRef<HTMLDivElement | null>(null);
     const [selectedVariations, setSelectedVariations] = useState<
         Record<number, ProductVariation>
     >({});
@@ -64,6 +65,24 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
             setModalImage(product.images?.[0] || null);
         }
     }, [isOpen, product.images]);
+
+    // Lock background page scroll while modal is open.
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const html = document.documentElement;
+        const body = document.body;
+        const prevHtmlOverflow = html.style.overflow;
+        const prevBodyOverflow = body.style.overflow;
+
+        html.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+
+        return () => {
+            html.style.overflow = prevHtmlOverflow;
+            body.style.overflow = prevBodyOverflow;
+        };
+    }, [isOpen]);
 
     const handleVariationSelect = (
         attributeId: number,
@@ -223,6 +242,17 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         return acc + price * item.quantity;
     }, 0);
 
+    const handleWheelCapture: React.WheelEventHandler<HTMLDivElement> = (e) => {
+        const el = scrollContentRef.current;
+        if (!el) return;
+
+        if (el.scrollHeight > el.clientHeight) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.scrollTop += e.deltaY;
+        }
+    };
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -267,7 +297,11 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                 </div>
 
                                 {/* Scrollable Content */}
-                                <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-4 text-sm custom-scrollbar">
+                                <div
+                                    ref={scrollContentRef}
+                                    onWheelCapture={handleWheelCapture}
+                                    className="flex-1 overflow-y-auto overscroll-contain px-6 py-4 text-sm custom-scrollbar touch-pan-y"
+                                >
                                     <div className="flex gap-4 mb-6">
                                         {/* Product Thumbnail */}
                                         <div className="relative w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
