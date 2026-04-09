@@ -1,1 +1,0 @@
-import{j as e}from"./app-Btb3J5Uj.js";function t(){return e.jsxs("div",{children:[e.jsx("h1",{className:"text-2xl font-bold text-white",children:" Orders "}),e.jsxs("p",{className:"text-gray-400 text-sm",children:[" ","Manage and track customer orders"," "]})]})}export{t as default};
