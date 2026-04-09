@@ -85,7 +85,7 @@ class CustomerController extends Controller
 
     public function index(Request $request)
     {
-        $websiteSettings = \App\Models\WebsiteSetting::first();
+        $websiteSettings = \Illuminate\Support\Facades\Cache::remember('website_settings', 600, fn () => \App\Models\WebsiteSetting::first());
         $categories = Category::select(['id', 'title', 'slug', 'image'])->where('is_featured', 1)->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
         $bannerSettings = $this->getBannerSettings();

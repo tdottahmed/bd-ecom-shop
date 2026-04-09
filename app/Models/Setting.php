@@ -9,24 +9,12 @@ class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
-    /**
-     * Clear cached setting value when this model changes.
-     */
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::saved(function ($setting) {
-            Cache::forget('setting_' . $setting->key);
-        });
+        // Bust the single batch cache whenever any setting changes.
+        $bust = fn () => Cache::forget('all_settings');
 
-        static::deleted(function ($setting) {
-            Cache::forget('setting_' . $setting->key);
-        });
-
-        // Only register restored event if model uses SoftDeletes
-        if (in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses_recursive(static::class))) {
-            static::restored(function ($setting) {
-                Cache::forget('setting_' . $setting->key);
-            });
-        }
+        static::saved($bust);
+        static::deleted($bust);
     }
 }
