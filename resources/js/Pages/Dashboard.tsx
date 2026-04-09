@@ -316,7 +316,7 @@ export default function Dashboard({ metrics, charts, recent_orders, filters }: D
                                         tickFormatter={(v) => v.split("-").slice(1).join("/")}
                                     />
                                     <YAxis stroke="#4b5563" tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                                    <Tooltip {...tooltipStyle} formatter={(v: number) => formatPrice(v)} />
+                                    <Tooltip {...tooltipStyle} formatter={(v) => formatPrice(Number(v))} />
                                     <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
                                     <Area type="monotone" dataKey="sales"  name="Sales"  stroke="#2DE3A7" strokeWidth={2} fillOpacity={1} fill="url(#gSales)" />
                                     <Area type="monotone" dataKey="profit" name="Profit" stroke="#60a5fa" strokeWidth={2} fillOpacity={1} fill="url(#gProfit)" />
