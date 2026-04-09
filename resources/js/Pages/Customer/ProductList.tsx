@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import ProductCard from "@/Components/Customer/ProductCard";
 import FilterSidebar from "@/Components/Customer/FilterSidebar";
 import ProductFilters from "@/Components/Customer/ProductFilters";
 import { Category, PaginatedData, Product } from "@/types";
 import CtaSection from "@/Components/Customer/CtaSection";
-import { ChevronRight, Home, PackageSearch } from "lucide-react";
+import { PackageSearch } from "lucide-react";
 
 interface ProductListProps {
     products: PaginatedData<Product>;
@@ -54,6 +54,7 @@ const ProductList: React.FC<ProductListProps> = ({
     const [allProducts, setAllProducts] = useState<Product[]>(products.data);
     const [nextPageUrl, setNextPageUrl] = useState<string | null>(products.next_page_url);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const perPage = products.per_page ?? 24;
 
     const isLoadMoreRef = useRef(false);
     const isLoadingMoreRef = useRef(false);
@@ -100,7 +101,7 @@ const ProductList: React.FC<ProductListProps> = ({
                     loadMore();
                 }
             },
-            { threshold: 0, rootMargin: "300px" },
+            { threshold: 0, rootMargin: "1000px" },
         );
         observer.observe(sentinel);
         return () => observer.disconnect();
@@ -334,20 +335,13 @@ const ProductList: React.FC<ProductListProps> = ({
                                     />
                                 ))}
                                 {isLoadingMore &&
-                                    Array.from({ length: 6 }).map((_, i) => (
+                                    Array.from({ length: perPage }).map((_, i) => (
                                         <ProductSkeleton key={`skeleton-${i}`} />
                                     ))}
                             </div>
 
                             {/* Sentinel + footer */}
                             <div ref={sentinelRef} className="mt-10 flex flex-col items-center gap-4">
-                                {isLoadingMore && (
-                                    <div className="flex items-center gap-2.5 text-sm text-gray-500">
-                                        <span className="w-5 h-5 rounded-full border-2 border-brand-primary/30 border-t-brand-primary animate-spin" />
-                                        Loading more products…
-                                    </div>
-                                )}
-
                                 {!hasMore && !isLoadingMore && allProducts.length > 0 && (
                                     <div className="flex items-center gap-4 text-sm text-gray-400 py-2">
                                         <span className="h-px w-16 bg-gray-200" />

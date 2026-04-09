@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { CartItem } from "@/types";
 import { useCartStore } from "@/Stores/useCartStore";
-import { X, Minus, Plus } from "lucide-react";
+import { Trash2, Minus, Plus } from "lucide-react";
 import Image from "../Ui/Image";
 
 interface CartSidebarItemProps {
@@ -35,14 +35,7 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
     };
 
     return (
-            <div className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm relative group hover:shadow-md transition-shadow">
-            <button
-                onClick={handleRemove}
-                className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10 text-gray-400 hover:text-red-500 border border-gray-100"
-                aria-label="Remove item"
-            >
-                <X size={14} />
-            </button>
+            <div className="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
 
             <div className="w-20 h-20 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
                 <Image
@@ -101,9 +94,18 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                 </div>
 
                 <div className="flex items-center justify-between mt-3">
-                    <div className="text-xs text-gray-500 font-medium">
-                        {formatPrice(item?.price ?? 0)}{" "}
-                        <span className="text-gray-400"> x </span> {quantity}
+                    <div className="flex items-center gap-2">
+                        <div className="text-xs text-gray-500 font-medium">
+                            {formatPrice(item?.price ?? 0)}{" "}
+                            <span className="text-gray-400"> x </span> {quantity}
+                        </div>
+                        <button
+                            onClick={handleRemove}
+                            className="flex items-center justify-center w-6 h-6 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            aria-label="Remove item"
+                        >
+                            <Trash2 size={13} />
+                        </button>
                     </div>
 
                     <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-7">
