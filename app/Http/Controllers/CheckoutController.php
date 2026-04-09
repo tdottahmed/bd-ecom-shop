@@ -33,6 +33,10 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+        $cart = $request->items;
+        if (empty($cart) || !is_array($cart)) {
+            return redirect()->back()->with('error', 'Your cart is empty.');
+        }
         $request->validate([
             'customer_name'      => 'required|string',
             'customer_phone'     => ['required', 'string', 'regex:/^01[3-9]\d{8}$/'],
@@ -47,8 +51,6 @@ class CheckoutController extends Controller
             'items.*.price'      => 'required|numeric|min:0',
             'items.*.variations' => 'nullable|array',
         ]);
-
-        $cart = $request->items;
 
         $totalQty = 0;
         $subtotal = 0;
@@ -232,7 +234,6 @@ class CheckoutController extends Controller
                 ]);
                 return redirect()->route('payment.failed', ['order' => $order->id]);
             }
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error: ' . $e->getMessage());

@@ -61,6 +61,8 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::get('website', [WebsiteController::class, 'index'])->name('website.index');
     Route::post('website/update', [WebsiteController::class, 'update'])->name('website.update');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('payment-gateways', [PaymentGatewayController::class, 'index'])->name('payment-gateways.index');
     Route::post('payment-gateways/update', [PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
