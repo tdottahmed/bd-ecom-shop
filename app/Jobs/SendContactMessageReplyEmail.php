@@ -32,7 +32,7 @@ class SendContactMessageReplyEmail implements ShouldQueue
 
         Mail::to($contactMessage->email)->send(new ContactMessageReplyMail(
             contactMessage: $contactMessage,
-            subject: $this->subject,
+            mailSubject: $this->subject,
             replyMessage: $this->replyMessage,
         ));
     }

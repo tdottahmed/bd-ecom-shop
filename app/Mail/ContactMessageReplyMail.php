@@ -15,13 +15,13 @@ class ContactMessageReplyMail extends Mailable
 
     public function __construct(
         public ContactMessage $contactMessage,
-        public string $subject,
+        public string $mailSubject,
         public string $replyMessage,
     ) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: $this->subject);
+        return new Envelope(subject: $this->mailSubject);
     }
 
     public function content(): Content
