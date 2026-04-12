@@ -158,7 +158,7 @@ class CustomerController extends Controller
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
 
-        $products = $this->filterProducts($request, null, 16);
+        $products = $this->filterProducts($request, null, 30);
 
         return Inertia::render('Customer/ProductList', [
             'categories' => $categories,
@@ -178,7 +178,7 @@ class CustomerController extends Controller
         ]);
     }
 
-    private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 12)
+    private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 30)
     {
         $query = Product::with(['category', 'product_variations', 'product_variations.product_attribute'])
             ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
