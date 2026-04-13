@@ -20,6 +20,7 @@ import {
     UserCog,
     ExternalLink,
     ShieldCheck,
+    Bell,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -143,6 +144,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <MessageCircle size={18} />,
         route: "admin.contact-messages.index",
         urlPattern: "/admin/contact-messages",
+    },
+    {
+        key: "product_requests",
+        label: "Product Requests",
+        icon: <Bell size={18} />,
+        route: "admin.product-requests.index",
+        urlPattern: "/admin/product-requests",
     },
 ];
 

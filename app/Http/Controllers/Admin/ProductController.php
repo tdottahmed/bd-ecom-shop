@@ -466,10 +466,12 @@ class ProductController extends Controller
 
         DB::transaction(function () use ($request, $product) {
             if ($product->product_type === 'variant') {
+                // Use absolute SET (not increment) so NULL stock is handled correctly.
+                // NULL + N = NULL in MySQL, so increment would silently fail on un-initialised variations.
                 foreach ($request->variations ?? [] as $variation) {
                     ProductVariation::where('id', $variation['id'])
                         ->where('product_id', $product->id)
-                        ->increment('stock', (int) $variation['stock']);
+                        ->update(['stock' => (int) $variation['stock']]);
                 }
             } else {
                 $add = (int) ($request->stock ?? 0);

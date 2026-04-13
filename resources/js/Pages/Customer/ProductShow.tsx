@@ -17,9 +17,11 @@ import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "@/Components/Ui/QuantitySelector";
 import ProductVariationSelector from "@/Components/Customer/ProductVariationSelector";
+import ProductRequestModal from "@/Components/Customer/ProductRequestModal";
 import ProductSlider from "@/Components/Customer/ProductSlider";
 import NewsletterSection from "@/Components/Customer/CtaSection";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
+import { Bell } from "lucide-react";
 
 interface ProductShowProps {
     product: Product;
@@ -75,7 +77,16 @@ export default function ProductShow({
     const [selectedVariationPrice, setSelectedVariationPrice] = useState<
         number | null
     >(null);
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [requestVariationLabel, setRequestVariationLabel] = useState<string | undefined>(undefined);
     const debouncedQuantity = useDebounce(quantity, 300);
+
+    const isOutOfStock = product.stock <= 0 && !product.is_preorder;
+
+    const handleRequestVariation = (label: string) => {
+        setRequestVariationLabel(label);
+        setShowRequestModal(true);
+    };
 
     // Sync local quantity with store quantity (handling external updates)
     useEffect(() => {
@@ -395,6 +406,7 @@ export default function ProductShow({
                                                     onAddToCart={
                                                         handleVariationAddToCart
                                                     }
+                                                    onRequestVariation={handleRequestVariation}
                                                     onVariationSelect={(
                                                         variation,
                                                         allSelected,
@@ -448,6 +460,26 @@ export default function ProductShow({
                                                     }}
                                                 />
                                             </div>
+                                        ) : isOutOfStock ? (
+                                            /* Simple product, out of stock → Request */
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                                                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                                                        <Bell size={18} className="text-amber-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-amber-800">Currently out of stock</p>
+                                                        <p className="text-xs text-amber-700 mt-0.5">Submit a request and we'll contact you when it's back.</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setShowRequestModal(true)}
+                                                    className="w-full px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 text-white shadow-amber-200 shadow-lg hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                                                >
+                                                    <Bell size={22} strokeWidth={2.5} />
+                                                    Request This Product
+                                                </button>
+                                            </div>
                                         ) : (
                                             <div className="flex flex-col sm:flex-row gap-5 items-center">
                                                 <QuantitySelector
@@ -470,35 +502,22 @@ export default function ProductShow({
                                                     size="lg"
                                                 />
                                                 <button
-                                                    className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
+                                                    className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
                                                         isInCart
                                                             ? "bg-brand-success hover:bg-brand-success/90 text-white shadow-brand-success/30"
                                                             : "bg-brand-dark hover:bg-brand-dark/80 text-white shadow-brand-dark/20"
                                                     }`}
-                                                    disabled={
-                                                        !product.is_preorder &&
-                                                        product.stock <= 0
-                                                    }
                                                     onClick={handleAddToCart}
                                                 >
                                                     {isInCart ? (
                                                         <>
-                                                            <Check
-                                                                size={22}
-                                                                strokeWidth={3}
-                                                            />
+                                                            <Check size={22} strokeWidth={3} />
                                                             Added to Cart
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ShoppingCart
-                                                                size={22}
-                                                                strokeWidth={
-                                                                    2.5
-                                                                }
-                                                            />
-                                                            {product.is_preorder &&
-                                                            product.stock <= 0
+                                                            <ShoppingCart size={22} strokeWidth={2.5} />
+                                                            {product.is_preorder && product.stock <= 0
                                                                 ? "Pre Order"
                                                                 : "Add to Cart"}
                                                         </>
@@ -608,6 +627,13 @@ export default function ProductShow({
                     </ScrollReveal>
                 </div>
             </div>
+
+            <ProductRequestModal
+                isOpen={showRequestModal}
+                onClose={() => { setShowRequestModal(false); setRequestVariationLabel(undefined); }}
+                product={product}
+                variationLabel={requestVariationLabel}
+            />
         </CustomerLayout>
     );
 }

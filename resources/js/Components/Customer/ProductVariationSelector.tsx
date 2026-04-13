@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Product, ProductVariation } from "@/types";
-import { Check, X } from "lucide-react";
+import { Check, X, Bell } from "lucide-react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { toast } from "sonner";
 
@@ -11,12 +11,14 @@ interface ProductVariationSelectorProps {
         variation: ProductVariation,
         allSelected: Record<number, ProductVariation>,
     ) => void;
+    onRequestVariation?: (label: string) => void;
 }
 
 const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
     product,
     onAddToCart,
     onVariationSelect,
+    onRequestVariation,
 }) => {
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
     const [selectedVariations, setSelectedVariations] = useState<
@@ -25,6 +27,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
     const [cartBatch, setCartBatch] = useState<
         { variations: ProductVariation[]; quantity: number }[]
     >([]);
+    const [isOutOfStockCombo, setIsOutOfStockCombo] = useState(false);
 
     // Group variations by attribute
     const variationsByAttribute = useMemo(() => {
@@ -65,6 +68,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
             [attributeId]: variation,
         };
         setSelectedVariations(newSelected);
+        setIsOutOfStockCombo(false);
         if (onVariationSelect) {
             onVariationSelect(variation, newSelected);
         }
@@ -90,53 +94,48 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         return Math.min(...variationStocks);
     }, [selectedVariations, isAllSelected, product.stock]);
 
+    // Build a human-readable label from current selected variations
+    const buildVariationLabel = (variations: Record<number, ProductVariation>) =>
+        Object.values(variations)
+            .map((v) => {
+                const attrName =
+                    v.product_attribute?.name || v.attribute?.name || "Option";
+                return `${attrName}: ${v.value}`;
+            })
+            .join(", ");
+
     // Detect completion and auto-add to batch
     useEffect(() => {
         if (isAllSelected) {
             const currentVariations = Object.values(selectedVariations);
+            const currentIds = currentVariations.map((v) => v.id).sort().join("-");
 
-            // Generate a signature for comparison
-            const currentIds = currentVariations
-                .map((v) => v.id)
-                .sort()
-                .join("-");
-
-            // Check if already in batch
             const existsIndex = cartBatch.findIndex(
                 (item) =>
-                    item.variations
-                        .map((v) => v.id)
-                        .sort()
-                        .join("-") === currentIds,
+                    item.variations.map((v) => v.id).sort().join("-") === currentIds,
             );
 
             if (existsIndex === -1) {
                 if (product.is_preorder || currentSelectionStock > 0) {
-                    // Add new item
+                    setIsOutOfStockCombo(false);
                     const initialQty = 1;
                     setCartBatch((prev) => [
                         ...prev,
                         { variations: currentVariations, quantity: initialQty },
                     ]);
                 } else {
-                    // Provide clear feedback that it's out of stock
-                    toast.error("This combination is currently out of stock!");
-                    
-                    // Clear the last selected option so they aren't stuck on a 0 stock completion
-                    // We pop off the last one or just reset it. Since we don't know the order easily,
-                    // we can just reset the selection.
-                    setSelectedVariations({});
+                    // Keep selection, show request prompt instead of resetting
+                    setIsOutOfStockCombo(true);
                 }
             }
+        } else {
+            setIsOutOfStockCombo(false);
         }
     }, [
         selectedVariations,
         isAllSelected,
         product.is_preorder,
         currentSelectionStock,
-        // cartBatch // Logic implies we need to check existence, but we don't want to loop.
-        // The previous implementation had cartBatch in deps, but handled loop by existsIndex check.
-        // We will include it to be safe and rely on the check.
         cartBatch,
     ]);
 
@@ -145,7 +144,6 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
 
         if (newQty < minQty) return;
 
-        // Calculate max stock for this specific item in batch
         const item = cartBatch[index];
         const itemStock = Math.min(
             ...item.variations.map((v) => v.stock ?? product.stock),
@@ -189,6 +187,13 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         toast.success(`Added ${cartBatch.length} items to cart`);
         setCartBatch([]);
         setSelectedVariations({});
+        setIsOutOfStockCombo(false);
+    };
+
+    const handleRequestCombination = () => {
+        if (!onRequestVariation) return;
+        const label = buildVariationLabel(selectedVariations);
+        onRequestVariation(label);
     };
 
     const batchTotalQuantity = cartBatch.reduce(
@@ -196,7 +201,6 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         0,
     );
     const batchTotalPrice = cartBatch.reduce((acc, item) => {
-        // Calculate price for this item
         const prices = item.variations
             .map((v) => (v.price ? parseFloat(String(v.price)) : null))
             .filter((p) => p !== null) as number[];
@@ -205,7 +209,6 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         return acc + price * item.quantity;
     }, 0);
 
-    // If no variations, return null (should be handled by parent but safe keep)
     if (!product.product_variations || product.product_variations.length === 0)
         return null;
 
@@ -213,7 +216,6 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         const el = scrollContainerRef.current;
         if (!el) return;
 
-        // Keep wheel scroll inside this selector and prevent page scroll chaining.
         if (el.scrollHeight > el.clientHeight) {
             e.preventDefault();
             e.stopPropagation();
@@ -253,32 +255,65 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                             variation.stock !== undefined &&
                                             variation.stock <= 0;
 
+                                        if (isOutOfStock) {
+                                            // Requestable variation button
+                                            return (
+                                                <button
+                                                    key={variation.id}
+                                                    onClick={() => {
+                                                        if (!onRequestVariation) {
+                                                            toast.error("This option is out of stock.");
+                                                            return;
+                                                        }
+                                                        const attrName = group.name;
+                                                        const label = `${attrName}: ${variation.value}`;
+                                                        onRequestVariation(label);
+                                                    }}
+                                                    className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
+                                                        variation.image ? "pl-2" : "pl-4"
+                                                    } border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 rounded-lg cursor-pointer group`}
+                                                    title="Out of stock – click to request"
+                                                >
+                                                    {variation.image && (
+                                                        <img
+                                                            src={getAssetUrl(variation.image)}
+                                                            alt={variation.value}
+                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 grayscale opacity-70"
+                                                        />
+                                                    )}
+                                                    <span className="relative z-10 flex items-center gap-1.5">
+                                                        {variation.value}
+                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-sm border border-amber-200">
+                                                            <Bell size={8} />
+                                                            Request
+                                                        </span>
+                                                    </span>
+                                                    {showPriceHint && (
+                                                        <span className="text-xs font-normal ml-0.5 relative z-10 opacity-60">
+                                                            ({formatPrice(variation.price!)})
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            );
+                                        }
+
                                         return (
                                             <button
                                                 key={variation.id}
-                                                onClick={() => {
-                                                    if (isOutOfStock) {
-                                                        toast.error(
-                                                            "This specific option is out of stock.",
-                                                        );
-                                                        return;
-                                                    }
+                                                onClick={() =>
                                                     handleVariationSelect(
                                                         Number(attrId),
                                                         variation,
-                                                    );
-                                                }}
-                                                disabled={isOutOfStock}
+                                                    )
+                                                }
                                                 className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                     variation.image
                                                         ? "pl-2"
                                                         : "pl-4"
                                                 } ${
-                                                    isOutOfStock
-                                                        ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
-                                                        : isSelected
-                                                          ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
-                                                          : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                    isSelected
+                                                        ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
+                                                        : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
                                                 } rounded-lg group`}
                                             >
                                                 {variation.image && (
@@ -287,38 +322,24 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                             variation.image,
                                                         )}
                                                         alt={variation.value}
-                                                        className={`w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 ${isOutOfStock ? "grayscale opacity-60" : ""}`}
+                                                        className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10"
                                                     />
                                                 )}
-                                                <span
-                                                    className={`relative z-10 flex items-center gap-1.5 ${isOutOfStock ? "text-slate-400" : ""}`}
-                                                >
+                                                <span className="relative z-10 flex items-center gap-1.5">
                                                     {variation.value}
-                                                    {isOutOfStock && (
-                                                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-sm border border-rose-100/50">
-                                                            Out of Stock
-                                                        </span>
-                                                    )}
                                                 </span>
                                                 {showPriceHint && (
-                                                    <span
-                                                        className={`text-xs font-normal ml-0.5 relative z-10 ${isOutOfStock ? "" : "opacity-70"}`}
-                                                    >
-                                                        (
-                                                        {formatPrice(
-                                                            variation.price!,
-                                                        )}
-                                                        )
+                                                    <span className="text-xs font-normal ml-0.5 relative z-10 opacity-70">
+                                                        ({formatPrice(variation.price!)})
                                                     </span>
                                                 )}
-                                                {isSelected &&
-                                                    !isOutOfStock && (
-                                                        <Check
-                                                            size={14}
-                                                            strokeWidth={3}
-                                                            className="relative z-10"
-                                                        />
-                                                    )}
+                                                {isSelected && (
+                                                    <Check
+                                                        size={14}
+                                                        strokeWidth={3}
+                                                        className="relative z-10"
+                                                    />
+                                                )}
                                             </button>
                                         );
                                     })}
@@ -328,10 +349,36 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                     )}
                 </div>
 
+                {/* Out-of-stock combination prompt */}
+                {isOutOfStockCombo && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-amber-800 mb-0.5">
+                                This combination is out of stock
+                            </p>
+                            <p className="text-xs text-amber-700">
+                                <span className="font-medium">{buildVariationLabel(selectedVariations)}</span>
+                                {" "}— submit a request and we'll notify you.
+                            </p>
+                        </div>
+                        {onRequestVariation && (
+                            <button
+                                onClick={handleRequestCombination}
+                                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors"
+                            >
+                                <Bell size={14} />
+                                Request
+                            </button>
+                        )}
+                    </div>
+                )}
+
                 {/* Helper Text */}
-                <div className="text-xs text-gray-500 italic">
-                    Select options to automatically add them to your list below.
-                </div>
+                {!isOutOfStockCombo && (
+                    <div className="text-xs text-gray-500 italic">
+                        Select options to automatically add them to your list below.
+                    </div>
+                )}
 
                 {/* Batch List Display */}
                 <div className="border border-gray-200 rounded-xl overflow-hidden">

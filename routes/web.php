@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProductRequestController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\CustomerController;
@@ -78,6 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::post('api/product-requests', [ProductRequestController::class, 'store'])->middleware('throttle:10,1')->name('product-requests.store');
 
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import { ShoppingCart, Trash2, Check } from "lucide-react";
+import { Trash2, Check, Bell } from "lucide-react";
 import { getAssetUrl, isNewProduct, formatPrice } from "@/Utils/helpers";
 import { Product } from "@/types";
 import Image from "../Ui/Image";
@@ -8,6 +8,7 @@ import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "../Ui/QuantitySelector";
 import ProductVariationModal from "./ProductVariationModal";
+import ProductRequestModal from "./ProductRequestModal";
 import ScrollReveal from "../Ui/ScrollReveal";
 
 interface ProductCardProps {
@@ -58,6 +59,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const [quantity, setQuantity] = React.useState(cartItem?.quantity || 0);
     const [showVariationModal, setShowVariationModal] = React.useState(false);
+    const [showRequestModal, setShowRequestModal] = React.useState(false);
+    const [requestVariationLabel, setRequestVariationLabel] = React.useState<string | undefined>(undefined);
     const debouncedQuantity = useDebounce(quantity, 300);
 
     React.useEffect(() => {
@@ -253,17 +256,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 size="sm"
                             />
                         </div>
+                    ) : product.stock <= 0 && !product.is_preorder ? (
+                        <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRequestModal(true); }}
+                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all duration-200"
+                        >
+                            <Bell size={14} />
+                            Request Product
+                        </button>
                     ) : (
                         <button
                             onClick={handleAddToCart}
-                            disabled={
-                                !product.is_preorder && product.stock <= 0
-                            }
-                            className={`w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300 ${
-                                product.stock > 0 || product.is_preorder
-                                    ? "bg-brand-dark text-white hover:bg-brand-dark/85 shadow-lg hover:shadow-xl"
-                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
+                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-brand-dark text-white hover:bg-brand-dark/85 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             {product.is_preorder && product.stock <= 0
                                 ? "Pre Order"
@@ -282,8 +286,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     onClose={() => setShowVariationModal(false)}
                     product={product}
                     onAddToCart={handleVariationAddToCart}
+                    onRequestVariation={(label) => {
+                        setRequestVariationLabel(label);
+                        setShowVariationModal(false);
+                        setShowRequestModal(true);
+                    }}
                 />
             )}
+
+            {/* Request Modal */}
+            <ProductRequestModal
+                isOpen={showRequestModal}
+                onClose={() => { setShowRequestModal(false); setRequestVariationLabel(undefined); }}
+                product={product}
+                variationLabel={requestVariationLabel}
+            />
             </div>
         </ScrollReveal>
     );

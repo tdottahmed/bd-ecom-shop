@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\ProductRequestController as AdminProductRequestController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PathaoController;
@@ -103,6 +104,12 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('orders/{order}/check-fraud', [OrderController::class, 'checkFraud'])->name('orders.check-fraud');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Product Requests
+    Route::get('product-requests', [AdminProductRequestController::class, 'index'])->name('product-requests.index');
+    Route::post('product-requests/{productRequest}/status', [AdminProductRequestController::class, 'updateStatus'])->name('product-requests.update-status');
+    Route::post('product-requests/{productRequest}/create-order', [AdminProductRequestController::class, 'createOrder'])->name('product-requests.create-order');
+    Route::delete('product-requests/{productRequest}', [AdminProductRequestController::class, 'destroy'])->name('product-requests.destroy');
 
     // Admin Notifications (JSON endpoints for header bell)
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

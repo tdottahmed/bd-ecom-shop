@@ -181,7 +181,7 @@ class CustomerController extends Controller
     private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 30)
     {
         $query = Product::with(['category', 'product_variations', 'product_variations.product_attribute'])
-            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
+            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'product_type', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
 
         // Filter by category if provided
         if ($categoryId) {
@@ -219,6 +219,12 @@ class CustomerController extends Controller
         // Preorder status
         if ($request->input('is_preorder') === 'true') {
             $query->where('is_preorder', true);
+        }
+
+        // Always rank in-stock first, then preorder, then out-of-stock (unless explicitly filtering by stock)
+        $explicitStockFilter = $request->input('in_stock') || $request->input('stock_out');
+        if (!$explicitStockFilter) {
+            $query->orderByRaw('CASE WHEN stock > 0 THEN 0 WHEN is_preorder = 1 THEN 1 ELSE 2 END');
         }
 
         // Sorting
