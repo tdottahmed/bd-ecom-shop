@@ -49,6 +49,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const hasVariations =
         product.product_variations && product.product_variations.length > 0;
 
+    // For variant products, determine availability from variation-level stock.
+    // Fallback to product.stock when a variation doesn't carry its own stock.
+    const hasInStockVariation =
+        hasVariations &&
+        (product.product_variations ?? []).some((variation) => {
+            const stock = variation.stock ?? product.stock;
+            return Number(stock) > 0;
+        });
+
+    const isOutOfStock = !product.is_preorder
+        ? hasVariations
+            ? !hasInStockVariation
+            : Number(product.stock) <= 0
+        : false;
+
     // For simple products, we use product.id as the key.
     // For variable products, keys are complex so we don't show inline controls here.
     const cartKey = String(product.id);
@@ -114,7 +129,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="group bg-white rounded-xl border border-gray-300 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative">
                 {/* Badges */}
                 <div className="absolute top-3 left-3 z-10 flex gap-2">
-                {product.stock > 0 ? (
+                {(!hasVariations && Number(product.stock) > 0) ||
+                (hasVariations && hasInStockVariation) ? (
                     <span className="bg-brand-success/15 text-brand-success text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
                         <Check size={10} strokeWidth={4} />
                         In Stock
@@ -256,7 +272,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 size="sm"
                             />
                         </div>
-                    ) : product.stock <= 0 && !product.is_preorder ? (
+                    ) : isOutOfStock ? (
                         <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRequestModal(true); }}
                             className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all duration-200"
