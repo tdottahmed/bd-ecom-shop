@@ -87,17 +87,26 @@ class OrderController extends Controller
                     $product = $item->product;
 
                     if ($product) {
-                        // Restore main product stock
-                        $product->increment('stock', $item->quantity);
+                        $hasVariationSelection = ! empty($item->variation_ids) && is_array($item->variation_ids);
 
-                        // Restore variation stock if variations exist
-                        if ($item->variation_ids && is_array($item->variation_ids)) {
-                            foreach ($item->variation_ids as $variationId) {
-                                $variation = \App\Models\ProductVariation::find($variationId);
-                                if ($variation && $variation->stock !== null) {
+                        // Variant item: restore selected variation stock, and keep
+                        // product stock in sync with the original checkout decrement.
+                        if ($hasVariationSelection) {
+                            $variationIds = array_map('intval', $item->variation_ids);
+                            $variations = $product->product_variations()
+                                ->whereIn('id', $variationIds)
+                                ->get();
+
+                            foreach ($variations as $variation) {
+                                if ($variation->stock !== null) {
                                     $variation->increment('stock', $item->quantity);
                                 }
                             }
+
+                            $product->increment('stock', $item->quantity);
+                        } else {
+                            // Simple item: restore only product stock.
+                            $product->increment('stock', $item->quantity);
                         }
                     }
                 }
