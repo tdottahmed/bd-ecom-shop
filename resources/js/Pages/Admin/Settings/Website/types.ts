@@ -49,5 +49,7 @@ export interface WebsiteSetting {
     additional_cost?: string | number | null;
     scheduled_product_update_enabled?: boolean;
     scheduled_product_update_cron?: string | null;
+    admin_notification_emails?: string | null;
+    admin_notification_enabled?: boolean;
 }
 

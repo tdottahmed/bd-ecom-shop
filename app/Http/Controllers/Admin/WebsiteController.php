@@ -55,6 +55,8 @@ class WebsiteController extends Controller
                 'additional_cost' => get_setting('additional_cost', '0'),
                 'scheduled_product_update_enabled' => get_setting('scheduled_product_update_enabled', '0') === '1',
                 'scheduled_product_update_cron' => get_setting('scheduled_product_update_cron', '0 0 * * *'),
+                'admin_notification_emails' => env('ADMIN_NOTIFICATION_EMAILS', ''),
+                'admin_notification_enabled' => env('ADMIN_NOTIFICATION_ENABLED', true),
             ],
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
@@ -407,6 +409,20 @@ class WebsiteController extends Controller
             Cache::forget('setting_customer_auth_enabled');
 
             return back()->with('success', 'Customer authentication setting updated successfully.');
+        }
+
+        if ($type === 'admin_notifications') {
+            $request->validate([
+                'admin_notification_emails' => 'nullable|string|max:2000',
+                'admin_notification_enabled' => 'required|boolean',
+            ]);
+
+            $this->updateEnvValues([
+                'ADMIN_NOTIFICATION_EMAILS' => (string) $request->input('admin_notification_emails', ''),
+                'ADMIN_NOTIFICATION_ENABLED' => $request->boolean('admin_notification_enabled') ? 'true' : 'false',
+            ]);
+
+            return back()->with('success', 'Admin notifications updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');

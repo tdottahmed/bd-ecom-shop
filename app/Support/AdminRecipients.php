@@ -12,6 +12,10 @@ class AdminRecipients
      */
     public static function emails(): array
     {
+        if (! env('ADMIN_NOTIFICATION_ENABLED', true)) {
+            return [];
+        }
+
         $raw = (string) env('ADMIN_NOTIFICATION_EMAILS', '');
 
         $fromEnv = array_values(array_filter(array_map(
@@ -36,6 +40,10 @@ class AdminRecipients
      */
     public static function users(): Collection
     {
+        if (! env('ADMIN_NOTIFICATION_ENABLED', true)) {
+            return collect();
+        }
+
         $raw = (string) env('ADMIN_NOTIFICATION_EMAILS', '');
 
         if ($raw !== '') {

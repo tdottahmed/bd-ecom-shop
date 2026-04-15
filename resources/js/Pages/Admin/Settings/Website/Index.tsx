@@ -16,6 +16,7 @@ import CustomerAuthSettingsForm from "./Partials/CustomerAuthSettingsForm";
 import BlogSettingsForm from "./Partials/BlogSettingsForm";
 import SmtpSettingsForm from "./Partials/SmtpSettingsForm";
 import SchedulerSettingsForm from "./Partials/SchedulerSettingsForm";
+import AdminNotificationSettingsForm from "./Partials/AdminNotificationSettingsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -100,6 +101,7 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                     {activeTab === "system" && (
                         <>
                             <CustomerAuthSettingsForm settings={settings} />
+                            <AdminNotificationSettingsForm settings={settings} />
                             <SmtpSettingsForm settings={settings} />
                             <SchedulerSettingsForm settings={settings} />
                         </>
