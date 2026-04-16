@@ -19,9 +19,9 @@ interface Props {
 }
 
 const PAGE_ICONS: Record<string, React.ReactNode> = {
-    "privacy-policy":  <FileText size={20} className="text-[#2DE3A7]" />,
+    "privacy-policy": <FileText size={20} className="text-[#2DE3A7]" />,
     "terms-conditions": <FileText size={20} className="text-[#2DE3A7]" />,
-    "refund-policy":   <FileText size={20} className="text-[#2DE3A7]" />,
+    "refund-policy": <FileText size={20} className="text-[#2DE3A7]" />,
 };
 
 export default function LegalPagesIndex({ pages }: Props) {
@@ -30,13 +30,14 @@ export default function LegalPagesIndex({ pages }: Props) {
             title="Legal Pages"
             head={<Header title="Legal Pages" showUserMenu={true} />}
         >
-            <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6 space-y-6 max-w-8xl mx-auto">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white">
                         Legal Pages
                     </h1>
                     <p className="text-sm md:text-base text-gray-400 mt-1">
-                        Manage your store's legal documents and choose whether each one appears in header/footer navigation.
+                        Manage your store's legal documents and choose whether
+                        each one appears in header/footer navigation.
                     </p>
                 </div>
 
@@ -48,7 +49,10 @@ export default function LegalPagesIndex({ pages }: Props) {
                         >
                             <div className="w-10 h-10 rounded-lg bg-[#0F1A18] flex items-center justify-center shrink-0">
                                 {PAGE_ICONS[page.slug] ?? (
-                                    <Globe size={20} className="text-[#2DE3A7]" />
+                                    <Globe
+                                        size={20}
+                                        className="text-[#2DE3A7]"
+                                    />
                                 )}
                             </div>
 
@@ -64,7 +68,9 @@ export default function LegalPagesIndex({ pages }: Props) {
                                                 : "bg-gray-500/10 text-gray-300 border-gray-500/30"
                                         }`}
                                     >
-                                        {page.is_published ? "Published" : "Draft"}
+                                        {page.is_published
+                                            ? "Published"
+                                            : "Draft"}
                                     </span>
                                     {page.show_in_header && (
                                         <span className="text-xs font-semibold px-2 py-0.5 rounded border bg-sky-500/10 text-sky-300 border-sky-500/30">
@@ -94,7 +100,8 @@ export default function LegalPagesIndex({ pages }: Props) {
                 </div>
 
                 <p className="text-xs text-gray-600">
-                    Legal pages are fixed and cannot be removed, but you can control visibility and navigation placement.
+                    Legal pages are fixed and cannot be removed, but you can
+                    control visibility and navigation placement.
                 </p>
             </div>
         </Master>
