@@ -17,50 +17,17 @@ class WebsiteController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Settings/Website/Index', [
-            'settings' => [
-                'smtp_host' => get_setting('smtp_host', ''),
-                'smtp_port' => get_setting('smtp_port', '587'),
-                'smtp_username' => get_setting('smtp_username', ''),
-                'smtp_password' => get_setting('smtp_password', ''),
-                'smtp_encryption' => get_setting('smtp_encryption', 'tls'),
-                'smtp_from_address' => get_setting('smtp_from_address', ''),
-                'smtp_from_name' => get_setting('smtp_from_name', ''),
-                'banner_active' => get_setting('banner_active', '1') === '1',
-                'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
-                'site_logo' => get_setting('site_logo'),
-                'site_favicon' => get_setting('site_favicon'),
-                'theme_colors' => theme_colors(),
-                'auth_page_image' => get_setting('auth_page_image'),
-                'footer_description' => get_setting('footer_description'),
-                'social_facebook' => get_setting('social_facebook'),
-                'social_instagram' => get_setting('social_instagram'),
-                'social_youtube' => get_setting('social_youtube'),
-                'social_tiktok' => get_setting('social_tiktok'),
-                'contact_address' => get_setting('contact_address', 'Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia'),
-                'contact_phone' => get_setting('contact_phone', '+60 3 1234 5678'),
-                'contact_email' => get_setting('contact_email', 'support@truebymalaysia.com'),
-                'contact_hours' => get_setting('contact_hours', 'Mon–Fri: 9am–6pm, Sat: 10am–2pm'),
-                'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
-                'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
-                'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
-                'cta_enabled' => get_setting('cta_enabled', '1') === '1',
-                'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
-                'blog_enabled' => get_setting('blog_enabled', '1') === '1',
-                'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
-                'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
-                'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
-                'cta_browse_link' => get_setting('cta_browse_link', '/products'),
-                'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
-                'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
-                'additional_cost' => get_setting('additional_cost', '0'),
-                'scheduled_product_update_enabled' => get_setting('scheduled_product_update_enabled', '0') === '1',
-                'scheduled_product_update_cron' => get_setting('scheduled_product_update_cron', '0 0 * * *'),
-                'admin_notification_emails' => env('ADMIN_NOTIFICATION_EMAILS', ''),
-                'admin_notification_enabled' => env('ADMIN_NOTIFICATION_ENABLED', true),
-            ],
+            'settings' => $this->websiteSettingsPayload(),
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
             'whatsappLink' => get_setting('whatsapp_link'),
+        ]);
+    }
+
+    public function content()
+    {
+        return Inertia::render('Admin/Content/Index', [
+            'settings' => $this->websiteSettingsPayload(),
         ]);
     }
 
@@ -500,5 +467,55 @@ class WebsiteController extends Controller
         }
 
         return $value;
+    }
+
+    /**
+     * Shared settings payload for settings + content admins pages.
+     *
+     * @return array<string, mixed>
+     */
+    private function websiteSettingsPayload(): array
+    {
+        return [
+            'smtp_host' => get_setting('smtp_host', ''),
+            'smtp_port' => get_setting('smtp_port', '587'),
+            'smtp_username' => get_setting('smtp_username', ''),
+            'smtp_password' => get_setting('smtp_password', ''),
+            'smtp_encryption' => get_setting('smtp_encryption', 'tls'),
+            'smtp_from_address' => get_setting('smtp_from_address', ''),
+            'smtp_from_name' => get_setting('smtp_from_name', ''),
+            'banner_active' => get_setting('banner_active', '1') === '1',
+            'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
+            'site_logo' => get_setting('site_logo'),
+            'site_favicon' => get_setting('site_favicon'),
+            'theme_colors' => theme_colors(),
+            'auth_page_image' => get_setting('auth_page_image'),
+            'footer_description' => get_setting('footer_description'),
+            'social_facebook' => get_setting('social_facebook'),
+            'social_instagram' => get_setting('social_instagram'),
+            'social_youtube' => get_setting('social_youtube'),
+            'social_tiktok' => get_setting('social_tiktok'),
+            'contact_address' => get_setting('contact_address', 'Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia'),
+            'contact_phone' => get_setting('contact_phone', '+60 3 1234 5678'),
+            'contact_email' => get_setting('contact_email', 'support@truebymalaysia.com'),
+            'contact_hours' => get_setting('contact_hours', 'Mon–Fri: 9am–6pm, Sat: 10am–2pm'),
+            'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
+            'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
+            'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
+            'cta_enabled' => get_setting('cta_enabled', '1') === '1',
+            'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
+            'blog_enabled' => get_setting('blog_enabled', '1') === '1',
+            'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
+            'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
+            'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
+            'cta_browse_link' => get_setting('cta_browse_link', '/products'),
+            'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
+            'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
+            'additional_cost' => get_setting('additional_cost', '0'),
+            'scheduled_product_update_enabled' => get_setting('scheduled_product_update_enabled', '0') === '1',
+            'scheduled_product_update_cron' => get_setting('scheduled_product_update_cron', '0 0 * * *'),
+            'admin_notification_emails' => env('ADMIN_NOTIFICATION_EMAILS', ''),
+            'admin_notification_enabled' => env('ADMIN_NOTIFICATION_ENABLED', true),
+        ];
     }
 }

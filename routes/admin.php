@@ -81,6 +81,7 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('discounts/update', [DiscountController::class, 'update'])->name('discounts.update');
     Route::get('website', [WebsiteController::class, 'index'])->name('website.index');
     Route::post('website/update', [WebsiteController::class, 'update'])->name('website.update');
+    Route::get('content-settings', [WebsiteController::class, 'content'])->name('content-settings.index');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');

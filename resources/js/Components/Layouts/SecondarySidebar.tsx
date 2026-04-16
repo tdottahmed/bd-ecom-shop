@@ -138,6 +138,20 @@ export const pagesMenuItems: MenuItem[] = [
         urlPattern: "/admin/pages",
     },
     {
+        key: "home_page_builder",
+        label: "Home Page",
+        icon: <Sparkles size={18} />,
+        route: "admin.home-settings.index",
+        urlPattern: "/admin/home-settings",
+    },
+    {
+        key: "content_settings",
+        label: "Others Contents",
+        icon: <FileText size={18} />,
+        route: "admin.content-settings.index",
+        urlPattern: "/admin/content-settings",
+    },
+    {
         key: "faq_manager",
         label: "FAQ Manager",
         icon: <CircleHelp size={18} />,
@@ -153,13 +167,6 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Globe size={18} />,
         route: "admin.website.index",
         urlPattern: "/admin/website",
-    },
-    {
-        key: "home_settings",
-        label: "Home Settings",
-        icon: <Sparkles size={18} />,
-        route: "admin.home-settings.index",
-        urlPattern: "/admin/home-settings",
     },
     {
         key: "users",

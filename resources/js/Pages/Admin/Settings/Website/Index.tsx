@@ -8,11 +8,7 @@ import BrandingForm from "./Partials/BrandingForm";
 import FooterSettingsForm from "./Partials/FooterSettingsForm";
 import ChatLinksForm from "./Partials/ChatLinksForm";
 import DeliveryChargeForm from "./Partials/DeliveryChargeForm";
-import ContactInfoForm from "./Partials/ContactInfoForm";
-import AboutSettingsForm from "./Partials/AboutSettingsForm";
-import CtaSettingsForm from "./Partials/CtaSettingsForm";
 import CustomerAuthSettingsForm from "./Partials/CustomerAuthSettingsForm";
-import BlogSettingsForm from "./Partials/BlogSettingsForm";
 import SmtpSettingsForm from "./Partials/SmtpSettingsForm";
 import SchedulerSettingsForm from "./Partials/SchedulerSettingsForm";
 import AdminNotificationSettingsForm from "./Partials/AdminNotificationSettingsForm";
@@ -31,7 +27,6 @@ const TABS = [
     { id: "branding",  label: "Branding" },
     { id: "social",    label: "Social & Footer" },
     { id: "delivery",  label: "Delivery" },
-    { id: "content",   label: "Content" },
     { id: "system",    label: "System" },
 ] as const;
 
@@ -87,15 +82,6 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
 
                     {activeTab === "delivery" && (
                         <DeliveryChargeForm charges={deliveryCharges} />
-                    )}
-
-                    {activeTab === "content" && (
-                        <>
-                            <BlogSettingsForm settings={settings} />
-                            <ContactInfoForm settings={settings} />
-                            <AboutSettingsForm settings={settings} />
-                            <CtaSettingsForm settings={settings} />
-                        </>
                     )}
 
                     {activeTab === "system" && (

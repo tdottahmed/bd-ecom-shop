@@ -34,10 +34,11 @@ const PAGES_ROUTES = [
     "blogs",
     "newsletter-subscriptions",
     "contact-messages",
+    "content-settings",
+    "home-settings",
 ];
 const SETTINGS_ROUTES = [
     "website",
-    "home-settings",
     "users",
     "payment-gateways",
     "courier",
