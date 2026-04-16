@@ -7,18 +7,20 @@ import SelectInput from "@/Components/Ui/SelectInput";
 import PrimaryButton from "@/Components/Actions/PrimaryButton";
 import SecondaryButton from "@/Components/Actions/SecondaryButton";
 import { Order } from "@/types";
-import { TruckIcon, PackageIcon, LoaderCircleIcon } from "lucide-react";
+import { TruckIcon, PackageIcon, BotIcon, LoaderCircleIcon } from "lucide-react";
 
 interface PathaoArea   { area_id: number;   area_name: string }
 interface PathaoZone   { zone_id: number;   zone_name: string }
 interface PathaoCity   { city_id: number;   city_name: string }
+
+type CourierType = "steadfast" | "pathao" | "carrybee";
 
 interface ConfirmData {
     name: string;
     address: string;
     phone: string;
     note?: string;
-    courier: "steadfast" | "pathao";
+    courier: CourierType;
     pathao_city_id?: number;
     pathao_zone_id?: number;
     pathao_area_id?: number;
@@ -43,7 +45,7 @@ export default function ShippingConfirmationModal({
     const [address, setAddress] = useState("");
     const [phone,   setPhone]   = useState("");
     const [note,    setNote]    = useState("");
-    const [courier, setCourier] = useState<"steadfast" | "pathao">("steadfast");
+    const [courier, setCourier] = useState<CourierType>("steadfast");
 
     // Pathao address state
     const [cities,      setCities]      = useState<PathaoCity[]>([]);
@@ -131,9 +133,10 @@ export default function ShippingConfirmationModal({
         [areas],
     );
 
-    const pathaoReady =
-        courier === "steadfast" ||
-        (courier === "pathao" && !!cityId && !!zoneId && !!areaId);
+    // Pathao requires city/zone/area; other couriers are always ready
+    const isFormReady =
+        courier !== "pathao" ||
+        (!!cityId && !!zoneId && !!areaId);
 
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="lg">
@@ -147,19 +150,25 @@ export default function ShippingConfirmationModal({
 
                 {/* Courier selector */}
                 <div className="flex gap-3 mb-6">
-                    {(["steadfast", "pathao"] as const).map((c) => (
+                    {(
+                        [
+                            { id: "steadfast", label: "Steadfast", icon: <PackageIcon size={15} /> },
+                            { id: "pathao",    label: "Pathao",    icon: <TruckIcon    size={15} /> },
+                            { id: "carrybee",  label: "Carry Bee", icon: <BotIcon      size={15} /> },
+                        ] as const
+                    ).map(({ id, label, icon }) => (
                         <button
-                            key={c}
+                            key={id}
                             type="button"
-                            onClick={() => setCourier(c)}
+                            onClick={() => setCourier(id)}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border text-sm font-medium transition-all ${
-                                courier === c
+                                courier === id
                                     ? "border-[#2DE3A7] bg-[#2DE3A7]/10 text-[#2DE3A7]"
                                     : "border-[#1E2826] bg-[#0C1311] text-gray-400 hover:border-[#2DE3A7]/40"
                             }`}
                         >
-                            {c === "steadfast" ? <PackageIcon size={15} /> : <TruckIcon size={15} />}
-                            {c.charAt(0).toUpperCase() + c.slice(1)}
+                            {icon}
+                            {label}
                         </button>
                     ))}
                 </div>
@@ -296,7 +305,7 @@ export default function ShippingConfirmationModal({
                         <SecondaryButton type="button" onClick={onClose} disabled={processing}>
                             Cancel
                         </SecondaryButton>
-                        <PrimaryButton disabled={processing || !pathaoReady}>
+                        <PrimaryButton disabled={processing || !isFormReady}>
                             {processing ? (
                                 <>
                                     <LoaderCircleIcon size={14} className="animate-spin mr-1.5" />

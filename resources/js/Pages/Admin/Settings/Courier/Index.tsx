@@ -9,6 +9,7 @@ import Card, { CardContent } from "@/Components/Ui/Card";
 import {
     TruckIcon,
     PackageIcon,
+    BotIcon,
     ZapIcon,
     InfoIcon,
     CopyIcon,
@@ -33,6 +34,10 @@ interface Props {
         steadfast_password?: string;
         steadfast_api_key?: string;
         steadfast_secret_key?: string;
+        carrybee_sandbox?: boolean;
+        carrybee_client_id?: string;
+        carrybee_client_secret?: string;
+        carrybee_client_context?: string;
         redx_phone?: string;
         redx_password?: string;
     };
@@ -194,6 +199,10 @@ export default function Index({ credentials }: Props) {
         steadfast_password: credentials.steadfast_password ?? "",
         steadfast_api_key: credentials.steadfast_api_key ?? "",
         steadfast_secret_key: credentials.steadfast_secret_key ?? "",
+        carrybee_sandbox: credentials.carrybee_sandbox ?? false,
+        carrybee_client_id: credentials.carrybee_client_id ?? "",
+        carrybee_client_secret: credentials.carrybee_client_secret ?? "",
+        carrybee_client_context: credentials.carrybee_client_context ?? "",
         redx_phone: credentials.redx_phone ?? "",
         redx_password: credentials.redx_password ?? "",
     });
@@ -504,75 +513,121 @@ export default function Index({ credentials }: Props) {
                         </CardContent>
                     </Card>
 
-                    {/* ── RedX ─────────────────────────────────────────────── */}
+                    {/* ── Carry Bee ────────────────────────────────────────── */}
                     <Card>
                         <CardContent className="p-6 space-y-5">
-                            <div className="flex items-center gap-3 border-b border-[#1E2826] pb-3 mb-1">
-                                <div className="p-2 rounded-lg bg-red-500/10">
-                                    <ZapIcon
-                                        size={18}
-                                        className="text-red-400"
-                                    />
+                            <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-yellow-500/10">
+                                        <BotIcon
+                                            size={18}
+                                            className="text-yellow-400"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white">
+                                            Carry Bee Courier
+                                        </h3>
+                                        <p className="text-xs text-gray-500">
+                                            OAuth2 credentials from Carry Bee
+                                            developer portal
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-semibold text-white">
-                                        RedX Courier
-                                    </h3>
-                                    <p className="text-xs text-gray-500">
-                                        Phone & password from RedX merchant
-                                        account
-                                    </p>
+                                <div className="flex items-center gap-3">
+                                    {data.carrybee_sandbox && (
+                                        <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-full">
+                                            <FlaskConicalIcon size={11} />
+                                            Sandbox mode
+                                        </span>
+                                    )}
+                                    <Toggle
+                                        enabled={data.carrybee_sandbox}
+                                        onChange={(v) =>
+                                            setData("carrybee_sandbox", v)
+                                        }
+                                        label="Live"
+                                        activeLabel="Sandbox"
+                                    />
                                 </div>
                             </div>
 
                             <InstructionPanel
-                                title="How to get RedX credentials"
-                                link="https://merchant.redx.com.bd"
-                                linkLabel="Open RedX Merchant Portal →"
+                                title="How to get Carry Bee credentials"
+                                link="https://developers.carrybee.com"
+                                linkLabel="Open Carry Bee Developer Portal →"
                                 steps={[
                                     <>
-                                        Register or log in at the{" "}
+                                        Log in to the{" "}
                                         <strong className="text-white">
-                                            RedX Merchant Portal
+                                            Carry Bee developer portal
+                                        </strong>{" "}
+                                        and go to{" "}
+                                        <strong className="text-white">
+                                            API Credentials
                                         </strong>
                                         .
                                     </>,
                                     <>
-                                        Your{" "}
+                                        Copy your{" "}
                                         <strong className="text-white">
-                                            Phone Number
+                                            Client ID
+                                        </strong>
+                                        ,{" "}
+                                        <strong className="text-white">
+                                            Client Secret
+                                        </strong>
+                                        , and{" "}
+                                        <strong className="text-white">
+                                            Client Context
                                         </strong>{" "}
-                                        is the mobile number used during
-                                        registration.
+                                        from the Secrets section.
                                     </>,
                                     <>
-                                        Your{" "}
+                                        Toggle{" "}
                                         <strong className="text-white">
-                                            Password
+                                            Sandbox
                                         </strong>{" "}
-                                        is your merchant account login password.
+                                        while testing; switch to{" "}
+                                        <strong className="text-white">
+                                            Live
+                                        </strong>{" "}
+                                        before going to production.
                                     </>,
                                 ]}
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Field
-                                    id="redx_phone"
-                                    label="Phone Number"
-                                    value={data.redx_phone}
-                                    onChange={(v) => setData("redx_phone", v)}
-                                    placeholder="01XXXXXXXXX"
+                                    id="carrybee_client_id"
+                                    label="Client ID"
+                                    value={data.carrybee_client_id}
+                                    onChange={(v) =>
+                                        setData("carrybee_client_id", v)
+                                    }
+                                    placeholder="From Carry Bee developer portal"
                                 />
                                 <Field
-                                    id="redx_password"
-                                    label="Password"
-                                    value={data.redx_password}
+                                    id="carrybee_client_secret"
+                                    label="Client Secret"
+                                    value={data.carrybee_client_secret}
                                     type="password"
                                     onChange={(v) =>
-                                        setData("redx_password", v)
+                                        setData("carrybee_client_secret", v)
+                                    }
+                                />
+                                <Field
+                                    id="carrybee_client_context"
+                                    label="Client Context"
+                                    value={data.carrybee_client_context}
+                                    type="password"
+                                    onChange={(v) =>
+                                        setData("carrybee_client_context", v)
                                     }
                                 />
                             </div>
+
+                            <WebhookUrlBox url={`${origin}/webhooks/carrybee`} />
                         </CardContent>
                     </Card>
 

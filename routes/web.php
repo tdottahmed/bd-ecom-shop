@@ -15,6 +15,7 @@ use App\Http\Controllers\Payment\SSLCommerzController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Webhook\CarryBeeWebhookController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
 use App\Http\Controllers\Webhook\SteadfastWebhookController;
 use Illuminate\Support\Facades\Artisan;
@@ -52,6 +53,7 @@ Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 's
 // Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
 Route::post('webhooks/pathao',    [PathaoWebhookController::class,    'handle'])->name('webhooks.pathao');
 Route::post('webhooks/steadfast', [SteadfastWebhookController::class, 'handle'])->name('webhooks.steadfast');
+Route::post('webhooks/carrybee',  [CarryBeeWebhookController::class,  'handle'])->name('webhooks.carrybee');
 
 // Payment gateway callbacks (excluded from CSRF — see bootstrap/app.php)
 Route::prefix('payment')->name('payment.')->group(function () {
