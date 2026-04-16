@@ -191,7 +191,7 @@ export default function LegalPageForm({ page }: Props) {
         >
             <Head title={`Edit — ${page.title}`} />
 
-            <div className="p-4 md:p-6 space-y-6 max-w-8xl mx-auto">
+            <div className="p-2 md:p-6 space-y-4 md:space-y-6 max-w-8xl mx-auto">
                 <div className="flex items-center gap-3">
                     <Link
                         href={route("admin.legal-pages.index")}
@@ -202,8 +202,8 @@ export default function LegalPageForm({ page }: Props) {
                     </Link>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <Card>
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                    <Card padding="none" className="p-3 md:p-6">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <div>
                                 <h3 className="text-lg font-semibold text-[#2DE3A7] flex items-center gap-2">
@@ -245,7 +245,7 @@ export default function LegalPageForm({ page }: Props) {
                         </div>
                     </Card>
 
-                    <Card>
+                    <Card padding="none" className="p-3 md:p-6">
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold text-[#2DE3A7]">
                                 {page.title}
