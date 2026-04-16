@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\LegalPageController;
@@ -105,6 +106,8 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
     Route::resource('pages', PageController::class)->except(['show']);
+    Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
+    Route::post('faq', [FaqController::class, 'update'])->name('faq.update');
 
     // Legal Pages (fixed: Privacy Policy, Terms & Conditions, Refund Policy)
     Route::get('legal-pages', [LegalPageController::class, 'index'])->name('legal-pages.index');

@@ -8,7 +8,6 @@ import BrandingForm from "./Partials/BrandingForm";
 import FooterSettingsForm from "./Partials/FooterSettingsForm";
 import ChatLinksForm from "./Partials/ChatLinksForm";
 import DeliveryChargeForm from "./Partials/DeliveryChargeForm";
-import FaqForm from "./Partials/FaqForm";
 import ContactInfoForm from "./Partials/ContactInfoForm";
 import AboutSettingsForm from "./Partials/AboutSettingsForm";
 import CtaSettingsForm from "./Partials/CtaSettingsForm";
@@ -93,7 +92,6 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                     {activeTab === "content" && (
                         <>
                             <BlogSettingsForm settings={settings} />
-                            <FaqForm faqs={settings.faqs || []} />
                             <ContactInfoForm settings={settings} />
                             <AboutSettingsForm settings={settings} />
                             <CtaSettingsForm settings={settings} />

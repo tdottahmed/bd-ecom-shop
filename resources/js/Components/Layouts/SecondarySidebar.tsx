@@ -33,6 +33,7 @@ import {
     MapPin,
     Scale,
     LayoutTemplate,
+    CircleHelp,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -135,6 +136,13 @@ export const pagesMenuItems: MenuItem[] = [
         icon: <LayoutTemplate size={18} />,
         route: "admin.pages.index",
         urlPattern: "/admin/pages",
+    },
+    {
+        key: "faq_manager",
+        label: "FAQ Manager",
+        icon: <CircleHelp size={18} />,
+        route: "admin.faq.index",
+        urlPattern: "/admin/faq",
     },
 ];
 

@@ -27,7 +27,6 @@ class WebsiteController extends Controller
                 'smtp_from_name' => get_setting('smtp_from_name', ''),
                 'banner_active' => get_setting('banner_active', '1') === '1',
                 'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
-                'faqs' => json_decode(get_setting('faqs', '[]'), true),
                 'site_logo' => get_setting('site_logo'),
                 'site_favicon' => get_setting('site_favicon'),
                 'theme_colors' => theme_colors(),
@@ -255,24 +254,6 @@ class WebsiteController extends Controller
             }
 
             return back()->with('success', 'Footer settings updated successfully.');
-        }
-
-        if ($type === 'faq') {
-            $request->validate([
-                'faqs' => 'nullable|array',
-                'faqs.*.question' => 'required|string|max:500',
-                'faqs.*.answer' => 'required|string|max:2000',
-            ]);
-
-            // Only keep non-empty faq entries just in case
-            $faqs = collect($request->faqs ?? [])->filter(function ($faq) {
-                return ! empty($faq['question']) && ! empty($faq['answer']);
-            })->values()->toArray();
-
-            Setting::updateOrCreate(['key' => 'faqs'], ['value' => json_encode($faqs)]);
-            Cache::forget('setting_faqs');
-
-            return back()->with('success', 'FAQs updated successfully.');
         }
 
         if ($type === 'contact') {

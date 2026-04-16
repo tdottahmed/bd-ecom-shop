@@ -19,7 +19,6 @@ interface FaqFormProps {
 
 export default function FaqForm({ faqs }: FaqFormProps) {
     const { data, setData, post, processing, errors } = useForm({
-        type: "faq",
         faqs: faqs || [],
     });
 
@@ -33,11 +32,7 @@ export default function FaqForm({ faqs }: FaqFormProps) {
         setData("faqs", newFaqs);
     };
 
-    const updateFaq = (
-        index: number,
-        key: "question" | "answer",
-        value: string,
-    ) => {
+    const updateFaq = (index: number, key: "question" | "answer", value: string) => {
         const newFaqs = [...data.faqs];
         newFaqs[index][key] = value;
         setData("faqs", newFaqs);
@@ -45,7 +40,7 @@ export default function FaqForm({ faqs }: FaqFormProps) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route("admin.website.update"), {
+        post(route("admin.faq.update"), {
             preserveScroll: true,
         });
     };
@@ -65,6 +60,9 @@ export default function FaqForm({ faqs }: FaqFormProps) {
                             Add FAQ
                         </button>
                     </div>
+                    <p className="text-xs text-gray-400">
+                        Add, reorder by deleting/re-adding, and edit common customer questions.
+                    </p>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
@@ -83,11 +81,7 @@ export default function FaqForm({ faqs }: FaqFormProps) {
                                             placeholder="e.g. Do you ship internationally?"
                                             value={faq.question}
                                             onChange={(e) =>
-                                                updateFaq(
-                                                    index,
-                                                    "question",
-                                                    e.target.value,
-                                                )
+                                                updateFaq(index, "question", e.target.value)
                                             }
                                             className="w-full bg-[#0E1614] border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#2DE3A7]"
                                             required
@@ -105,11 +99,7 @@ export default function FaqForm({ faqs }: FaqFormProps) {
                                         <textarea
                                             value={faq.answer}
                                             onChange={(e) =>
-                                                updateFaq(
-                                                    index,
-                                                    "answer",
-                                                    e.target.value,
-                                                )
+                                                updateFaq(index, "answer", e.target.value)
                                             }
                                             rows={3}
                                             className="w-full bg-[#0E1614] border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#2DE3A7] resize-y"
