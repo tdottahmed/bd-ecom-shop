@@ -21,13 +21,26 @@ import {
     ExternalLink,
     ShieldCheck,
     Bell,
+    BarChart3,
+    TrendingUp,
+    Package,
+    ShoppingBag,
+    Warehouse,
+    CreditCard,
+    Undo2,
+    Receipt,
+    ShoppingCart,
+    MapPin,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
+
+export type SecondaryPanel = "menu" | "reports";
 
 interface SecondarySidebarProps {
     isOpen: boolean;
     onClose: () => void;
     mobile?: boolean;
+    panel?: SecondaryPanel;
 }
 
 interface MenuItem {
@@ -36,6 +49,8 @@ interface MenuItem {
     icon: React.ReactNode;
     route?: string;
     urlPattern?: string;
+    /** `exact` = path must equal urlPattern (after stripping query). Default: prefix match. */
+    match?: "exact" | "prefix";
 }
 
 export const secondaryMenuItems: MenuItem[] = [
@@ -154,6 +169,101 @@ export const secondaryMenuItems: MenuItem[] = [
     },
 ];
 
+export const reportsMenuItems: MenuItem[] = [
+    {
+        key: "reports_overview",
+        label: "Overview",
+        icon: <BarChart3 size={18} />,
+        route: "admin.reports.index",
+        urlPattern: "/admin/reports",
+        match: "exact",
+    },
+    {
+        key: "reports_sales",
+        label: "Sales performance",
+        icon: <TrendingUp size={18} />,
+        route: "admin.reports.sales",
+        urlPattern: "/admin/reports/sales",
+    },
+    {
+        key: "reports_orders",
+        label: "Orders",
+        icon: <Package size={18} />,
+        route: "admin.reports.orders",
+        urlPattern: "/admin/reports/orders",
+    },
+    {
+        key: "reports_products",
+        label: "Products",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.reports.products",
+        urlPattern: "/admin/reports/products",
+    },
+    {
+        key: "reports_inventory",
+        label: "Inventory",
+        icon: <Warehouse size={18} />,
+        route: "admin.reports.inventory",
+        urlPattern: "/admin/reports/inventory",
+    },
+    {
+        key: "reports_customers",
+        label: "Customers",
+        icon: <Users size={18} />,
+        route: "admin.reports.customers",
+        urlPattern: "/admin/reports/customers",
+    },
+    {
+        key: "reports_discounts",
+        label: "Discounts & coupons",
+        icon: <BadgePercent size={18} />,
+        route: "admin.reports.discounts",
+        urlPattern: "/admin/reports/discounts",
+    },
+    {
+        key: "reports_payments",
+        label: "Payments",
+        icon: <CreditCard size={18} />,
+        route: "admin.reports.payments",
+        urlPattern: "/admin/reports/payments",
+    },
+    {
+        key: "reports_shipping",
+        label: "Shipping & delivery",
+        icon: <Truck size={18} />,
+        route: "admin.reports.shipping",
+        urlPattern: "/admin/reports/shipping",
+    },
+    {
+        key: "reports_refunds",
+        label: "Refunds & returns",
+        icon: <Undo2 size={18} />,
+        route: "admin.reports.refunds",
+        urlPattern: "/admin/reports/refunds",
+    },
+    {
+        key: "reports_tax",
+        label: "Tax",
+        icon: <Receipt size={18} />,
+        route: "admin.reports.tax",
+        urlPattern: "/admin/reports/tax",
+    },
+    {
+        key: "reports_abandoned",
+        label: "Abandoned checkouts",
+        icon: <ShoppingCart size={18} />,
+        route: "admin.reports.abandoned-checkouts",
+        urlPattern: "/admin/reports/abandoned-checkouts",
+    },
+    {
+        key: "reports_geography",
+        label: "Geography",
+        icon: <MapPin size={18} />,
+        route: "admin.reports.geography",
+        urlPattern: "/admin/reports/geography",
+    },
+];
+
 const MenuLink = ({
     item,
     onClick,
@@ -198,19 +308,33 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     isOpen,
     onClose,
     mobile = false,
+    panel = "menu",
 }) => {
     const { post } = useForm();
     const { url, props } = usePage();
     const authUser = (props as any)?.auth?.user;
 
+    const pathOnly = url.split("?")[0];
+
     const handleLogout = () => {
         post(route("logout"));
     };
 
+    const items = panel === "reports" ? reportsMenuItems : secondaryMenuItems;
+
     const isMenuItemActive = (item: MenuItem): boolean => {
         if (!item.urlPattern) return false;
-        return url.startsWith(item.urlPattern);
+        if (item.match === "exact") {
+            return pathOnly === item.urlPattern || pathOnly === `${item.urlPattern}/`;
+        }
+        return pathOnly.startsWith(item.urlPattern);
     };
+
+    const panelTitle = panel === "reports" ? "Reports" : "More";
+    const panelSubtitle =
+        panel === "reports"
+            ? "Sales, inventory, and store analytics"
+            : "Settings & content";
 
     const initials = (authUser?.name || "A")
         .split(" ")
@@ -267,8 +391,15 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                     </div>
                 </div>
 
+                <div className="px-4 pb-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                        {panelTitle}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">{panelSubtitle}</p>
+                </div>
+
                 <nav className="p-3 space-y-1">
-                    {secondaryMenuItems.map((item) => (
+                    {items.map((item) => (
                         <MenuLink
                             key={item.key}
                             item={item}
@@ -349,8 +480,15 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                 </div>
             </div>
 
+            <div className="px-4 pt-2 pb-1 border-b border-gray-800/40">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                    {panelTitle}
+                </p>
+                <p className="text-xs text-gray-600 mt-0.5">{panelSubtitle}</p>
+            </div>
+
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {secondaryMenuItems.map((item) => (
+                {items.map((item) => (
                     <MenuLink
                         key={item.key}
                         item={item}

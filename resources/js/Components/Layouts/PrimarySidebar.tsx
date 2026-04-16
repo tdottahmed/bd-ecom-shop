@@ -1,10 +1,11 @@
 import React from "react";
-import { Home, ShoppingBag, Package, Grid, FileText } from "lucide-react";
+import { Home, ShoppingBag, Package, Grid, FileText, BarChart3 } from "lucide-react";
 import { Link, usePage } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
 
 interface PrimarySidebarProps {
     onMoreClick?: () => void;
+    onReportsClick?: () => void;
 }
 
 const primaryMenuItems = [
@@ -37,6 +38,13 @@ const primaryMenuItems = [
         urlPattern: "/admin/landing-pages",
     },
     {
+        key: "reports",
+        label: "Reports",
+        icon: <BarChart3 size={20} />,
+        route: null,
+        urlPattern: "/admin/reports",
+    },
+    {
         key: "more",
         label: "More",
         icon: <Grid size={20} />,
@@ -45,13 +53,19 @@ const primaryMenuItems = [
     },
 ];
 
-const PrimarySidebar: React.FC<PrimarySidebarProps> = ({ onMoreClick }) => {
+const PrimarySidebar: React.FC<PrimarySidebarProps> = ({
+    onMoreClick,
+    onReportsClick,
+}) => {
     const activeRoute = useActiveRoute();
     const { siteFavicon } = usePage().props as any;
 
     const handleItemClick = (item: (typeof primaryMenuItems)[0]) => {
         if (item.key === "more" && onMoreClick) {
             onMoreClick();
+        }
+        if (item.key === "reports" && onReportsClick) {
+            onReportsClick();
         }
     };
 
@@ -65,8 +79,18 @@ const PrimarySidebar: React.FC<PrimarySidebarProps> = ({ onMoreClick }) => {
         }
 
         if (item.key === "more") {
-            const mainKeys = ["dashboard", "products", "orders"];
+            const mainKeys = [
+                "dashboard",
+                "products",
+                "orders",
+                "reports",
+                "landing-pages",
+            ];
             return !mainKeys.includes(activeRoute);
+        }
+
+        if (item.key === "reports") {
+            return activeRoute === "reports";
         }
 
         return activeRoute === item.key;
@@ -108,6 +132,7 @@ const PrimarySidebar: React.FC<PrimarySidebarProps> = ({ onMoreClick }) => {
                             </Link>
                         ) : (
                             <button
+                                type="button"
                                 onClick={() => handleItemClick(item)}
                                 className={`flex flex-col items-center p-3 rounded-lg transition-all w-full ${
                                     isActive(item)

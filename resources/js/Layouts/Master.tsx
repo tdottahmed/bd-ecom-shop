@@ -3,6 +3,7 @@ import MobileBottomNav from "@/Components/Layouts/MobileBottomNav";
 import PrimarySidebar from "@/Components/Layouts/PrimarySidebar";
 import SecondarySidebar, {
     secondaryMenuItems,
+    type SecondaryPanel,
 } from "@/Components/Layouts/SecondarySidebar";
 import { Head, usePage } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
@@ -18,18 +19,28 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
     const { props, url } = usePage();
     const { flash, errors } = props as any;
 
-    const shouldOpenSidebar = secondaryMenuItems.some(
-        (item) => item.urlPattern && url.startsWith(item.urlPattern)
+    const pathOnly = url.split("?")[0];
+
+    const shouldOpenForMoreMenu = secondaryMenuItems.some(
+        (item) => item.urlPattern && pathOnly.startsWith(item.urlPattern)
     );
+    const shouldOpenForReports = pathOnly.startsWith("/admin/reports");
 
     const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
+    const [secondaryPanel, setSecondaryPanel] = useState<SecondaryPanel>("menu");
 
     useEffect(() => {
-        // Only open automatically on desktop
-        if (window.innerWidth >= 768 && shouldOpenSidebar) {
+        if (typeof window === "undefined" || window.innerWidth < 768) {
+            return;
+        }
+        if (shouldOpenForReports) {
+            setSecondaryPanel("reports");
+            setIsSecondarySidebarOpen(true);
+        } else if (shouldOpenForMoreMenu) {
+            setSecondaryPanel("menu");
             setIsSecondarySidebarOpen(true);
         }
-    }, []); // Run once on mount
+    }, [pathOnly, shouldOpenForMoreMenu, shouldOpenForReports]);
 
     useEffect(() => {
         if (flash?.success) {
@@ -52,12 +63,20 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
 
             <div className="hidden md:flex flex-1">
                 <PrimarySidebar
-                    onMoreClick={() => setIsSecondarySidebarOpen(true)}
+                    onMoreClick={() => {
+                        setSecondaryPanel("menu");
+                        setIsSecondarySidebarOpen(true);
+                    }}
+                    onReportsClick={() => {
+                        setSecondaryPanel("reports");
+                        setIsSecondarySidebarOpen(true);
+                    }}
                 />
 
                 {isSecondarySidebarOpen && (
                     <SecondarySidebar
                         isOpen={isSecondarySidebarOpen}
+                        panel={secondaryPanel}
                         onClose={() => setIsSecondarySidebarOpen(false)}
                     />
                 )}
@@ -79,9 +98,30 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
                 </main>
 
                 <MobileBottomNav
-                    onSecondaryToggle={() =>
-                        setIsSecondarySidebarOpen(!isSecondarySidebarOpen)
-                    }
+                    isSecondaryOpen={isSecondarySidebarOpen}
+                    secondaryPanel={secondaryPanel}
+                    onMorePress={() => {
+                        if (
+                            isSecondarySidebarOpen &&
+                            secondaryPanel === "menu"
+                        ) {
+                            setIsSecondarySidebarOpen(false);
+                        } else {
+                            setSecondaryPanel("menu");
+                            setIsSecondarySidebarOpen(true);
+                        }
+                    }}
+                    onReportsPress={() => {
+                        if (
+                            isSecondarySidebarOpen &&
+                            secondaryPanel === "reports"
+                        ) {
+                            setIsSecondarySidebarOpen(false);
+                        } else {
+                            setSecondaryPanel("reports");
+                            setIsSecondarySidebarOpen(true);
+                        }
+                    }}
                 />
             </div>
 
@@ -109,6 +149,7 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
             >
                 <SecondarySidebar
                     isOpen={isSecondarySidebarOpen}
+                    panel={secondaryPanel}
                     onClose={() => setIsSecondarySidebarOpen(false)}
                     mobile
                 />
