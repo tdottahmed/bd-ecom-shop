@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "@inertiajs/react";
 import CategoriesMegaMenu from "./CategoriesMegaMenu";
 import BrandsDropdown from "./BrandsDropdown";
+import { resolvePageHref } from "@/Utils/pageLink";
 
 interface Category {
     id: number;
@@ -26,6 +27,7 @@ interface Props {
     openDropdown: "categories" | "brands" | null;
     setOpenDropdown: (val: "categories" | "brands" | null | ((prev: "categories" | "brands" | null) => "categories" | "brands" | null)) => void;
     blogEnabled?: boolean;
+    headerPages?: { title: string; slug: string }[];
 }
 
 const navLinkClass =
@@ -39,6 +41,7 @@ const DesktopNav: React.FC<Props> = ({
     openDropdown,
     setOpenDropdown,
     blogEnabled = true,
+    headerPages = [],
 }) => {
     return (
         <>
@@ -83,17 +86,16 @@ const DesktopNav: React.FC<Props> = ({
                 }
             />
 
-            <Link href={route("pages.about")} className={navLinkClass}>
-                About Us
-            </Link>
             {blogEnabled && (
                 <Link href={route("blog.index")} className={navLinkClass}>
                     Blog
                 </Link>
             )}
-            <Link href={route("pages.contact")} className={navLinkClass}>
-                Contact Us
-            </Link>
+            {headerPages.map((page) => (
+                <Link key={page.slug} href={resolvePageHref(page)} className={navLinkClass}>
+                    {page.title}
+                </Link>
+            ))}
         </>
     );
 };

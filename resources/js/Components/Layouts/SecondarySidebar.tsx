@@ -31,6 +31,8 @@ import {
     Receipt,
     ShoppingCart,
     MapPin,
+    Scale,
+    LayoutTemplate,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -119,6 +121,20 @@ export const pagesMenuItems: MenuItem[] = [
         icon: <MessageCircle size={18} />,
         route: "admin.contact-messages.index",
         urlPattern: "/admin/contact-messages",
+    },
+    {
+        key: "legal_pages",
+        label: "Legal Pages",
+        icon: <Scale size={18} />,
+        route: "admin.legal-pages.index",
+        urlPattern: "/admin/legal-pages",
+    },
+    {
+        key: "custom_pages",
+        label: "Custom Pages",
+        icon: <LayoutTemplate size={18} />,
+        route: "admin.pages.index",
+        urlPattern: "/admin/pages",
     },
 ];
 

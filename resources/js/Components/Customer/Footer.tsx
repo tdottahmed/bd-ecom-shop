@@ -3,6 +3,7 @@ import axios from "axios";
 import { Facebook, Instagram, Youtube, Video } from "lucide-react";
 import { useState } from "react";
 import { useAntiSpam } from "@/Hooks/useAntiSpam";
+import { resolvePageHref } from "@/Utils/pageLink";
 
 type FooterPage = {
     title: string;
@@ -134,39 +135,15 @@ export default function Footer() {
                                 </Link>
                             )}
                             <Link
-                                href={route("pages.about")}
-                                className="text-gray-600 hover:text-brand-primary transition-colors"
-                            >
-                                About Us
-                            </Link>
-                            <Link
                                 href={route("pages.faq")}
                                 className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
                                 FAQ
                             </Link>
-                            <Link
-                                href={route("pages.contact")}
-                                className="text-gray-600 hover:text-brand-primary transition-colors"
-                            >
-                                Contact Us
-                            </Link>
-                            <Link
-                                href={route("pages.privacy-policy")}
-                                className="text-gray-600 hover:text-brand-primary transition-colors"
-                            >
-                                Privacy Policy
-                            </Link>
-                            <Link
-                                href={route("pages.terms")}
-                                className="text-gray-600 hover:text-brand-primary transition-colors"
-                            >
-                                Terms & Conditions
-                            </Link>
                             {customPages.map((page) => (
                                 <Link
                                     key={page.slug}
-                                    href={route("pages.show", page.slug)}
+                                    href={resolvePageHref(page)}
                                     className="text-gray-600 hover:text-brand-primary transition-colors"
                                 >
                                     {page.title}

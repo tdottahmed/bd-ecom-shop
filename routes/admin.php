@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\Admin\LegalPageController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -104,6 +105,11 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
     Route::resource('pages', PageController::class)->except(['show']);
+
+    // Legal Pages (fixed: Privacy Policy, Terms & Conditions, Refund Policy)
+    Route::get('legal-pages', [LegalPageController::class, 'index'])->name('legal-pages.index');
+    Route::get('legal-pages/{page}/edit', [LegalPageController::class, 'edit'])->name('legal-pages.edit');
+    Route::put('legal-pages/{page}', [LegalPageController::class, 'update'])->name('legal-pages.update');
 
     Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
     Route::get('contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');

@@ -71,6 +71,21 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Load header pages, cached for 30 minutes.
+     */
+    private static function cachedHeaderPages(): Collection
+    {
+        return Cache::remember('header_pages', 1800, function () {
+            return Page::query()
+                ->where('is_published', true)
+                ->where('show_in_header', true)
+                ->orderBy('title')
+                ->select('title', 'slug')
+                ->get();
+        });
+    }
+
+    /**
      * Load footer pages, cached for 30 minutes.
      */
     private static function cachedFooterPages(): Collection
@@ -78,7 +93,7 @@ class HandleInertiaRequests extends Middleware
         return Cache::remember('footer_pages', 1800, function () {
             return Page::query()
                 ->where('is_published', true)
-                ->whereNotIn('slug', ['about-us', 'contact-us'])
+                ->where('show_in_footer', true)
                 ->orderBy('title')
                 ->select('title', 'slug')
                 ->get();
@@ -153,6 +168,7 @@ class HandleInertiaRequests extends Middleware
                 'tiktok' => get_setting('social_tiktok'),
             ],
 
+            'headerPages' => fn () => self::cachedHeaderPages(),
             'footerPages' => fn () => self::cachedFooterPages(),
 
             'themeColors' => fn () => theme_colors(),

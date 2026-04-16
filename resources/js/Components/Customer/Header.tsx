@@ -36,6 +36,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         navCategories,
         brands,
         navBrands,
+        headerPages,
     }: any = usePage().props;
 
     const menuCategories = navCategories ?? categories ?? [];
@@ -339,6 +340,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                 openDropdown={openDropdown}
                                 setOpenDropdown={setOpenDropdown}
                                 blogEnabled={Boolean(blogEnabled)}
+                                headerPages={Array.isArray(headerPages) ? headerPages : []}
                             />
                         </div>
                     </div>
