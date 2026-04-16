@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -28,6 +29,8 @@ class CourierController extends Controller
                 'carrybee_client_context' => env('CARRYBEE_CLIENT_CONTEXT'),
                 'redx_phone'           => env('REDX_PHONE'),
                 'redx_password'        => env('REDX_PASSWORD'),
+                'fraud_check_enabled'  => get_setting('fraud_check_enabled', '0') === '1',
+                'hoorin_api_key'       => get_setting('hoorin_api_key', ''),
             ]
         ]);
     }
@@ -51,9 +54,19 @@ class CourierController extends Controller
             'carrybee_client_context' => 'nullable|string',
             'redx_phone'           => 'nullable|string',
             'redx_password'        => 'nullable|string',
+            'fraud_check_enabled'  => 'nullable|boolean',
+            'hoorin_api_key'       => 'nullable|string',
         ]);
 
         $this->updateEnv($data);
+
+        // Persist DB-based fraud check settings
+        Setting::updateOrCreate(['key' => 'fraud_check_enabled'],
+            ['value' => ($data['fraud_check_enabled'] ?? false) ? '1' : '0']);
+        Setting::updateOrCreate(['key' => 'hoorin_api_key'],
+            ['value' => $data['hoorin_api_key'] ?? '']);
+
+        flush_settings_cache();
 
         // Clear cached tokens whenever credentials change
         app(\App\Services\PathaoService::class)->forgetToken();

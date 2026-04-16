@@ -11,6 +11,7 @@ import {
     PackageIcon,
     BotIcon,
     ZapIcon,
+    ShieldCheckIcon,
     InfoIcon,
     CopyIcon,
     CheckIcon,
@@ -20,6 +21,7 @@ import {
     ToggleLeftIcon,
     ToggleRightIcon,
     FlaskConicalIcon,
+    AlertTriangleIcon,
 } from "lucide-react";
 
 interface Props {
@@ -40,6 +42,8 @@ interface Props {
         carrybee_client_context?: string;
         redx_phone?: string;
         redx_password?: string;
+        fraud_check_enabled?: boolean;
+        hoorin_api_key?: string;
     };
 }
 
@@ -205,6 +209,8 @@ export default function Index({ credentials }: Props) {
         carrybee_client_context: credentials.carrybee_client_context ?? "",
         redx_phone: credentials.redx_phone ?? "",
         redx_password: credentials.redx_password ?? "",
+        fraud_check_enabled: credentials.fraud_check_enabled ?? false,
+        hoorin_api_key: credentials.hoorin_api_key ?? "",
     });
 
     const submit = (e: React.FormEvent) => {
@@ -628,6 +634,73 @@ export default function Index({ credentials }: Props) {
                             </div>
 
                             <WebhookUrlBox url={`${origin}/webhooks/carrybee`} />
+                        </CardContent>
+                    </Card>
+
+                    {/* ── Fraud Check (Hoorin) ─────────────────────────── */}
+                    <Card>
+                        <CardContent className="p-6 space-y-5">
+                            {/* Header */}
+                            <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${data.fraud_check_enabled ? "bg-[#2DE3A7]/10" : "bg-gray-500/10"}`}>
+                                        <ShieldCheckIcon size={18} className={data.fraud_check_enabled ? "text-[#2DE3A7]" : "text-gray-500"} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white">
+                                            Courier Fraud Check
+                                        </h3>
+                                        <p className="text-xs text-gray-500">
+                                            Powered by Hoorin — checks delivery history across Steadfast, RedX, Pathao &amp; more
+                                        </p>
+                                    </div>
+                                </div>
+                                <Toggle
+                                    enabled={data.fraud_check_enabled}
+                                    onChange={(v) => setData("fraud_check_enabled", v)}
+                                    label="Disabled"
+                                    activeLabel="Enabled"
+                                />
+                            </div>
+
+                            {/* Disabled state hint */}
+                            {!data.fraud_check_enabled && (
+                                <p className="text-xs text-gray-500 italic">
+                                    Enable fraud check to verify customer delivery history before dispatching orders.
+                                </p>
+                            )}
+
+                            {data.fraud_check_enabled && (
+                                <>
+                                    <InstructionPanel
+                                        title="How to get your Hoorin API key"
+                                        link="https://dash.hoorin.com"
+                                        linkLabel="Open Hoorin Dashboard →"
+                                        steps={[
+                                            <>Log in to <strong className="text-white">dash.hoorin.com</strong> and go to your account settings.</>,
+                                            <>Copy your <strong className="text-white">API Key</strong> and paste it below.</>,
+                                            <>The API checks delivery history across Steadfast, RedX, Pathao, and Paperfly in a single call.</>,
+                                        ]}
+                                    />
+
+                                    <Field
+                                        id="hoorin_api_key"
+                                        label="Hoorin API Key"
+                                        value={data.hoorin_api_key}
+                                        type="password"
+                                        onChange={(v) => setData("hoorin_api_key", v)}
+                                        placeholder="Your Hoorin API key"
+                                    />
+
+                                    {/* Usage policy warning */}
+                                    <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3.5 text-xs text-amber-400">
+                                        <AlertTriangleIcon size={13} className="shrink-0 mt-0.5" />
+                                        <p>
+                                            Your API key is for <strong>single-domain use only</strong>. Using it across multiple domains or in bulk will result in a <strong>permanent ban with no refund</strong>. Keep it private.
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 

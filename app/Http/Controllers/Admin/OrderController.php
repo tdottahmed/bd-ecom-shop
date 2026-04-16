@@ -301,8 +301,23 @@ class OrderController extends Controller
 
     public function checkFraud(Order $order, \App\Services\CourierFraudCheckerService $fraudChecker)
     {
+        if (! $fraudChecker->isEnabled()) {
+            return response()->json(['disabled' => true], 200);
+        }
+
         $result = $fraudChecker->check($order->customer_phone);
 
-        return response()->json($result);
+        if (! $result) {
+            return response()->json(['error' => 'Failed to fetch fraud data'], 500);
+        }
+
+        return response()->json([
+            'success_ratio'     => $result->success_ratio,
+            'total_orders'      => $result->total_orders,
+            'successful_orders' => $result->successful_orders,
+            'cancel_orders'     => $result->cancel_orders,
+            'summaries'         => $result->summaries ?? [],
+            'last_checked_at'   => $result->last_checked_at?->toIso8601String(),
+        ]);
     }
 }
