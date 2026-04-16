@@ -6,6 +6,7 @@ import {
     Settings,
     FileText,
     BarChart3,
+    type LucideProps,
 } from "lucide-react";
 import { Link, usePage } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
@@ -45,43 +46,19 @@ const SETTINGS_ROUTES = [
     "seo",
 ];
 
-const primaryMenuItems = [
-    {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: <Home size={20} />,
-        route: "admin.dashboard",
-    },
-    {
-        key: "products",
-        label: "Products",
-        icon: <ShoppingBag size={20} />,
-        route: null, // opens products panel
-    },
-    {
-        key: "orders",
-        label: "Orders",
-        icon: <Package size={20} />,
-        route: "admin.orders.index",
-    },
-    {
-        key: "content",
-        label: "Content",
-        icon: <FileText size={20} />,
-        route: null, // opens pages panel
-    },
-    {
-        key: "reports",
-        label: "Reports",
-        icon: <BarChart3 size={20} />,
-        route: null, // opens reports panel
-    },
-    {
-        key: "settings",
-        label: "Settings",
-        icon: <Settings size={20} />,
-        route: null, // opens settings panel
-    },
+// Store the icon component (not JSX) so we can render at different sizes
+const primaryMenuItems: {
+    key: string;
+    label: string;
+    Icon: React.FC<LucideProps>;
+    route: string | null;
+}[] = [
+    { key: "dashboard", label: "Dashboard", Icon: Home, route: "admin.dashboard" },
+    { key: "products", label: "Products", Icon: ShoppingBag, route: null },
+    { key: "orders", label: "Orders", Icon: Package, route: "admin.orders.index" },
+    { key: "content", label: "Content", Icon: FileText, route: null },
+    { key: "reports", label: "Reports", Icon: BarChart3, route: null },
+    { key: "settings", label: "Settings", Icon: Settings, route: null },
 ];
 
 const PrimarySidebar: React.FC<PrimarySidebarProps> = ({
@@ -149,67 +126,115 @@ const PrimarySidebar: React.FC<PrimarySidebarProps> = ({
         return false;
     };
 
+    const Logo = () => (
+        <>
+            {siteFavicon ? (
+                <img
+                    src={`/storage/${siteFavicon}`}
+                    alt="Nix-Store"
+                    className="w-10 h-10 rounded-lg object-contain bg-white/10"
+                />
+            ) : (
+                <div className="w-10 h-10 bg-[#2DE3A7] rounded-lg flex flex-col items-center justify-center text-black font-extrabold text-[10px] leading-tight text-center px-0.5">
+                    <span>Nix-</span>
+                    <span>Store</span>
+                </div>
+            )}
+        </>
+    );
+
     return (
-        <aside className="w-20 bg-[#0E1614] border-r border-gray-800 flex flex-col items-center py-6 focus:outline-none z-50">
-            <div className="mb-8 w-full flex justify-center">
-                {siteFavicon ? (
-                    <img
-                        src={`/storage/${siteFavicon}`}
-                        alt="Nix-Store"
-                        className="w-10 h-10 rounded-lg object-contain bg-white/10"
-                    />
-                ) : (
-                    <div className="w-10 h-10 bg-[#2DE3A7] rounded-lg flex flex-col items-center justify-center text-black font-extrabold text-[10px] leading-tight text-center px-0.5">
-                        <span>Nix-</span>
-                        <span>Store</span>
-                    </div>
-                )}
-            </div>
+        <>
+            {/* ─────────────────────────────────────────
+                DESKTOP: vertical sidebar (md+)
+            ───────────────────────────────────────── */}
+            <aside className="hidden md:flex w-20 bg-[#0E1614] border-r border-gray-800 flex-col items-center py-6 z-50 shrink-0">
+                <div className="mb-8 w-full flex justify-center">
+                    <Logo />
+                </div>
 
-            <nav className="flex-1 space-y-4 w-full px-2">
-                {primaryMenuItems.map((item) => {
-                    const active = isActive(item);
-                    const connected = isPanelConnected(item);
-                    const itemClass = `relative flex flex-col items-center p-3 rounded-lg transition-all w-full ${
-                        active
-                            ? "bg-[#0F1A18] text-[#2DE3A7]"
-                            : "text-gray-300 hover:bg-[#151F1D] hover:text-white"
-                    }`;
+                <nav className="flex-1 space-y-4 w-full px-2">
+                    {primaryMenuItems.map((item) => {
+                        const active = isActive(item);
+                        const connected = isPanelConnected(item);
+                        const cls = `relative flex flex-col items-center p-3 rounded-lg transition-all w-full ${
+                            active
+                                ? "bg-[#0F1A18] text-[#2DE3A7]"
+                                : "text-gray-300 hover:bg-[#151F1D] hover:text-white"
+                        }`;
 
-                    const content = (
-                        <>
-                            {item.icon}
-                            <span className="text-xs mt-1">{item.label}</span>
-                            {/* Right-edge connector when this item's secondary panel is open */}
-                            {connected && (
-                                <span className="absolute right-0 top-1/4 h-1/2 w-0.5 rounded-full bg-[#2DE3A7]" />
-                            )}
-                        </>
-                    );
+                        const content = (
+                            <>
+                                <item.Icon size={20} />
+                                <span className="text-xs mt-1">{item.label}</span>
+                                {connected && (
+                                    <span className="absolute right-0 top-1/4 h-1/2 w-0.5 rounded-full bg-[#2DE3A7]" />
+                                )}
+                            </>
+                        );
 
-                    return (
-                        <div key={item.key}>
-                            {item.route ? (
-                                <Link
-                                    href={route(item.route)}
-                                    className={itemClass}
-                                >
-                                    {content}
-                                </Link>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => handleItemClick(item)}
-                                    className={itemClass}
-                                >
-                                    {content}
-                                </button>
-                            )}
-                        </div>
-                    );
-                })}
+                        return (
+                            <div key={item.key}>
+                                {item.route ? (
+                                    <Link href={route(item.route)} className={cls}>
+                                        {content}
+                                    </Link>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleItemClick(item)}
+                                        className={cls}
+                                    >
+                                        {content}
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
+                </nav>
+            </aside>
+
+            {/* ─────────────────────────────────────────
+                MOBILE: fixed bottom navigation (<md)
+            ───────────────────────────────────────── */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0E1614] border-t border-gray-800 z-30">
+                <div className="flex items-center">
+                    {primaryMenuItems.map((item) => {
+                        const active = isActive(item);
+                        const cls = `flex flex-col items-center justify-center py-2 px-1 flex-1 min-w-0 transition-colors ${
+                            active ? "text-[#2DE3A7]" : "text-gray-400"
+                        }`;
+
+                        const content = (
+                            <>
+                                <item.Icon size={19} />
+                                <span className="text-[9px] mt-0.5 truncate w-full text-center leading-none">
+                                    {item.label}
+                                </span>
+                            </>
+                        );
+
+                        return (
+                            <React.Fragment key={item.key}>
+                                {item.route ? (
+                                    <Link href={route(item.route)} className={cls}>
+                                        {content}
+                                    </Link>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleItemClick(item)}
+                                        className={cls}
+                                    >
+                                        {content}
+                                    </button>
+                                )}
+                            </React.Fragment>
+                        );
+                    })}
+                </div>
             </nav>
-        </aside>
+        </>
     );
 };
 

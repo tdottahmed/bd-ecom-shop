@@ -1,5 +1,4 @@
 import Header from "@/Components/Layouts/Header";
-import MobileBottomNav from "@/Components/Layouts/MobileBottomNav";
 import PrimarySidebar from "@/Components/Layouts/PrimarySidebar";
 import SecondarySidebar, {
     secondaryMenuItems,
@@ -117,17 +116,23 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
             <Head title={title} />
             <Toaster position="top-right" richColors />
 
-            <div className="hidden md:flex flex-1">
-                <PrimarySidebar
-                    onProductsClick={handleProductsClick}
-                    onPagesClick={handlePagesClick}
-                    onSettingsClick={handleSettingsClick}
-                    onReportsClick={handleReportsClick}
-                    isSecondaryOpen={isSecondarySidebarOpen}
-                    secondaryPanel={secondaryPanel}
-                />
+            {/*
+             * PrimarySidebar lives at the root of the flex row so it can serve both:
+             *   - desktop: <aside> as a flex sibling to the content area
+             *   - mobile:  fixed bottom <nav> rendered internally via CSS
+             */}
+            <PrimarySidebar
+                onProductsClick={handleProductsClick}
+                onPagesClick={handlePagesClick}
+                onSettingsClick={handleSettingsClick}
+                onReportsClick={handleReportsClick}
+                isSecondaryOpen={isSecondarySidebarOpen}
+                secondaryPanel={secondaryPanel}
+            />
 
-                {/* Secondary sidebar with smooth slide-in animation */}
+            {/* ── Desktop: secondary sidebar + content ── */}
+            <div className="hidden md:flex flex-1 min-w-0">
+                {/* Secondary sidebar — animated slide-in */}
                 <div
                     className={`overflow-hidden shrink-0 transition-[width] duration-200 ease-in-out ${
                         isSecondarySidebarOpen ? "w-64" : "w-0"
@@ -144,30 +149,19 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
 
                 <div className="flex-1 flex flex-col min-w-0">
                     {head ? head : <Header showUserMenu={true} />}
-                    <main className="flex-1 overflow-auto p-6">
-                        {" "}
-                        {children}{" "}
-                    </main>
+                    <main className="flex-1 overflow-auto p-6">{children}</main>
                 </div>
             </div>
 
-            <div className="flex flex-1 flex-col md:hidden">
+            {/* ── Mobile: content area (pb-20 clears the fixed bottom nav) ── */}
+            <div className="flex flex-1 flex-col md:hidden min-w-0">
                 {head ? head : <Header showUserMenu={true} />}
-
                 <main className="flex-1 overflow-auto p-4 pb-20">
                     {children}
                 </main>
-
-                <MobileBottomNav
-                    isSecondaryOpen={isSecondarySidebarOpen}
-                    secondaryPanel={secondaryPanel}
-                    onProductsPress={handleProductsClick}
-                    onReportsPress={handleReportsClick}
-                    onSettingsPress={handleSettingsClick}
-                />
             </div>
 
-            {/* Mobile Overlay */}
+            {/* ── Mobile: backdrop when secondary panel is open ── */}
             {isSecondarySidebarOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -175,18 +169,14 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
                 />
             )}
 
-            {/* Mobile Secondary Sidebar */}
+            {/* ── Mobile: secondary sidebar bottom sheet ── */}
             <div
                 className={`
-                    fixed bottom-0 left-0 right-0 z-50 
+                    fixed bottom-0 left-0 right-0 z-50
                     transform transition-transform duration-300 ease-in-out
                     bg-[#0E1614] border-t border-gray-800
-                    ${
-                        isSecondarySidebarOpen
-                            ? "translate-y-0"
-                            : "translate-y-full"
-                    }
                     md:hidden
+                    ${isSecondarySidebarOpen ? "translate-y-0" : "translate-y-full"}
                 `}
             >
                 <SecondarySidebar

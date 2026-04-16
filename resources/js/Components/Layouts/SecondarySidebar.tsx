@@ -77,7 +77,7 @@ export const productsMenuItems: MenuItem[] = [
     },
     {
         key: "discounts",
-        label: "Discounts",
+        label: "Qty Discounts",
         icon: <BadgePercent size={18} />,
         route: "admin.discounts.index",
         urlPattern: "/admin/discounts",
@@ -226,20 +226,6 @@ export const reportsMenuItems: MenuItem[] = [
         urlPattern: "/admin/reports/customers",
     },
     {
-        key: "reports_discounts",
-        label: "Discounts & coupons",
-        icon: <BadgePercent size={18} />,
-        route: "admin.reports.discounts",
-        urlPattern: "/admin/reports/discounts",
-    },
-    {
-        key: "reports_payments",
-        label: "Payments",
-        icon: <CreditCard size={18} />,
-        route: "admin.reports.payments",
-        urlPattern: "/admin/reports/payments",
-    },
-    {
         key: "reports_shipping",
         label: "Shipping & delivery",
         icon: <Truck size={18} />,
@@ -252,20 +238,6 @@ export const reportsMenuItems: MenuItem[] = [
         icon: <Undo2 size={18} />,
         route: "admin.reports.refunds",
         urlPattern: "/admin/reports/refunds",
-    },
-    {
-        key: "reports_tax",
-        label: "Tax",
-        icon: <Receipt size={18} />,
-        route: "admin.reports.tax",
-        urlPattern: "/admin/reports/tax",
-    },
-    {
-        key: "reports_abandoned",
-        label: "Abandoned checkouts",
-        icon: <ShoppingCart size={18} />,
-        route: "admin.reports.abandoned-checkouts",
-        urlPattern: "/admin/reports/abandoned-checkouts",
     },
     {
         key: "reports_geography",
@@ -336,15 +308,18 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         panel === "reports"
             ? reportsMenuItems
             : panel === "products"
-            ? productsMenuItems
-            : panel === "pages"
-            ? pagesMenuItems
-            : secondaryMenuItems;
+              ? productsMenuItems
+              : panel === "pages"
+                ? pagesMenuItems
+                : secondaryMenuItems;
 
     const isMenuItemActive = (item: MenuItem): boolean => {
         if (!item.urlPattern) return false;
         if (item.match === "exact") {
-            return pathOnly === item.urlPattern || pathOnly === `${item.urlPattern}/`;
+            return (
+                pathOnly === item.urlPattern ||
+                pathOnly === `${item.urlPattern}/`
+            );
         }
         return pathOnly.startsWith(item.urlPattern);
     };
@@ -353,19 +328,19 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         panel === "reports"
             ? "Reports"
             : panel === "products"
-            ? "Products"
-            : panel === "pages"
-            ? "Content"
-            : "Settings";
+              ? "Products"
+              : panel === "pages"
+                ? "Content"
+                : "Settings";
 
     const panelSubtitle =
         panel === "reports"
             ? "Sales, inventory, and store analytics"
             : panel === "products"
-            ? "Catalog, categories & promotions"
-            : panel === "pages"
-            ? "Pages, blogs & communications"
-            : "Store configuration & tools";
+              ? "Catalog, categories & promotions"
+              : panel === "pages"
+                ? "Pages, blogs & communications"
+                : "Store configuration & tools";
 
     const initials = (authUser?.name || "A")
         .split(" ")
@@ -401,32 +376,15 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                             <X size={18} />
                         </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <Link
-                            href={route("profile.edit")}
-                            onClick={onClose}
-                            className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                        >
-                            <UserCog size={12} />
-                            Profile
-                        </Link>
-                        <a
-                            href={route("home")}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                        >
-                            <ExternalLink size={12} />
-                            View Store
-                        </a>
-                    </div>
                 </div>
 
                 <div className="px-4 pb-2">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                         {panelTitle}
                     </p>
-                    <p className="text-xs text-gray-600 mt-0.5">{panelSubtitle}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                        {panelSubtitle}
+                    </p>
                 </div>
 
                 <nav className="p-3 space-y-1">
@@ -480,34 +438,6 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                             {authUser?.email || ""}
                         </p>
                     </div>
-                </div>
-
-                {/* Role badge */}
-                <div className="flex items-center gap-1.5 mb-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#2DE3A7]/10 border border-[#2DE3A7]/20 text-[#2DE3A7] text-[10px] font-semibold tracking-wide">
-                        <ShieldCheck size={10} />
-                        Administrator
-                    </span>
-                </div>
-
-                {/* Quick actions */}
-                <div className="grid grid-cols-2 gap-2">
-                    <Link
-                        href={route("profile.edit")}
-                        className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                    >
-                        <UserCog size={13} />
-                        Profile
-                    </Link>
-                    <a
-                        href={route("home")}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                    >
-                        <ExternalLink size={13} />
-                        View Store
-                    </a>
                 </div>
             </div>
 
