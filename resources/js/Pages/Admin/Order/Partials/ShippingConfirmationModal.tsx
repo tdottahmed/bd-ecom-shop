@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Modal from "@/Components/Ui/Modal";
 import InputLabel from "@/Components/Ui/InputLabel";
 import TextInput from "@/Components/Ui/TextInput";
+import SelectInput from "@/Components/Ui/SelectInput";
 import PrimaryButton from "@/Components/Actions/PrimaryButton";
 import SecondaryButton from "@/Components/Actions/SecondaryButton";
 import { Order } from "@/types";
-import { TruckIcon, PackageIcon, ChevronDownIcon, LoaderCircleIcon } from "lucide-react";
+import { TruckIcon, PackageIcon, LoaderCircleIcon } from "lucide-react";
 
 interface PathaoArea   { area_id: number;   area_name: string }
 interface PathaoZone   { zone_id: number;   zone_name: string }
@@ -117,6 +118,19 @@ export default function ShippingConfirmationModal({
         onConfirm(data);
     };
 
+    const cityOptions = useMemo(
+        () => cities.map((c) => ({ value: c.city_id, label: c.city_name })),
+        [cities],
+    );
+    const zoneOptions = useMemo(
+        () => zones.map((z) => ({ value: z.zone_id, label: z.zone_name })),
+        [zones],
+    );
+    const areaOptions = useMemo(
+        () => areas.map((a) => ({ value: a.area_id, label: a.area_name })),
+        [areas],
+    );
+
     const pathaoReady =
         courier === "steadfast" ||
         (courier === "pathao" && !!cityId && !!zoneId && !!areaId);
@@ -211,87 +225,68 @@ export default function ShippingConfirmationModal({
                             {/* City */}
                             <div>
                                 <InputLabel htmlFor="pathao-city" value="City" />
-                                <div className="relative mt-1">
-                                    <select
-                                        id="pathao-city"
-                                        value={cityId}
-                                        onChange={(e) => setCityId(Number(e.target.value))}
-                                        className="w-full bg-[#0E1614] border border-[#1E2826] rounded-lg px-3 py-2 text-sm text-white focus:border-[#2DE3A7] focus:outline-none appearance-none pr-8"
-                                        required
-                                        disabled={loadingCities}
-                                    >
-                                        <option value="">
-                                            {loadingCities ? "Loading cities…" : "Select city"}
-                                        </option>
-                                        {cities.map((c) => (
-                                            <option key={c.city_id} value={c.city_id}>
-                                                {c.city_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
-                                        {loadingCities
-                                            ? <LoaderCircleIcon size={14} className="animate-spin" />
-                                            : <ChevronDownIcon size={14} />}
-                                    </span>
+                                <div className="mt-1">
+                                    {loadingCities ? (
+                                        <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
+                                            <LoaderCircleIcon size={14} className="animate-spin" />
+                                            Loading cities…
+                                        </div>
+                                    ) : (
+                                        <SelectInput
+                                            id="pathao-city"
+                                            value={cityId === "" ? null : cityId}
+                                            options={cityOptions}
+                                            onChange={(v) => setCityId(v ? Number(v) : "")}
+                                            placeholder="Select city"
+                                            isSearchable
+                                        />
+                                    )}
                                 </div>
                             </div>
 
                             {/* Zone */}
                             <div>
                                 <InputLabel htmlFor="pathao-zone" value="Zone" />
-                                <div className="relative mt-1">
-                                    <select
-                                        id="pathao-zone"
-                                        value={zoneId}
-                                        onChange={(e) => setZoneId(Number(e.target.value))}
-                                        className="w-full bg-[#0E1614] border border-[#1E2826] rounded-lg px-3 py-2 text-sm text-white focus:border-[#2DE3A7] focus:outline-none appearance-none pr-8 disabled:opacity-50"
-                                        required
-                                        disabled={!cityId || loadingZones}
-                                    >
-                                        <option value="">
-                                            {loadingZones ? "Loading zones…" : cityId ? "Select zone" : "Select city first"}
-                                        </option>
-                                        {zones.map((z) => (
-                                            <option key={z.zone_id} value={z.zone_id}>
-                                                {z.zone_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
-                                        {loadingZones
-                                            ? <LoaderCircleIcon size={14} className="animate-spin" />
-                                            : <ChevronDownIcon size={14} />}
-                                    </span>
+                                <div className="mt-1">
+                                    {loadingZones ? (
+                                        <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
+                                            <LoaderCircleIcon size={14} className="animate-spin" />
+                                            Loading zones…
+                                        </div>
+                                    ) : (
+                                        <SelectInput
+                                            id="pathao-zone"
+                                            value={zoneId === "" ? null : zoneId}
+                                            options={zoneOptions}
+                                            onChange={(v) => setZoneId(v ? Number(v) : "")}
+                                            placeholder={cityId ? "Select zone" : "Select city first"}
+                                            isSearchable
+                                            disabled={!cityId}
+                                        />
+                                    )}
                                 </div>
                             </div>
 
                             {/* Area */}
                             <div>
                                 <InputLabel htmlFor="pathao-area" value="Area" />
-                                <div className="relative mt-1">
-                                    <select
-                                        id="pathao-area"
-                                        value={areaId}
-                                        onChange={(e) => setAreaId(Number(e.target.value))}
-                                        className="w-full bg-[#0E1614] border border-[#1E2826] rounded-lg px-3 py-2 text-sm text-white focus:border-[#2DE3A7] focus:outline-none appearance-none pr-8 disabled:opacity-50"
-                                        required
-                                        disabled={!zoneId || loadingAreas}
-                                    >
-                                        <option value="">
-                                            {loadingAreas ? "Loading areas…" : zoneId ? "Select area" : "Select zone first"}
-                                        </option>
-                                        {areas.map((a) => (
-                                            <option key={a.area_id} value={a.area_id}>
-                                                {a.area_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500">
-                                        {loadingAreas
-                                            ? <LoaderCircleIcon size={14} className="animate-spin" />
-                                            : <ChevronDownIcon size={14} />}
-                                    </span>
+                                <div className="mt-1">
+                                    {loadingAreas ? (
+                                        <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
+                                            <LoaderCircleIcon size={14} className="animate-spin" />
+                                            Loading areas…
+                                        </div>
+                                    ) : (
+                                        <SelectInput
+                                            id="pathao-area"
+                                            value={areaId === "" ? null : areaId}
+                                            options={areaOptions}
+                                            onChange={(v) => setAreaId(v ? Number(v) : "")}
+                                            placeholder={zoneId ? "Select area" : "Select zone first"}
+                                            isSearchable
+                                            disabled={!zoneId}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

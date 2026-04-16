@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
+use App\Http\Controllers\Webhook\SteadfastWebhookController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -49,7 +50,8 @@ Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
 Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.subscribe');
 
 // Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
-Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name('webhooks.pathao');
+Route::post('webhooks/pathao',    [PathaoWebhookController::class,    'handle'])->name('webhooks.pathao');
+Route::post('webhooks/steadfast', [SteadfastWebhookController::class, 'handle'])->name('webhooks.steadfast');
 
 // Payment gateway callbacks (excluded from CSRF — see bootstrap/app.php)
 Route::prefix('payment')->name('payment.')->group(function () {

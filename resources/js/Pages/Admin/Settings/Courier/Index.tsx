@@ -160,6 +160,26 @@ function InstructionPanel({
     );
 }
 
+function WebhookUrlBox({ url }: { url: string }) {
+    return (
+        <div className="flex items-start gap-2.5 bg-[#0C1311] border border-[#1E2826] rounded-lg p-3.5 text-xs text-gray-400">
+            <InfoIcon size={13} className="text-[#2DE3A7] shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0 space-y-1.5">
+                <p>
+                    Register this webhook URL in your merchant panel to receive
+                    live delivery status updates automatically.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <code className="flex-1 min-w-0 text-[#2DE3A7] bg-[#1A2420] border border-[#2DE3A7]/20 px-2 py-1 rounded text-[11px] break-all font-mono">
+                        {url}
+                    </code>
+                    <CopyButton value={url} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const origin = typeof window !== "undefined" ? window.location.origin : "";
 
 export default function Index({ credentials }: Props) {
@@ -212,7 +232,8 @@ export default function Index({ credentials }: Props) {
         </div>
     );
 
-    const webhookUrl = `${origin}/webhooks/pathao`;
+    const pathaoWebhookUrl    = `${origin}/webhooks/pathao`;
+    const steadfastWebhookUrl = `${origin}/webhooks/steadfast`;
 
     return (
         <Master
@@ -375,25 +396,7 @@ export default function Index({ credentials }: Props) {
                                 />
                             </div>
 
-                            <div className="flex items-start gap-2 bg-[#0C1311] border border-[#1E2826] rounded-lg p-3 text-xs text-gray-400">
-                                <InfoIcon
-                                    size={13}
-                                    className="text-[#2DE3A7] shrink-0 mt-0.5"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <span>
-                                        Register this webhook URL in your Pathao
-                                        merchant panel to receive live status
-                                        updates:{" "}
-                                    </span>
-                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                        <code className="text-[#2DE3A7] bg-[#1E2826] px-1.5 py-0.5 rounded break-all">
-                                            {webhookUrl}
-                                        </code>
-                                        <CopyButton value={webhookUrl} />
-                                    </div>
-                                </div>
-                            </div>
+                            <WebhookUrlBox url={pathaoWebhookUrl} />
                         </CardContent>
                     </Card>
 
@@ -496,6 +499,8 @@ export default function Index({ credentials }: Props) {
                                     }
                                 />
                             </div>
+
+                            <WebhookUrlBox url={steadfastWebhookUrl} />
                         </CardContent>
                     </Card>
 

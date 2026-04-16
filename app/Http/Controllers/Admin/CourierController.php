@@ -47,8 +47,8 @@ class CourierController extends Controller
 
         $this->updateEnv($data);
 
-        // Clear cached Pathao token whenever credentials change
-        \Illuminate\Support\Facades\Cache::forget('pathao_access_token');
+        // Clear cached Pathao tokens whenever credentials change
+        app(\App\Services\PathaoService::class)->forgetToken();
 
         return back()->with('success', 'Courier credentials updated successfully.');
     }
