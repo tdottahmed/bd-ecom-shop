@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
-export type SecondaryPanel = "menu" | "reports";
+export type SecondaryPanel = "menu" | "reports" | "products" | "pages";
 
 interface SecondarySidebarProps {
     isOpen: boolean;
@@ -53,7 +53,14 @@ interface MenuItem {
     match?: "exact" | "prefix";
 }
 
-export const secondaryMenuItems: MenuItem[] = [
+export const productsMenuItems: MenuItem[] = [
+    {
+        key: "all_products",
+        label: "All Products",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.products.index",
+        urlPattern: "/admin/products",
+    },
     {
         key: "categories",
         label: "Categories",
@@ -75,6 +82,47 @@ export const secondaryMenuItems: MenuItem[] = [
         route: "admin.discounts.index",
         urlPattern: "/admin/discounts",
     },
+    {
+        key: "product_requests",
+        label: "Product Requests",
+        icon: <Bell size={18} />,
+        route: "admin.product-requests.index",
+        urlPattern: "/admin/product-requests",
+    },
+];
+
+export const pagesMenuItems: MenuItem[] = [
+    {
+        key: "landing_pages",
+        label: "Landing Pages",
+        icon: <FileText size={18} />,
+        route: "admin.landing-pages.index",
+        urlPattern: "/admin/landing-pages",
+    },
+    {
+        key: "blogs",
+        label: "Blog",
+        icon: <NotebookPen size={18} />,
+        route: "admin.blogs.index",
+        urlPattern: "/admin/blogs",
+    },
+    {
+        key: "newsletter_subscriptions",
+        label: "Newsletter",
+        icon: <Mail size={18} />,
+        route: "admin.newsletter-subscriptions.index",
+        urlPattern: "/admin/newsletter-subscriptions",
+    },
+    {
+        key: "contact_messages",
+        label: "Contact Messages",
+        icon: <MessageCircle size={18} />,
+        route: "admin.contact-messages.index",
+        urlPattern: "/admin/contact-messages",
+    },
+];
+
+export const secondaryMenuItems: MenuItem[] = [
     {
         key: "website",
         label: "Website",
@@ -99,7 +147,7 @@ export const secondaryMenuItems: MenuItem[] = [
     {
         key: "gateway",
         label: "Payment Gateways",
-        icon: <Truck size={18} />,
+        icon: <CreditCard size={18} />,
         route: "admin.payment-gateways.index",
         urlPattern: "/admin/payment-gateways",
     },
@@ -117,7 +165,6 @@ export const secondaryMenuItems: MenuItem[] = [
         route: "admin.social-login.index",
         urlPattern: "/admin/social-login",
     },
-
     {
         key: "marketing",
         label: "Marketing",
@@ -131,41 +178,6 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Search size={18} />,
         route: "admin.seo.index",
         urlPattern: "/admin/seo",
-    },
-    {
-        key: "pages",
-        label: "Pages",
-        icon: <FileText size={18} />,
-        route: "admin.pages.index",
-        urlPattern: "/admin/pages",
-    },
-    {
-        key: "blogs",
-        label: "Blog",
-        icon: <NotebookPen size={18} />,
-        route: "admin.blogs.index",
-        urlPattern: "/admin/blogs",
-    },
-    {
-        key: "newsletter_subscriptions",
-        label: "Newsletter",
-        icon: <Mail size={18} />,
-        route: "admin.newsletter-subscriptions.index",
-        urlPattern: "/admin/newsletter-subscriptions",
-    },
-    {
-        key: "contact_messages",
-        label: "Contact Msgs",
-        icon: <MessageCircle size={18} />,
-        route: "admin.contact-messages.index",
-        urlPattern: "/admin/contact-messages",
-    },
-    {
-        key: "product_requests",
-        label: "Product Requests",
-        icon: <Bell size={18} />,
-        route: "admin.product-requests.index",
-        urlPattern: "/admin/product-requests",
     },
 ];
 
@@ -320,7 +332,14 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         post(route("logout"));
     };
 
-    const items = panel === "reports" ? reportsMenuItems : secondaryMenuItems;
+    const items =
+        panel === "reports"
+            ? reportsMenuItems
+            : panel === "products"
+            ? productsMenuItems
+            : panel === "pages"
+            ? pagesMenuItems
+            : secondaryMenuItems;
 
     const isMenuItemActive = (item: MenuItem): boolean => {
         if (!item.urlPattern) return false;
@@ -330,11 +349,23 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
         return pathOnly.startsWith(item.urlPattern);
     };
 
-    const panelTitle = panel === "reports" ? "Reports" : "More";
+    const panelTitle =
+        panel === "reports"
+            ? "Reports"
+            : panel === "products"
+            ? "Products"
+            : panel === "pages"
+            ? "Content"
+            : "Settings";
+
     const panelSubtitle =
         panel === "reports"
             ? "Sales, inventory, and store analytics"
-            : "Settings & content";
+            : panel === "products"
+            ? "Catalog, categories & promotions"
+            : panel === "pages"
+            ? "Pages, blogs & communications"
+            : "Store configuration & tools";
 
     const initials = (authUser?.name || "A")
         .split(" ")

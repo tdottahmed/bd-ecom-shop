@@ -30,6 +30,7 @@ class WebsiteController extends Controller
                 'faqs' => json_decode(get_setting('faqs', '[]'), true),
                 'site_logo' => get_setting('site_logo'),
                 'site_favicon' => get_setting('site_favicon'),
+                'theme_colors' => theme_colors(),
                 'auth_page_image' => get_setting('auth_page_image'),
                 'footer_description' => get_setting('footer_description'),
                 'social_facebook' => get_setting('social_facebook'),
@@ -381,9 +382,9 @@ class WebsiteController extends Controller
 
         if ($type === 'scheduler') {
             $request->validate([
-                'additional_cost'                    => 'nullable|numeric|min:0',
-                'scheduled_product_update_enabled'   => 'required|boolean',
-                'scheduled_product_update_cron'      => 'nullable|string|max:100',
+                'additional_cost' => 'nullable|numeric|min:0',
+                'scheduled_product_update_enabled' => 'required|boolean',
+                'scheduled_product_update_cron' => 'nullable|string|max:100',
             ]);
 
             Setting::updateOrCreate(['key' => 'additional_cost'], ['value' => (string) ($request->input('additional_cost', 0))]);
@@ -423,6 +424,35 @@ class WebsiteController extends Controller
             ]);
 
             return back()->with('success', 'Admin notifications updated successfully.');
+        }
+
+        if ($type === 'theme_colors') {
+            $hexRule = ['required', 'regex:/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/'];
+            $request->validate([
+                'theme_colors' => 'required|array',
+                'theme_colors.primary' => $hexRule,
+                'theme_colors.tint' => $hexRule,
+                'theme_colors.dark' => $hexRule,
+                'theme_colors.accent' => $hexRule,
+                'theme_colors.success' => $hexRule,
+                'theme_colors.bg' => $hexRule,
+                'theme_colors.ivory' => $hexRule,
+            ]);
+
+            $normalized = [];
+            foreach (array_keys(default_theme_colors()) as $key) {
+                $normalized[$key] = sanitize_theme_hex(
+                    $request->input("theme_colors.$key"),
+                    default_theme_colors()[$key]
+                );
+            }
+
+            Setting::updateOrCreate(
+                ['key' => 'theme_colors'],
+                ['value' => json_encode($normalized)]
+            );
+
+            return back()->with('success', 'Theme colors updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');

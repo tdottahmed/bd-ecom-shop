@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, ShoppingBag, Package, Grid, BarChart3 } from "lucide-react";
+import { Home, ShoppingBag, Package, Settings, BarChart3 } from "lucide-react";
 import { Link } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
 import type { SecondaryPanel } from "@/Components/Layouts/SecondarySidebar";
@@ -7,9 +7,18 @@ import type { SecondaryPanel } from "@/Components/Layouts/SecondarySidebar";
 interface MobileBottomNavProps {
     isSecondaryOpen: boolean;
     secondaryPanel: SecondaryPanel;
-    onMorePress: () => void;
+    onProductsPress: () => void;
     onReportsPress: () => void;
+    onSettingsPress: () => void;
 }
+
+const PRODUCTS_ROUTES = [
+    "products",
+    "categories",
+    "brands",
+    "discounts",
+    "product-requests",
+];
 
 const mobileMenuItems = [
     {
@@ -22,7 +31,7 @@ const mobileMenuItems = [
         key: "products",
         label: "Products",
         icon: <ShoppingBag size={20} />,
-        route: "admin.products.index",
+        route: null as string | null,
     },
     {
         key: "orders",
@@ -36,51 +45,69 @@ const mobileMenuItems = [
         icon: <BarChart3 size={20} />,
         route: null as string | null,
     },
-    { key: "more", label: "More", icon: <Grid size={20} />, route: null },
+    {
+        key: "settings",
+        label: "Settings",
+        icon: <Settings size={20} />,
+        route: null as string | null,
+    },
 ];
 
 const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     isSecondaryOpen,
     secondaryPanel,
-    onMorePress,
+    onProductsPress,
     onReportsPress,
+    onSettingsPress,
 }) => {
     const activeRoute = useActiveRoute();
 
-    const mainKeys = [
-        "dashboard",
-        "products",
-        "orders",
-        "reports",
-        "landing-pages",
-    ];
-
-    const isActive = (item: (typeof mobileMenuItems)[0]) => {
+    const isActive = (item: (typeof mobileMenuItems)[0]): boolean => {
         if (item.key === "dashboard") {
             return activeRoute === "dashboard" || activeRoute === "";
         }
-        if (item.key === "reports" || item.key === "more") {
-            return false;
+        if (item.key === "orders") {
+            return activeRoute === "orders";
         }
-        return activeRoute === item.key;
+        return false;
     };
 
-    const onReportsPage = activeRoute === "reports";
-    const reportsBtnActive =
-        onReportsPage || (isSecondaryOpen && secondaryPanel === "reports");
+    const productsBtnActive =
+        PRODUCTS_ROUTES.includes(activeRoute) ||
+        (isSecondaryOpen && secondaryPanel === "products");
 
-    const onMoreSection = !mainKeys.includes(activeRoute);
-    const moreBtnActive =
-        onMoreSection || (isSecondaryOpen && secondaryPanel === "menu");
+    const reportsBtnActive =
+        activeRoute === "reports" ||
+        (isSecondaryOpen && secondaryPanel === "reports");
+
+    const settingsBtnActive =
+        isSecondaryOpen && secondaryPanel === "menu";
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-[#0E1614] border-t border-gray-800 z-30 md:hidden">
             <div className="flex justify-around items-center max-w-lg mx-auto">
                 {mobileMenuItems.map((item) => {
-                    const isReports = item.key === "reports";
-                    const isMore = item.key === "more";
+                    if (item.key === "products") {
+                        return (
+                            <button
+                                key={item.key}
+                                type="button"
+                                className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
+                                    productsBtnActive
+                                        ? "text-[#2DE3A7]"
+                                        : "text-gray-300"
+                                }`}
+                                onClick={onProductsPress}
+                            >
+                                {item.icon}
+                                <span className="text-[10px] mt-1 truncate w-full text-center">
+                                    {item.label}
+                                </span>
+                            </button>
+                        );
+                    }
 
-                    if (isReports) {
+                    if (item.key === "reports") {
                         return (
                             <button
                                 key={item.key}
@@ -100,17 +127,17 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                         );
                     }
 
-                    if (isMore) {
+                    if (item.key === "settings") {
                         return (
                             <button
                                 key={item.key}
                                 type="button"
                                 className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
-                                    moreBtnActive
+                                    settingsBtnActive
                                         ? "text-[#2DE3A7]"
                                         : "text-gray-300"
                                 }`}
-                                onClick={onMorePress}
+                                onClick={onSettingsPress}
                             >
                                 {item.icon}
                                 <span className="text-[10px] mt-1 truncate w-full text-center">

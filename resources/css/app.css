@@ -9,13 +9,22 @@
    Tailwind config mirrors these as `brand-*` utility classes.
    ──────────────────────────────────────────────────────────────────────── */
 :root {
-    --brand-primary: #E11D6D;   /* Rose 600   — primary CTA           */
-    --brand-tint:    #F87BB4;   /* Rose 300   — icons / tints          */
-    --brand-dark:    #1A111A;   /* Deep Plum  — dark surfaces          */
-    --brand-accent:  #FF9545;   /* Peach 400  — promo / countdown      */
-    --brand-success: #16B57D;   /* Emerald 500 — Halal / success       */
-    --brand-bg:      #FFEBF2;   /* Rose 50    — background tints       */
-    --brand-ivory:   #FDF9F4;   /* Ivory      — page base              */
+    /* RGB triplets for Tailwind `brand-*` utilities with opacity modifiers */
+    --color-brand-primary: 225 29 109;
+    --color-brand-tint: 248 123 180;
+    --color-brand-dark: 26 17 26;
+    --color-brand-accent: 255 149 69;
+    --color-brand-success: 22 181 125;
+    --color-brand-bg: 255 235 242;
+    --color-brand-ivory: 253 249 244;
+    /* Hex mirrors for raw `var(--brand-*)` in CSS / inline styles */
+    --brand-primary: #e11d6d;
+    --brand-tint: #f87bb4;
+    --brand-dark: #1a111a;
+    --brand-accent: #ff9545;
+    --brand-success: #16b57d;
+    --brand-bg: #ffebf2;
+    --brand-ivory: #fdf9f4;
 }
 
 /* Honeypot spam trap — positioned off-screen so humans never see it.

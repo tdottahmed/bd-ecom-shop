@@ -149,7 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* NEW Badge - Show if created within last 30 days */}
             {isNewProduct(product.created_at) && (
                 <div className="absolute top-3 right-3 z-10">
-                    <span className="bg-cyan-300 text-cyan-900 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                    <span className="bg-brand-accent/25 text-brand-dark border border-brand-accent/35 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
                         <svg
                             width="10"
                             height="10"
@@ -185,7 +185,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     href={route("products.show", product.slug)}
                     className="block mb-1"
                 >
-                    <h3 className="text-sm font-medium text-gray-900 px-2 line-clamp-2 min-h-[40px]">
+                    <h3 className="text-sm font-medium text-brand-dark px-2 line-clamp-2 min-h-[40px]">
                         {product.name}
                     </h3>
                 </Link>
@@ -215,7 +215,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                             ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
                                             : formatPrice(minPrice);
                                     return (
-                                        <span className="text-l font-bold text-gray-900">
+                                        <span className="text-l font-bold text-brand-dark">
                                             {rangeStr}
                                         </span>
                                     );
@@ -231,7 +231,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                             {formatPrice(product.sale_price)}
                                         </span>
                                     )}
-                                    <span className="text-l font-bold text-gray-900">
+                                    <span className="text-l font-bold text-brand-dark">
                                         {formatPrice(effectivePrice)}
                                     </span>
                                     {hasDiscount && (
@@ -275,7 +275,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     ) : isOutOfStock ? (
                         <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRequestModal(true); }}
-                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all duration-200"
+                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-brand-bg text-brand-primary border border-brand-primary/25 hover:bg-brand-primary/10 transition-all duration-200"
                         >
                             <Bell size={14} />
                             Request Product

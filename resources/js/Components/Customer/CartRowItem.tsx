@@ -66,7 +66,7 @@ const CartRowItem: React.FC<CartRowItemProps> = ({ item }) => {
                             {item.name}
                         </h3>
                         {isUnavailable && (
-                            <p className="text-xs text-amber-600 font-medium mt-1">
+                            <p className="text-xs text-brand-primary font-medium mt-1">
                                 Out of stock — remove to continue
                             </p>
                         )}
@@ -136,7 +136,7 @@ const CartRowItem: React.FC<CartRowItemProps> = ({ item }) => {
                 <button
                     type="button"
                     onClick={() => removeFromCart(cartId)}
-                    className="p-2.5 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-2.5 rounded-xl text-gray-400 hover:text-brand-primary hover:bg-brand-bg transition-colors"
                     aria-label="Remove from cart"
                 >
                     <Trash2 className="w-5 h-5" />

@@ -17,6 +17,7 @@ import BlogSettingsForm from "./Partials/BlogSettingsForm";
 import SmtpSettingsForm from "./Partials/SmtpSettingsForm";
 import SchedulerSettingsForm from "./Partials/SchedulerSettingsForm";
 import AdminNotificationSettingsForm from "./Partials/AdminNotificationSettingsForm";
+import ThemeColorsForm from "./Partials/ThemeColorsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -71,6 +72,7 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                         <>
                             <BannerForm settings={settings} />
                             <BrandingForm settings={settings} />
+                            <ThemeColorsForm settings={settings} />
                         </>
                     )}
 

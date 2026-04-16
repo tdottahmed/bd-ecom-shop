@@ -3,6 +3,8 @@ import MobileBottomNav from "@/Components/Layouts/MobileBottomNav";
 import PrimarySidebar from "@/Components/Layouts/PrimarySidebar";
 import SecondarySidebar, {
     secondaryMenuItems,
+    productsMenuItems,
+    pagesMenuItems,
     type SecondaryPanel,
 } from "@/Components/Layouts/SecondarySidebar";
 import { Head, usePage } from "@inertiajs/react";
@@ -21,13 +23,19 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
 
     const pathOnly = url.split("?")[0];
 
-    const shouldOpenForMoreMenu = secondaryMenuItems.some(
+    const shouldOpenForProducts = productsMenuItems.some(
+        (item) => item.urlPattern && pathOnly.startsWith(item.urlPattern)
+    );
+    const shouldOpenForPages = pagesMenuItems.some(
         (item) => item.urlPattern && pathOnly.startsWith(item.urlPattern)
     );
     const shouldOpenForReports = pathOnly.startsWith("/admin/reports");
+    const shouldOpenForSettings = secondaryMenuItems.some(
+        (item) => item.urlPattern && pathOnly.startsWith(item.urlPattern)
+    );
 
     const [isSecondarySidebarOpen, setIsSecondarySidebarOpen] = useState(false);
-    const [secondaryPanel, setSecondaryPanel] = useState<SecondaryPanel>("menu");
+    const [secondaryPanel, setSecondaryPanel] = useState<SecondaryPanel>("products");
 
     useEffect(() => {
         if (typeof window === "undefined" || window.innerWidth < 768) {
@@ -36,11 +44,59 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
         if (shouldOpenForReports) {
             setSecondaryPanel("reports");
             setIsSecondarySidebarOpen(true);
-        } else if (shouldOpenForMoreMenu) {
+        } else if (shouldOpenForProducts) {
+            setSecondaryPanel("products");
+            setIsSecondarySidebarOpen(true);
+        } else if (shouldOpenForPages) {
+            setSecondaryPanel("pages");
+            setIsSecondarySidebarOpen(true);
+        } else if (shouldOpenForSettings) {
             setSecondaryPanel("menu");
             setIsSecondarySidebarOpen(true);
         }
-    }, [pathOnly, shouldOpenForMoreMenu, shouldOpenForReports]);
+    }, [
+        pathOnly,
+        shouldOpenForProducts,
+        shouldOpenForPages,
+        shouldOpenForReports,
+        shouldOpenForSettings,
+    ]);
+
+    const handleProductsClick = () => {
+        if (isSecondarySidebarOpen && secondaryPanel === "products") {
+            setIsSecondarySidebarOpen(false);
+        } else {
+            setSecondaryPanel("products");
+            setIsSecondarySidebarOpen(true);
+        }
+    };
+
+    const handlePagesClick = () => {
+        if (isSecondarySidebarOpen && secondaryPanel === "pages") {
+            setIsSecondarySidebarOpen(false);
+        } else {
+            setSecondaryPanel("pages");
+            setIsSecondarySidebarOpen(true);
+        }
+    };
+
+    const handleSettingsClick = () => {
+        if (isSecondarySidebarOpen && secondaryPanel === "menu") {
+            setIsSecondarySidebarOpen(false);
+        } else {
+            setSecondaryPanel("menu");
+            setIsSecondarySidebarOpen(true);
+        }
+    };
+
+    const handleReportsClick = () => {
+        if (isSecondarySidebarOpen && secondaryPanel === "reports") {
+            setIsSecondarySidebarOpen(false);
+        } else {
+            setSecondaryPanel("reports");
+            setIsSecondarySidebarOpen(true);
+        }
+    };
 
     useEffect(() => {
         if (flash?.success) {
@@ -63,23 +119,28 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
 
             <div className="hidden md:flex flex-1">
                 <PrimarySidebar
-                    onMoreClick={() => {
-                        setSecondaryPanel("menu");
-                        setIsSecondarySidebarOpen(true);
-                    }}
-                    onReportsClick={() => {
-                        setSecondaryPanel("reports");
-                        setIsSecondarySidebarOpen(true);
-                    }}
+                    onProductsClick={handleProductsClick}
+                    onPagesClick={handlePagesClick}
+                    onSettingsClick={handleSettingsClick}
+                    onReportsClick={handleReportsClick}
+                    isSecondaryOpen={isSecondarySidebarOpen}
+                    secondaryPanel={secondaryPanel}
                 />
 
-                {isSecondarySidebarOpen && (
-                    <SecondarySidebar
-                        isOpen={isSecondarySidebarOpen}
-                        panel={secondaryPanel}
-                        onClose={() => setIsSecondarySidebarOpen(false)}
-                    />
-                )}
+                {/* Secondary sidebar with smooth slide-in animation */}
+                <div
+                    className={`overflow-hidden shrink-0 transition-[width] duration-200 ease-in-out ${
+                        isSecondarySidebarOpen ? "w-64" : "w-0"
+                    }`}
+                >
+                    <div className="w-64 h-full">
+                        <SecondarySidebar
+                            isOpen={isSecondarySidebarOpen}
+                            panel={secondaryPanel}
+                            onClose={() => setIsSecondarySidebarOpen(false)}
+                        />
+                    </div>
+                </div>
 
                 <div className="flex-1 flex flex-col min-w-0">
                     {head ? head : <Header showUserMenu={true} />}
@@ -100,28 +161,9 @@ const Master: React.FC<LayoutProps> = ({ children, head, title }) => {
                 <MobileBottomNav
                     isSecondaryOpen={isSecondarySidebarOpen}
                     secondaryPanel={secondaryPanel}
-                    onMorePress={() => {
-                        if (
-                            isSecondarySidebarOpen &&
-                            secondaryPanel === "menu"
-                        ) {
-                            setIsSecondarySidebarOpen(false);
-                        } else {
-                            setSecondaryPanel("menu");
-                            setIsSecondarySidebarOpen(true);
-                        }
-                    }}
-                    onReportsPress={() => {
-                        if (
-                            isSecondarySidebarOpen &&
-                            secondaryPanel === "reports"
-                        ) {
-                            setIsSecondarySidebarOpen(false);
-                        } else {
-                            setSecondaryPanel("reports");
-                            setIsSecondarySidebarOpen(true);
-                        }
-                    }}
+                    onProductsPress={handleProductsClick}
+                    onReportsPress={handleReportsClick}
+                    onSettingsPress={handleSettingsClick}
                 />
             </div>
 
