@@ -208,12 +208,18 @@ class CustomerController extends Controller
             $query->where('sale_price', '<=', $maxPrice);
         }
 
+        // Effective stock: for variant products use sum of variation stocks, for single use products.stock
+        $effectiveStock = "CASE WHEN product_type = 'variant'
+            THEN COALESCE((SELECT SUM(pv.stock) FROM product_variations pv WHERE pv.product_id = products.id), 0)
+            ELSE stock
+        END";
+
         // Stock status
         if ($request->input('in_stock') === 'true') {
-            $query->where('stock', '>', 0);
+            $query->whereRaw("($effectiveStock) > 0");
         }
         if ($request->input('stock_out') === 'true') {
-            $query->where('stock', '<=', 0)->orderBy('updated_at', 'desc');
+            $query->whereRaw("($effectiveStock) <= 0")->where('is_preorder', false);
         }
 
         // Preorder status
@@ -221,10 +227,11 @@ class CustomerController extends Controller
             $query->where('is_preorder', true);
         }
 
-        // Always rank in-stock first, then preorder, then out-of-stock (unless explicitly filtering by stock)
+        // Always rank in-stock first (by qty desc), then preorder, then out-of-stock
         $explicitStockFilter = $request->input('in_stock') || $request->input('stock_out');
         if (!$explicitStockFilter) {
-            $query->orderByRaw('CASE WHEN stock > 0 THEN 0 WHEN is_preorder = 1 THEN 1 ELSE 2 END');
+            $query->orderByRaw("CASE WHEN ($effectiveStock) > 0 THEN 0 WHEN is_preorder = 1 THEN 1 ELSE 2 END")
+                  ->orderByRaw("($effectiveStock) DESC");
         }
 
         // Sorting
