@@ -119,13 +119,15 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                     }`}
                 >
                     <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-16 gap-3">
+                        <div className="flex items-center justify-between h-16 md:h-20 gap-3">
                             {/* Left: hamburger (mobile) + logo */}
                             <div className="flex items-center gap-1 shrink-0">
                                 <div className="md:hidden">
                                     <MobileMenuButton onClick={onMenuClick} />
                                 </div>
-                                <Logo />
+                                <div className="py-2">
+                                    <Logo />
+                                </div>
                             </div>
 
                             {/* Center: search bar (md+) */}
@@ -192,7 +194,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                                                                 Signed in as
                                                             </p>
                                                             <p className="text-sm font-semibold text-gray-900 mt-0.5 truncate">
-                                                                {auth?.user?.name}
+                                                                {
+                                                                    auth?.user
+                                                                        ?.name
+                                                                }
                                                             </p>
                                                         </div>
 

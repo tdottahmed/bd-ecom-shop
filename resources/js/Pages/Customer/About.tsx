@@ -73,7 +73,7 @@ const defaultTestimonials = [
     {
         name: "Sadia Rahman",
         role: "Repeat Customer",
-        quote: "TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.",
+        quote: "Direct Malaysia has become my go-to store. Prices are fair, service is responsive, and products are always genuine.",
         rating: 5,
     },
 ];
@@ -116,7 +116,7 @@ export default function About({
                             Our Story
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
-                            About True Buy Malaysia
+                            About Direct Malaysia
                         </h1>
                         <p className="max-w-xl mx-auto text-lg text-slate-500">
                             We started with a simple mission — make online
@@ -131,13 +131,13 @@ export default function About({
                             <div className="p-10 sm:p-14">
                                 <div className="inline-flex items-center gap-2 bg-brand-success/10 border border-brand-success/20 text-brand-success text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
                                     <CheckCircle2 size={12} />
-                                    TrueBuy Malaysia
+                                    Direct Malaysia
                                 </div>
                                 <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight mb-5">
                                     Building a trusted shopping experience
                                 </h1>
                                 <p className="text-slate-500 text-base leading-relaxed mb-8">
-                                    TrueBuy Malaysia started with one simple
+                                    Direct Malaysia started with one simple
                                     mission: make online shopping dependable. We
                                     focus on products people actually use,
                                     present them clearly, and deliver every
@@ -186,7 +186,7 @@ export default function About({
                             <p className="text-slate-500 leading-relaxed text-sm mb-4">
                                 We saw too many buyers disappointed by unclear
                                 product details, slow communication, and
-                                uncertain delivery timelines. TrueBuy Malaysia
+                                uncertain delivery timelines. Direct Malaysia
                                 was created to set a higher standard: better
                                 product curation, clear information, and
                                 dependable post-order support.
@@ -273,7 +273,7 @@ export default function About({
                                 Customer Testimonials
                             </h2>
                             <p className="text-slate-500 text-sm">
-                                Real feedback from buyers who shop with TrueBuy
+                                Real feedback from buyers who shop with Direct
                                 Malaysia.
                             </p>
                         </div>
