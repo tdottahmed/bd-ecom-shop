@@ -13,9 +13,9 @@ interface PathaoArea   { area_id: number;   area_name: string }
 interface PathaoZone   { zone_id: number;   zone_name: string }
 interface PathaoCity   { city_id: number;   city_name: string }
 
-type CourierType = "steadfast" | "pathao" | "carrybee";
+export type CourierType = "steadfast" | "pathao" | "carrybee";
 
-interface ConfirmData {
+export interface ConfirmData {
     name: string;
     address: string;
     phone: string;
