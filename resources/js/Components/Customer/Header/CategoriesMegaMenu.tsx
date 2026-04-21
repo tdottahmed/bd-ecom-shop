@@ -108,7 +108,7 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                         onMouseLeave={scheduleClose}
                     />
                     <div
-                        className="absolute left-0 top-full mt-4 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-[132px] xl:left-16 xl:right-16 bg-white border border-gray-100/50 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                        className="absolute left-0 top-full mt-4 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-[120px] xl:left-16 xl:right-16 bg-white border border-gray-100/50 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
                         onMouseEnter={cancelClose}
                         onMouseLeave={scheduleClose}
                     >
