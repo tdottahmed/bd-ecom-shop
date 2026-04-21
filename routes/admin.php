@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\NewProductRequestController;
 use App\Http\Controllers\Admin\ProductRequestController as AdminProductRequestController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
@@ -105,8 +106,13 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::get('orders/{order}/check-fraud', [OrderController::class, 'checkFraud'])->name('orders.check-fraud');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
-    // Product Requests
+    // Product Requests (existing: out-of-stock requests for existing products)
     Route::get('product-requests', [AdminProductRequestController::class, 'index'])->name('product-requests.index');
+
+    // New Product Requests (customers requesting products not yet in the store)
+    Route::get('new-product-requests', [NewProductRequestController::class, 'index'])->name('new-product-requests.index');
+    Route::patch('new-product-requests/{newProductRequest}/status', [NewProductRequestController::class, 'updateStatus'])->name('new-product-requests.update-status');
+    Route::delete('new-product-requests/{newProductRequest}', [NewProductRequestController::class, 'destroy'])->name('new-product-requests.destroy');
     Route::post('product-requests/{productRequest}/status', [AdminProductRequestController::class, 'updateStatus'])->name('product-requests.update-status');
     Route::post('product-requests/{productRequest}/create-order', [AdminProductRequestController::class, 'createOrder'])->name('product-requests.create-order');
     Route::delete('product-requests/{productRequest}', [AdminProductRequestController::class, 'destroy'])->name('product-requests.destroy');

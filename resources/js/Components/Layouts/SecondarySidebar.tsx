@@ -21,6 +21,7 @@ import {
     ExternalLink,
     ShieldCheck,
     Bell,
+    ShoppingBag,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
 
@@ -151,6 +152,13 @@ export const secondaryMenuItems: MenuItem[] = [
         icon: <Bell size={18} />,
         route: "admin.product-requests.index",
         urlPattern: "/admin/product-requests",
+    },
+    {
+        key: "new_product_requests",
+        label: "New Product Requests",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.new-product-requests.index",
+        urlPattern: "/admin/new-product-requests",
     },
 ];
 

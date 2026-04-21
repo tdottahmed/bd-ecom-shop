@@ -152,6 +152,12 @@ export default function Footer() {
                                 Contact Us
                             </Link>
                             <Link
+                                href={route("new-product-requests.create")}
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
+                            >
+                                Request a Product
+                            </Link>
+                            <Link
                                 href={route("pages.privacy-policy")}
                                 className="text-gray-600 hover:text-brand-primary transition-colors"
                             >
