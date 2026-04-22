@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CourierController;
+use App\Http\Controllers\Admin\SteadfastController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\FaqController;
@@ -130,9 +131,17 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::get('orders/bulk-invoice', [OrderController::class, 'bulkInvoice'])->name('orders.bulk-invoice');
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::post('orders/{order}/sync-status', [SteadfastController::class, 'syncStatus'])->name('orders.sync-status');
     Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('orders/{order}/check-fraud', [OrderController::class, 'checkFraud'])->name('orders.check-fraud');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Steadfast operations
+    Route::get('steadfast', [SteadfastController::class, 'index'])->name('steadfast.index');
+    Route::get('steadfast/balance', [SteadfastController::class, 'balance'])->name('steadfast.balance');
+    Route::post('steadfast/bulk-consignment', [SteadfastController::class, 'bulkConsignment'])->name('steadfast.bulk-consignment');
+    Route::post('steadfast/return-requests', [SteadfastController::class, 'createReturnRequest'])->name('steadfast.return-requests.create');
+    Route::get('steadfast/payments/{id}', [SteadfastController::class, 'payment'])->name('steadfast.payments.show');
 
     // Product Requests (existing: out-of-stock requests for existing products)
     Route::get('product-requests', [AdminProductRequestController::class, 'index'])->name('product-requests.index');

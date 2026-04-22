@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Header from "@/Components/Layouts/Header";
 import Master from "@/Layouts/Master";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import InputLabel from "@/Components/Ui/InputLabel";
 import TextInput from "@/Components/Ui/TextInput";
 import PrimaryButton from "@/Components/Actions/PrimaryButton";
@@ -10,7 +10,6 @@ import {
     TruckIcon,
     PackageIcon,
     BotIcon,
-    ZapIcon,
     ShieldCheckIcon,
     InfoIcon,
     CopyIcon,
@@ -22,6 +21,9 @@ import {
     ToggleRightIcon,
     FlaskConicalIcon,
     AlertTriangleIcon,
+    Wallet,
+    RotateCcw,
+    RefreshCw,
 } from "lucide-react";
 
 interface Props {
@@ -192,6 +194,22 @@ function WebhookUrlBox({ url }: { url: string }) {
 const origin = typeof window !== "undefined" ? window.location.origin : "";
 
 export default function Index({ credentials }: Props) {
+    const [sfBalance, setSfBalance] = useState<number | null>(null);
+    const [sfBalanceLoading, setSfBalanceLoading] = useState(false);
+
+    const checkSteadfastBalance = async () => {
+        setSfBalanceLoading(true);
+        try {
+            const res = await fetch(route("admin.steadfast.balance"));
+            const json = await res.json();
+            setSfBalance(json.balance ?? null);
+        } catch {
+            setSfBalance(null);
+        } finally {
+            setSfBalanceLoading(false);
+        }
+    };
+
     const { data, setData, post, processing } = useForm({
         pathao_user: credentials.pathao_user ?? "",
         pathao_password: credentials.pathao_password ?? "",
@@ -513,6 +531,36 @@ export default function Index({ credentials }: Props) {
                                         setData("steadfast_secret_key", v)
                                     }
                                 />
+                            </div>
+
+                            {/* Balance + Dashboard links */}
+                            <div className="flex flex-wrap items-center gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={checkSteadfastBalance}
+                                    disabled={sfBalanceLoading}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#0C1311] border border-[#1E2826] rounded-lg text-sm text-gray-300 hover:border-[#2DE3A7]/40 hover:text-white transition-colors disabled:opacity-60"
+                                >
+                                    {sfBalanceLoading ? (
+                                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                        <Wallet className="w-3.5 h-3.5 text-[#2DE3A7]" />
+                                    )}
+                                    {sfBalanceLoading ? "Checking…" : "Check Balance"}
+                                </button>
+                                {sfBalance !== null && (
+                                    <span className="text-sm font-semibold text-[#2DE3A7]">
+                                        ৳{sfBalance.toLocaleString()}
+                                    </span>
+                                )}
+                                <div className="flex-1" />
+                                <Link
+                                    href={route("admin.steadfast.index")}
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#2DE3A7] transition-colors"
+                                >
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                    Return Requests &amp; Payments
+                                </Link>
                             </div>
 
                             <WebhookUrlBox url={steadfastWebhookUrl} />

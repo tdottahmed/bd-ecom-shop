@@ -349,25 +349,44 @@ class ReportController extends Controller
 
     public function shipping(Request $request): Response
     {
-        $dr     = $this->resolveDateRange($request);
-        $orders = $this->ordersInRange($dr['start'], $dr['end'])
+        $dr            = $this->resolveDateRange($request);
+        $courierFilter = $request->input('courier', 'all');
+
+        // ── KPI & chart data (non-cancelled orders) ───────────────────
+        $chartOrders = $this->ordersInRange($dr['start'], $dr['end'])
             ->where('status', '!=', 'cancelled')
             ->get(['id', 'courier', 'payment_method', 'delivery_cost', 'total']);
 
-        $total   = $orders->count();
-        $delCost = $orders->sum('delivery_cost');
-        $cod     = $orders->where('payment_method', 'cod')->count();
-        $prepaid = $orders->where('payment_method', '!=', 'cod')->count();
+        $total   = $chartOrders->count();
+        $delCost = $chartOrders->sum('delivery_cost');
+        $cod     = $chartOrders->where('payment_method', 'cod')->count();
+        $prepaid = $chartOrders->where('payment_method', '!=', 'cod')->count();
 
-        $byCourier = $orders->groupBy(fn ($o) => $o->courier ?? 'Manual')
+        $byCourier = $chartOrders->groupBy(fn ($o) => $o->courier ?? 'Manual')
             ->map(fn ($rows, $name) => [
                 'name'    => ucfirst($name),
                 'orders'  => $rows->count(),
                 'revenue' => round($rows->sum('delivery_cost'), 2),
             ])->values();
 
+        // ── Paginated orders list with courier filter ─────────────────
+        $ordersQuery = $this->ordersInRange($dr['start'], $dr['end'])
+            ->orderByDesc('id');
+
+        if ($courierFilter === 'manual') {
+            $ordersQuery->whereNull('courier');
+        } elseif ($courierFilter !== 'all') {
+            $ordersQuery->where('courier', $courierFilter);
+        }
+
+        $courierOrders = $ordersQuery->paginate(25, [
+            'id', 'customer_name', 'customer_phone',
+            'courier', 'consignment_id', 'tracking_code',
+            'total', 'delivery_cost', 'payment_method', 'status', 'created_at',
+        ])->withQueryString();
+
         return Inertia::render('Admin/Reports/Shipping', [
-            'filters' => $dr,
+            'filters' => $dr + ['courier' => $courierFilter],
             'kpis'    => [
                 'total_orders'   => $total,
                 'total_delivery' => round($delCost, 2),
@@ -383,6 +402,7 @@ class ReportController extends Controller
                     ['name' => 'Prepaid', 'value' => $prepaid],
                 ],
             ],
+            'courier_orders' => $courierOrders,
         ]);
     }
 

@@ -1,5 +1,5 @@
 import Checkbox from "@/Components/Ui/Checkbox";
-import { Eye, Printer } from "lucide-react";
+import { Eye, Printer, Truck } from "lucide-react";
 
 interface Props {
     selectedIds: number[];
@@ -7,6 +7,8 @@ interface Props {
     toggleSelectAll: () => void;
     handleBulkDetails: () => void;
     handleBulkPrint: () => void;
+    handleBulkConsignment: () => void;
+    isCreatingConsignments?: boolean;
 }
 
 export default function OrderBulkActions({
@@ -15,6 +17,8 @@ export default function OrderBulkActions({
     toggleSelectAll,
     handleBulkDetails,
     handleBulkPrint,
+    handleBulkConsignment,
+    isCreatingConsignments = false,
 }: Props) {
     return (
         <div className="flex items-center justify-between bg-[#0E1614] p-4 rounded-lg border border-[#1E2826]">
@@ -35,6 +39,19 @@ export default function OrderBulkActions({
 
             {selectedIds.length > 0 && (
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleBulkConsignment}
+                        disabled={isCreatingConsignments}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        title="Create Steadfast consignments for selected orders (skips orders that already have one)"
+                    >
+                        <Truck className="w-4 h-4" />
+                        <span className="hidden sm:inline">
+                            {isCreatingConsignments
+                                ? "Creating…"
+                                : "Create Consignments"}
+                        </span>
+                    </button>
                     <button
                         onClick={handleBulkDetails}
                         className="flex items-center gap-2 px-4 py-2 bg-[#1E2826] text-white rounded-lg font-semibold text-sm hover:bg-[#2A3633] transition-colors border border-[#2A3633]"

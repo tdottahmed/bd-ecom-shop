@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminOrderEventEmail;
 use App\Models\Order;
+use App\Support\AdminRecipients;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class SteadfastWebhookController extends Controller
 {
@@ -97,8 +101,60 @@ class SteadfastWebhookController extends Controller
         }
 
         if ($order->status !== $newStatus) {
-            $order->update(['status' => $newStatus]);
-            Log::info("Steadfast webhook: order #{$order->id} → {$newStatus} (was {$order->status})");
+            $previousStatus = $order->status;
+
+            // Restore stock when an order is cancelled via webhook
+            if ($newStatus === 'cancelled') {
+                DB::transaction(function () use ($order, $newStatus) {
+                    $order->load('items.product.product_variations');
+
+                    foreach ($order->items as $item) {
+                        $product = $item->product;
+
+                        if (! $product) {
+                            continue;
+                        }
+
+                        $hasVariationSelection = ! empty($item->variation_ids) && is_array($item->variation_ids);
+
+                        if ($hasVariationSelection) {
+                            $variationIds = array_map('intval', $item->variation_ids);
+                            $product->product_variations()
+                                ->whereIn('id', $variationIds)
+                                ->each(function ($variation) use ($item) {
+                                    if ($variation->stock !== null) {
+                                        $variation->increment('stock', $item->quantity);
+                                    }
+                                });
+                        }
+
+                        $product->increment('stock', $item->quantity);
+                    }
+
+                    $order->update(['status' => $newStatus]);
+                });
+            } else {
+                $order->update(['status' => $newStatus]);
+            }
+
+            Log::info("Steadfast webhook: order #{$order->id} → {$newStatus} (was {$previousStatus})");
+
+            Notification::send(
+                AdminRecipients::users(),
+                new \App\Notifications\Admin\OrderEvent(
+                    order: $order,
+                    event: 'status_updated',
+                    oldStatus: $previousStatus,
+                    newStatus: $newStatus
+                )
+            );
+
+            SendAdminOrderEventEmail::dispatch(
+                orderId: $order->id,
+                event: 'status_updated',
+                oldStatus: $previousStatus,
+                newStatus: $newStatus
+            )->afterCommit();
         }
 
         return response()->json(['message' => 'OK']);

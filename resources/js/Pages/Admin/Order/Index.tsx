@@ -32,6 +32,7 @@ export default function Index({ orders, filters }: Props) {
     const [selectedOrderForShipping, setSelectedOrderForShipping] =
         useState<Order | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isCreatingConsignments, setIsCreatingConsignments] = useState(false);
 
     // Active Search Effect
     useEffect(() => {
@@ -160,6 +161,20 @@ export default function Index({ orders, filters }: Props) {
         window.open(url, "_blank");
     };
 
+    const handleBulkConsignment = () => {
+        if (!selectedIds.length) return;
+        setIsCreatingConsignments(true);
+        router.post(
+            route("admin.steadfast.bulk-consignment"),
+            { order_ids: selectedIds },
+            {
+                preserveScroll: true,
+                onSuccess: () => setSelectedIds([]),
+                onFinish: () => setIsCreatingConsignments(false),
+            }
+        );
+    };
+
     // Status options for SelectInput
     const statusOptions = statuses.map((s) => ({
         value: s,
@@ -203,6 +218,8 @@ export default function Index({ orders, filters }: Props) {
                     toggleSelectAll={toggleSelectAll}
                     handleBulkDetails={handleBulkDetails}
                     handleBulkPrint={handleBulkPrint}
+                    handleBulkConsignment={handleBulkConsignment}
+                    isCreatingConsignments={isCreatingConsignments}
                 />
 
                 {/* Orders Grid/List */}
