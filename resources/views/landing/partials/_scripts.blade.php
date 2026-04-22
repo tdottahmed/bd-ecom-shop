@@ -125,6 +125,38 @@ window.addEventListener('load', function () {
 })();
 
 /* ══════════════════════════════════════════════
+   Countdown timers
+══════════════════════════════════════════════ */
+(function () {
+    document.querySelectorAll('[data-countdown]').forEach(function (wrap) {
+        var end = new Date(wrap.dataset.countdown).getTime();
+        if (isNaN(end)) return;
+
+        function tick() {
+            var now  = Date.now();
+            var diff = Math.max(0, end - now);
+            var d = Math.floor(diff / 86400000);
+            var h = Math.floor((diff % 86400000) / 3600000);
+            var m = Math.floor((diff % 3600000)  / 60000);
+            var s = Math.floor((diff % 60000)     / 1000);
+
+            var pad = function(n) { return String(n).padStart(2, '0'); };
+            var days = wrap.querySelector('[data-part="days"]');
+            var hrs  = wrap.querySelector('[data-part="hours"]');
+            var mins = wrap.querySelector('[data-part="minutes"]');
+            var secs = wrap.querySelector('[data-part="seconds"]');
+            if (days) days.textContent = pad(d);
+            if (hrs)  hrs.textContent  = pad(h);
+            if (mins) mins.textContent = pad(m);
+            if (secs) secs.textContent = pad(s);
+
+            if (diff > 0) requestAnimationFrame(function() { setTimeout(tick, 1000); });
+        }
+        tick();
+    });
+})();
+
+/* ══════════════════════════════════════════════
    FAQ accordion
 ══════════════════════════════════════════════ */
 function lpToggleFaq(btn) {
