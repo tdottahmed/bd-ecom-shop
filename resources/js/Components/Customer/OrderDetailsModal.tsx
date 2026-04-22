@@ -92,9 +92,9 @@ const OrderDetailsModal = ({
                                 className={`px-3 py-1 rounded-full text-sm font-medium capitalize
                             ${
                                 order.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-700"
+                                    ? "bg-brand-accent/20 text-brand-dark"
                                     : order.status === "completed"
-                                      ? "bg-green-100 text-green-700"
+                                      ? "bg-brand-success/15 text-brand-success"
                                       : "bg-gray-100 text-gray-700"
                             }`}
                             >
@@ -106,7 +106,7 @@ const OrderDetailsModal = ({
                         {order.status === "pending" && (
                             <button
                                 onClick={handleDelete}
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-brand-primary bg-brand-bg hover:bg-brand-primary/10 rounded-lg transition-colors border border-brand-primary/20"
                             >
                                 <Trash2 size={16} />
                                 Delete Order

@@ -10,6 +10,8 @@ type Page = {
     title: string;
     slug: string;
     is_published: boolean;
+    show_in_header: boolean;
+    show_in_footer: boolean;
     updated_at: string;
 };
 
@@ -40,7 +42,7 @@ export default function PagesIndex({ pages }: Props) {
                             Pages
                         </h1>
                         <p className="text-sm md:text-base text-gray-400 mt-1">
-                            Manage About/Contact and other static pages
+                            Manage custom CMS pages and choose where each page appears in navigation.
                         </p>
                     </div>
 
@@ -69,6 +71,9 @@ export default function PagesIndex({ pages }: Props) {
                                     <th className="text-left px-4 py-3 whitespace-nowrap">
                                         Status
                                     </th>
+                                    <th className="text-left px-4 py-3 whitespace-nowrap">
+                                        Menu placement
+                                    </th>
                                     <th className="text-right px-4 py-3 whitespace-nowrap">
                                         Actions
                                     </th>
@@ -78,7 +83,7 @@ export default function PagesIndex({ pages }: Props) {
                                 {pages.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={4}
+                                            colSpan={5}
                                             className="px-4 py-10 text-center text-gray-400"
                                         >
                                             No pages yet.
@@ -110,6 +115,26 @@ export default function PagesIndex({ pages }: Props) {
                                                         ? "Published"
                                                         : "Draft"}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {p.show_in_header && (
+                                                        <span className="text-[11px] font-semibold px-2 py-1 rounded border bg-sky-500/10 text-sky-300 border-sky-500/30">
+                                                            Header
+                                                        </span>
+                                                    )}
+                                                    {p.show_in_footer && (
+                                                        <span className="text-[11px] font-semibold px-2 py-1 rounded border bg-indigo-500/10 text-indigo-300 border-indigo-500/30">
+                                                            Footer
+                                                        </span>
+                                                    )}
+                                                    {!p.show_in_header &&
+                                                        !p.show_in_footer && (
+                                                            <span className="text-[11px] font-semibold px-2 py-1 rounded border bg-gray-500/10 text-gray-300 border-gray-500/30">
+                                                                Not linked
+                                                            </span>
+                                                        )}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex justify-end gap-2">

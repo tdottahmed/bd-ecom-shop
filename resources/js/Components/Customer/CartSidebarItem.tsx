@@ -68,7 +68,7 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                     </div>
 
                     {isUnavailable && (
-                        <p className="text-xs text-amber-600 font-medium mt-1">
+                        <p className="text-xs text-brand-primary font-medium mt-1">
                             No longer available — remove from cart
                         </p>
                     )}
@@ -101,7 +101,7 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                         </div>
                         <button
                             onClick={handleRemove}
-                            className="flex items-center justify-center w-6 h-6 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="flex items-center justify-center w-6 h-6 rounded-md text-gray-300 hover:text-brand-primary hover:bg-brand-bg transition-colors"
                             aria-label="Remove item"
                         >
                             <Trash2 size={13} />

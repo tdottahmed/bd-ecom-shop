@@ -335,7 +335,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                             {/* Out of Stock Overlay matching ProductShow */}
                                             {(!product.is_preorder && ((isAllSelected && currentSelectionStock <= 0) || (!isAllSelected && product.stock <= 0))) && (
                                                 <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-                                                    <span className="bg-rose-100 text-rose-800 px-1.5 py-1 rounded text-[9px] sm:text-[10px] font-bold shadow-sm border border-rose-200 text-center leading-tight uppercase tracking-wider">
+                                                    <span className="bg-brand-primary/12 text-brand-primary px-1.5 py-1 rounded text-[9px] sm:text-[10px] font-bold shadow-sm border border-brand-primary/25 text-center leading-tight uppercase tracking-wider">
                                                         Out of<br/>Stock
                                                     </span>
                                                 </div>
@@ -425,7 +425,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                     }}
                                                                     className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                                         variation.image ? "pl-2" : "pl-4"
-                                                                    } border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 rounded-lg cursor-pointer`}
+                                                                    } border-brand-primary/25 bg-brand-bg text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/35 rounded-lg cursor-pointer`}
                                                                     title="Out of stock – click to request"
                                                                 >
                                                                     {variation.image && (
@@ -437,7 +437,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                     )}
                                                                     <span className="relative z-10 flex items-center gap-1.5">
                                                                         {variation.value}
-                                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-sm border border-amber-200">
+                                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded-sm border border-brand-primary/20">
                                                                             <Bell size={8} />
                                                                             Request
                                                                         </span>
@@ -491,18 +491,18 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
 
                                     {/* Out-of-stock combination prompt */}
                                     {isOutOfStockCombo && (
-                                        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                                            <p className="text-sm font-bold text-amber-800 mb-1">
+                                        <div className="mt-4 rounded-xl border border-brand-primary/20 bg-brand-bg p-4">
+                                            <p className="text-sm font-bold text-brand-dark mb-1">
                                                 This combination is out of stock
                                             </p>
-                                            <p className="text-xs text-amber-700 mb-3">
+                                            <p className="text-xs text-brand-primary/90 mb-3">
                                                 <span className="font-medium">{buildVariationLabel(selectedVariations)}</span>
                                                 {" "}— submit a request and we'll contact you.
                                             </p>
                                             {onRequestVariation && (
                                                 <button
                                                     onClick={() => onRequestVariation(buildVariationLabel(selectedVariations))}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors"
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-bold rounded-lg transition-colors"
                                                 >
                                                     <Bell size={14} />
                                                     Request This Combination
@@ -668,7 +668,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                             index,
                                                                         )
                                                                     }
-                                                                    className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-md transition-colors"
+                                                                    className="text-gray-400 hover:text-brand-primary p-1.5 hover:bg-brand-bg rounded-md transition-colors"
                                                                     title="Remove"
                                                                 >
                                                                     <X
@@ -712,7 +712,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 <button
                                                     type="button"
                                                     onClick={() => onRequestVariation(buildVariationLabel(selectedVariations))}
-                                                    className="w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-md transition-all transform active:scale-[0.98]"
+                                                    className="w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white bg-brand-primary hover:bg-brand-primary/90 shadow-md transition-all transform active:scale-[0.98]"
                                                 >
                                                     <Bell size={16} />
                                                     Request This Combination

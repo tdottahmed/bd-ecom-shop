@@ -30,6 +30,7 @@ interface SelectInputProps {
     onChange: (value: any) => void;
     error?: string;
     isSearchable?: boolean;
+    disabled?: boolean;
     className?: string;
 }
 
@@ -42,6 +43,7 @@ export default function SelectInput({
     placeholder = "Select...",
     error,
     isSearchable = false,
+    disabled = false,
     className = "",
 }: SelectInputProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -103,9 +105,11 @@ export default function SelectInput({
                 ref={refs.setReference}
                 {...getReferenceProps()}
                 type="button"
+                disabled={disabled}
                 className={`w-full flex items-center justify-between px-3 py-2 min-h-[48px] bg-[#0C1311] border rounded-xl transition-all duration-300 text-left outline-none
+                    ${disabled ? "opacity-50 cursor-not-allowed" : ""}
                     ${
-                        isOpen
+                        !disabled && isOpen
                             ? "border-[#2DE3A7] ring-2 ring-[#2DE3A7]/15"
                             : "border-[#1E2826] hover:border-[#3b4744]"
                     }

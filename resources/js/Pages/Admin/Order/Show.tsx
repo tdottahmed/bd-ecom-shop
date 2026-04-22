@@ -258,79 +258,100 @@ export default function Show({ order }: Props) {
 
                                 {/* Fraud Check Section */}
                                 <div className="pt-4 border-t border-[#1E2826]">
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center justify-between mb-3">
                                         <h4 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
                                             <Shield className="w-4 h-4 text-[#2DE3A7]" />
                                             Fraud Check
                                         </h4>
-                                        {!fraudData && (
-                                            <button
-                                                onClick={handleCheckFraud}
-                                                disabled={isLoadingFraudCheck}
-                                                className="text-xs px-2 py-1 bg-[#2DE3A7]/10 text-[#2DE3A7] rounded hover:bg-[#2DE3A7]/20 transition-colors disabled:opacity-50"
-                                            >
-                                                {isLoadingFraudCheck
-                                                    ? "Checking..."
-                                                    : "Check Status"}
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={handleCheckFraud}
+                                            disabled={isLoadingFraudCheck}
+                                            className="text-xs px-2 py-1 bg-[#2DE3A7]/10 text-[#2DE3A7] rounded hover:bg-[#2DE3A7]/20 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                                        >
+                                            <AlertTriangle className={`w-3 h-3 ${isLoadingFraudCheck ? "animate-spin" : ""}`} />
+                                            {isLoadingFraudCheck ? "Checking…" : fraudData ? "Re-check" : "Check Now"}
+                                        </button>
                                     </div>
 
-                                    {fraudData && (
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-500">
-                                                    {" "}
-                                                    Success Ratio{" "}
-                                                </span>
-                                                <span
-                                                    className={`font-bold ${
-                                                        fraudData.success_ratio >=
-                                                        80
-                                                            ? "text-green-500"
-                                                            : fraudData.success_ratio >=
-                                                              50
-                                                            ? "text-yellow-500"
-                                                            : "text-red-500"
-                                                    }`}
-                                                >
-                                                    {fraudData.success_ratio} %
-                                                </span>
+                                    {/* Feature disabled */}
+                                    {fraudData?.disabled && (
+                                        <p className="text-xs text-gray-500 italic">
+                                            Fraud check is disabled. Enable it in Courier Settings.
+                                        </p>
+                                    )}
+
+                                    {/* Result */}
+                                    {fraudData && !fraudData.disabled && !fraudData.error && (
+                                        <div className="space-y-3">
+                                            {/* Overall score bar */}
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-gray-400">Delivery success rate</span>
+                                                    <span className={`font-bold ${
+                                                        fraudData.success_ratio >= 80 ? "text-green-400"
+                                                        : fraudData.success_ratio >= 50 ? "text-yellow-400"
+                                                        : "text-red-400"
+                                                    }`}>{fraudData.success_ratio}%</span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-[#1E2826] rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-500 ${
+                                                            fraudData.success_ratio >= 80 ? "bg-green-500"
+                                                            : fraudData.success_ratio >= 50 ? "bg-yellow-500"
+                                                            : "bg-red-500"
+                                                        }`}
+                                                        style={{ width: `${fraudData.success_ratio}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-500">
-                                                    {" "}
-                                                    Total Orders{" "}
-                                                </span>
-                                                <span className="text-white">
-                                                    {" "}
-                                                    {
-                                                        fraudData.total_orders
-                                                    }{" "}
-                                                </span>
+
+                                            {/* Totals row */}
+                                            <div className="grid grid-cols-3 gap-2 text-center">
+                                                {[
+                                                    { label: "Total", value: fraudData.total_orders, color: "text-gray-300" },
+                                                    { label: "Delivered", value: fraudData.successful_orders, color: "text-green-400" },
+                                                    { label: "Cancelled", value: fraudData.cancel_orders, color: "text-red-400" },
+                                                ].map(({ label, value, color }) => (
+                                                    <div key={label} className="bg-[#0C1311] border border-[#1E2826] rounded-lg py-2 px-1">
+                                                        <div className={`text-base font-bold ${color}`}>{value}</div>
+                                                        <div className="text-[10px] text-gray-500 mt-0.5">{label}</div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-500">
-                                                    {" "}
-                                                    Cancelled{" "}
-                                                </span>
-                                                <span className="text-red-400">
-                                                    {" "}
-                                                    {
-                                                        fraudData.cancel_orders
-                                                    }{" "}
-                                                </span>
-                                            </div>
-                                            <div className="text-xs text-gray-600 mt-1 text-right">
-                                                Last checked:{" "}
-                                                {format(
-                                                    new Date(
-                                                        fraudData.last_checked_at
-                                                    ),
-                                                    "MMM d, h:mm a"
-                                                )}
-                                            </div>
+
+                                            {/* Per-courier breakdown */}
+                                            {fraudData.summaries && Object.keys(fraudData.summaries).length > 0 && (
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">By courier</p>
+                                                    {Object.entries(fraudData.summaries as Record<string, { total: number; delivered: number; cancelled: number }>).map(
+                                                        ([courier, s]) => {
+                                                            const pct = s.total > 0 ? Math.round((s.delivered / s.total) * 100) : 0;
+                                                            return (
+                                                                <div key={courier} className="flex items-center gap-2 text-xs">
+                                                                    <span className="w-16 text-gray-400 truncate">{courier}</span>
+                                                                    <div className="flex-1 h-1 bg-[#1E2826] rounded-full overflow-hidden">
+                                                                        <div
+                                                                            className={`h-full rounded-full ${pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500"}`}
+                                                                            style={{ width: `${pct}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <span className="w-8 text-right text-gray-400">{s.total}</span>
+                                                                    <span className={`w-8 text-right font-medium ${pct >= 80 ? "text-green-400" : pct >= 50 ? "text-yellow-400" : "text-red-400"}`}>{pct}%</span>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <p className="text-[10px] text-gray-600 text-right">
+                                                Last checked: {format(new Date(fraudData.last_checked_at), "MMM d, h:mm a")}
+                                            </p>
                                         </div>
+                                    )}
+
+                                    {fraudData?.error && (
+                                        <p className="text-xs text-red-400">{fraudData.error}</p>
                                     )}
                                 </div>
                             </CardContent>

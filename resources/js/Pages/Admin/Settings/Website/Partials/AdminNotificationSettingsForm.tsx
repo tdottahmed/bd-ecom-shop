@@ -29,24 +29,32 @@ export default function AdminNotificationSettingsForm({
                 <CardHeader>
                     <CardTitle>Admin Notifications</CardTitle>
                     <p className="text-xs text-gray-500 mt-1">
-                        Control where system notifications (like new orders, contact messages) are sent. 
-                        You can disable notifications or specify multiple comma-separated email addresses.
+                        Control where system notifications (like new orders,
+                        contact messages) are sent. You can disable
+                        notifications or specify multiple comma-separated email
+                        addresses.
                     </p>
                 </CardHeader>
                 <CardContent className="space-y-5">
                     {/* Toggle */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-300">Enable Admin Notifications</p>
+                            <p className="text-sm font-medium text-gray-300">
+                                Enable Admin Notifications
+                            </p>
                             <p className="text-xs text-gray-500">
-                                Send emails to admins for important store events.
+                                Send emails to admins for important store
+                                events.
                             </p>
                         </div>
                         <input
                             type="checkbox"
                             checked={data.admin_notification_enabled}
                             onChange={(e) =>
-                                setData("admin_notification_enabled", e.target.checked)
+                                setData(
+                                    "admin_notification_enabled",
+                                    e.target.checked,
+                                )
                             }
                             className="rounded border-[#1E3330] bg-[#0E1614] text-[#2DE3A7] focus:ring-[#2DE3A7] focus:ring-offset-0"
                         />
@@ -55,16 +63,25 @@ export default function AdminNotificationSettingsForm({
                     {/* Emails Field */}
                     {data.admin_notification_enabled && (
                         <div>
-                            <label className={labelClass}>Notification Emails (comma separated)</label>
+                            <label className={labelClass}>
+                                Notification Emails (comma separated)
+                            </label>
                             <textarea
                                 value={data.admin_notification_emails}
-                                onChange={(e) => setData("admin_notification_emails", e.target.value)}
+                                onChange={(e) =>
+                                    setData(
+                                        "admin_notification_emails",
+                                        e.target.value,
+                                    )
+                                }
                                 placeholder="admin@example.com, developer@example.com"
                                 className={inputClass}
                                 rows={3}
                             />
                             {errors.admin_notification_emails && (
-                                <p className="text-xs text-red-400 mt-1">{errors.admin_notification_emails}</p>
+                                <p className="text-xs text-red-400 mt-1">
+                                    {errors.admin_notification_emails}
+                                </p>
                             )}
                         </div>
                     )}

@@ -46,7 +46,7 @@ class OrderController extends Controller
         $request->validate([
             'status'           => 'required|in:pending,unreachable,preparing,shipping,completed,cancelled,returned',
             'create_consignment' => 'nullable|boolean',
-            'courier'          => 'nullable|in:steadfast,pathao',
+            'courier'          => 'nullable|in:steadfast,pathao,carrybee',
             'name'             => 'required_if:create_consignment,true|string|max:255',
             'address'          => 'required_if:create_consignment,true|string|max:255',
             'phone'            => 'required_if:create_consignment,true|string|max:20',
@@ -69,6 +69,8 @@ class OrderController extends Controller
 
             if ($courier === 'pathao') {
                 $error = $this->createPathaoConsignment($order, $request, $note);
+            } elseif ($courier === 'carrybee') {
+                $error = $this->createCarryBeeConsignment($order, $note);
             } else {
                 $error = $this->createSteadfastConsignment($order, $note);
             }
@@ -262,12 +264,60 @@ class OrderController extends Controller
         }
     }
 
+    private function createCarryBeeConsignment(Order $order, string $note): ?string
+    {
+        try {
+            $carrybee = app(\App\Services\CarryBeeService::class);
+            $response = $carrybee->placeOrder([
+                'invoice'            => (string) $order->id,
+                'recipient_name'     => $order->customer_name,
+                'recipient_phone'    => $order->customer_phone,
+                'recipient_address'  => $order->customer_address,
+                'cod_amount'         => $order->total,
+                'note'               => $note,
+            ]);
+
+            if (isset($response['status']) && $response['status'] == 200) {
+                $consignment = $response['consignment'] ?? [];
+                $order->update([
+                    'courier'        => 'carrybee',
+                    'consignment_id' => $consignment['consignment_id'] ?? null,
+                    'tracking_code'  => $consignment['tracking_code']  ?? null,
+                ]);
+                return null;
+            }
+
+            $msg = is_array($response['message'] ?? null)
+                ? json_encode($response['message'])
+                : ($response['message'] ?? 'Unknown error');
+
+            return 'CarryBee Error: ' . $msg;
+        } catch (\Exception $e) {
+            return 'CarryBee Exception: ' . $e->getMessage();
+        }
+    }
+
     // ── Fraud check ───────────────────────────────────────────────────────────
 
     public function checkFraud(Order $order, \App\Services\CourierFraudCheckerService $fraudChecker)
     {
+        if (! $fraudChecker->isEnabled()) {
+            return response()->json(['disabled' => true], 200);
+        }
+
         $result = $fraudChecker->check($order->customer_phone);
 
-        return response()->json($result);
+        if (! $result) {
+            return response()->json(['error' => 'Failed to fetch fraud data'], 500);
+        }
+
+        return response()->json([
+            'success_ratio'     => $result->success_ratio,
+            'total_orders'      => $result->total_orders,
+            'successful_orders' => $result->successful_orders,
+            'cancel_orders'     => $result->cancel_orders,
+            'summaries'         => $result->summaries ?? [],
+            'last_checked_at'   => $result->last_checked_at?->toIso8601String(),
+        ]);
     }
 }

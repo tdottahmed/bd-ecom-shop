@@ -133,7 +133,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                         <select
                             value={sort}
                             onChange={(e) => setSort(e.target.value)}
-                            className="appearance-none bg-transparent text-sm text-gray-700 focus:outline-none cursor-pointer pr-5 max-w-[110px] sm:max-w-none"
+                            className="appearance-none bg-transparent text-sm text-brand-dark focus:outline-none focus:text-brand-primary cursor-pointer pr-5 max-w-[110px] sm:max-w-none"
                         >
                             <option value="latest">Latest</option>
                             <option value="price_low">Price: Low → High</option>
@@ -149,7 +149,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                         className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg border text-sm font-medium transition-colors whitespace-nowrap ${
                             activeFilterCount > 0
                                 ? "bg-brand-bg border-brand-primary/30 text-brand-primary hover:bg-brand-primary/15"
-                                : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                                : "bg-white border-gray-200 text-brand-dark hover:bg-brand-bg/60 hover:border-brand-primary/25"
                         }`}
                     >
                         <SlidersHorizontal size={15} />

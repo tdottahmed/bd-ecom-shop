@@ -155,8 +155,8 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-100 shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                            <Bell size={15} className="text-amber-600" />
+                        <div className="w-8 h-8 rounded-full bg-brand-bg flex items-center justify-center shrink-0 border border-brand-primary/15">
+                            <Bell size={15} className="text-brand-primary" />
                         </div>
                         <div>
                             <p className="text-sm font-bold text-gray-900">Request Product</p>
@@ -186,10 +186,10 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                             <p className="text-xs text-gray-500 truncate mt-0.5">{variationLabel}</p>
                         )}
                         {!hasPreselected && computedLabel && (
-                            <p className="text-xs text-amber-600 font-medium truncate mt-0.5">{computedLabel}</p>
+                            <p className="text-xs text-brand-primary font-medium truncate mt-0.5">{computedLabel}</p>
                         )}
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 shrink-0">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20 shrink-0">
                         Out of Stock
                     </span>
                 </div>
@@ -198,8 +198,8 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                 <div className="overflow-y-auto flex-1 overscroll-contain">
                     {formState === "success" ? (
                         <div className="px-5 py-10 flex flex-col items-center text-center">
-                            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                                <CheckCircle size={28} className="text-green-500" />
+                            <div className="w-14 h-14 rounded-full bg-brand-success/15 flex items-center justify-center mb-4 border border-brand-success/25">
+                                <CheckCircle size={28} className="text-brand-success" />
                             </div>
                             <h3 className="text-base font-bold text-gray-900 mb-1">Request Submitted!</h3>
                             <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
@@ -249,10 +249,10 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                                                             }
                                                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                                                                 isSelected
-                                                                    ? "bg-amber-500 border-amber-500 text-white shadow-sm"
+                                                                    ? "bg-brand-primary border-brand-primary text-white shadow-sm"
                                                                     : isOos
-                                                                    ? "bg-gray-50 border-gray-200 text-gray-400 hover:border-amber-300 hover:text-amber-600"
-                                                                    : "bg-white border-gray-200 text-gray-700 hover:border-amber-300 hover:text-amber-600"
+                                                                    ? "bg-gray-50 border-gray-200 text-gray-400 hover:border-brand-primary/35 hover:text-brand-primary"
+                                                                    : "bg-white border-gray-200 text-gray-700 hover:border-brand-primary/35 hover:text-brand-primary"
                                                             }`}
                                                         >
                                                             {v.value}
@@ -272,7 +272,7 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                             {/* Name */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                                    Your Name <span className="text-red-500">*</span>
+                                    Your Name <span className="text-brand-primary">*</span>
                                 </label>
                                 <div className="relative">
                                     <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -283,7 +283,7 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                                         placeholder="Enter your name"
                                         required
                                         maxLength={100}
-                                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 bg-gray-50"
+                                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/25 focus:border-brand-primary bg-gray-50"
                                     />
                                 </div>
                             </div>
@@ -291,7 +291,7 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                             {/* Phone */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                                    Phone Number <span className="text-red-500">*</span>
+                                    Phone Number <span className="text-brand-primary">*</span>
                                 </label>
                                 <div className="relative">
                                     <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -302,7 +302,7 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                                         placeholder="e.g. 01XXXXXXXXX"
                                         required
                                         maxLength={20}
-                                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 bg-gray-50"
+                                        className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/25 focus:border-brand-primary bg-gray-50"
                                     />
                                 </div>
                             </div>
@@ -321,7 +321,7 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                                             onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                                             min={1}
                                             max={999}
-                                            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 bg-gray-50"
+                                            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/25 focus:border-brand-primary bg-gray-50"
                                         />
                                     </div>
                                 </div>
@@ -335,19 +335,19 @@ const ProductRequestModal: React.FC<Props> = ({ isOpen, onClose, product, variat
                                         onChange={(e) => setNote(e.target.value)}
                                         placeholder="Any note..."
                                         maxLength={500}
-                                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 bg-gray-50"
+                                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/25 focus:border-brand-primary bg-gray-50"
                                     />
                                 </div>
                             </div>
 
                             {formState === "error" && (
-                                <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{errorMsg}</p>
+                                <p className="text-xs text-brand-primary bg-brand-bg border border-brand-primary/25 px-3 py-2 rounded-lg">{errorMsg}</p>
                             )}
 
                             <button
                                 type="submit"
                                 disabled={formState === "loading" || !name.trim() || !phone.trim()}
-                                className="w-full py-3 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-2 mt-1"
+                                className="w-full py-3 bg-brand-primary hover:bg-brand-primary/90 active:bg-brand-primary disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-2 mt-1"
                             >
                                 {formState === "loading" ? (
                                     <>

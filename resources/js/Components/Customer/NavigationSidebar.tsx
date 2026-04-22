@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
-import { ChevronDown, ChevronRight, Home, Info, Layers, LogIn, LogOut, Mail, Tags, X } from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, Home, Layers, LogIn, LogOut, Tags, X } from "lucide-react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
 import Logo from "@/Components/Customer/Header/Logo";
+import { resolvePageHref } from "@/Utils/pageLink";
 
 type NavCategory = {
     id: number;
@@ -19,6 +20,11 @@ type NavBrand = {
     image: string | null;
 };
 
+type NavPage = {
+    title: string;
+    slug: string;
+};
+
 interface NavigationSidebarProps {
     isOpen: boolean;
     onClose: () => void;
@@ -28,6 +34,7 @@ export default function NavigationSidebar({ isOpen, onClose }: NavigationSidebar
     const { props } = usePage() as any;
     const categories = (props?.categories ?? []) as NavCategory[];
     const brands = (props?.brands ?? []) as NavBrand[];
+    const headerPages = (props?.headerPages ?? []) as NavPage[];
     const isAuthenticated = !!props?.auth?.user;
 
     const [showCategories, setShowCategories] = useState(true);
@@ -236,23 +243,17 @@ export default function NavigationSidebar({ isOpen, onClose }: NavigationSidebar
                             <div className="h-px bg-gray-200 my-2" />
 
                             <div className="space-y-1">
-                                <Link
-                                    href={route("pages.about")}
-                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-800 hover:bg-gray-50 transition-colors"
-                                    onClick={onClose}
-                                >
-                                    <Info size={18} className="text-gray-500" />
-                                    <span className="font-medium">About Us</span>
-                                </Link>
-
-                                <Link
-                                    href={route("pages.contact")}
-                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-800 hover:bg-gray-50 transition-colors"
-                                    onClick={onClose}
-                                >
-                                    <Mail size={18} className="text-gray-500" />
-                                    <span className="font-medium">Contact Us</span>
-                                </Link>
+                                {headerPages.map((page) => (
+                                    <Link
+                                        key={page.slug}
+                                        href={resolvePageHref(page)}
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-800 hover:bg-gray-50 transition-colors"
+                                        onClick={onClose}
+                                    >
+                                        <FileText size={18} className="text-gray-500" />
+                                        <span className="font-medium">{page.title}</span>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
                     </div>
