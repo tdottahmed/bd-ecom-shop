@@ -7,8 +7,7 @@ interface Props {
     toggleSelectAll: () => void;
     handleBulkDetails: () => void;
     handleBulkPrint: () => void;
-    handleBulkConsignment: () => void;
-    isCreatingConsignments?: boolean;
+    onBulkConsignmentOpen: () => void;
 }
 
 export default function OrderBulkActions({
@@ -17,8 +16,7 @@ export default function OrderBulkActions({
     toggleSelectAll,
     handleBulkDetails,
     handleBulkPrint,
-    handleBulkConsignment,
-    isCreatingConsignments = false,
+    onBulkConsignmentOpen,
 }: Props) {
     return (
         <div className="flex items-center justify-between bg-[#0E1614] p-4 rounded-lg border border-[#1E2826]">
@@ -40,17 +38,12 @@ export default function OrderBulkActions({
             {selectedIds.length > 0 && (
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={handleBulkConsignment}
-                        disabled={isCreatingConsignments}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                        title="Create Steadfast consignments for selected orders (skips orders that already have one)"
+                        onClick={onBulkConsignmentOpen}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors"
+                        title="Create courier consignments for selected orders"
                     >
                         <Truck className="w-4 h-4" />
-                        <span className="hidden sm:inline">
-                            {isCreatingConsignments
-                                ? "Creating…"
-                                : "Create Consignments"}
-                        </span>
+                        <span className="hidden sm:inline">Create Consignments</span>
                     </button>
                     <button
                         onClick={handleBulkDetails}
@@ -64,10 +57,7 @@ export default function OrderBulkActions({
                         className="flex items-center gap-2 px-4 py-2 bg-[#2DE3A7] text-[#0C1311] rounded-lg font-semibold text-sm hover:bg-[#26c28f] transition-colors"
                     >
                         <Printer className="w-4 h-4" />
-                        <span className="hidden sm:inline">
-                            {" "}
-                            Print Invoices{" "}
-                        </span>
+                        <span className="hidden sm:inline"> Print Invoices </span>
                     </button>
                 </div>
             )}

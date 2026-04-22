@@ -29,6 +29,9 @@ class CourierController extends Controller
                 'carrybee_client_context' => env('CARRYBEE_CLIENT_CONTEXT'),
                 'redx_phone'           => env('REDX_PHONE'),
                 'redx_password'        => env('REDX_PASSWORD'),
+                'steadfast_enabled'    => get_setting('steadfast_enabled', '1') === '1',
+                'pathao_enabled'       => get_setting('pathao_enabled',    '1') === '1',
+                'carrybee_enabled'     => get_setting('carrybee_enabled',  '1') === '1',
                 'fraud_check_enabled'  => get_setting('fraud_check_enabled', '0') === '1',
                 'hoorin_api_key'       => get_setting('hoorin_api_key', ''),
             ]
@@ -54,13 +57,20 @@ class CourierController extends Controller
             'carrybee_client_context' => 'nullable|string',
             'redx_phone'           => 'nullable|string',
             'redx_password'        => 'nullable|string',
+            'steadfast_enabled'    => 'nullable|boolean',
+            'pathao_enabled'       => 'nullable|boolean',
+            'carrybee_enabled'     => 'nullable|boolean',
             'fraud_check_enabled'  => 'nullable|boolean',
             'hoorin_api_key'       => 'nullable|string',
         ]);
 
         $this->updateEnv($data);
 
-        // Persist DB-based fraud check settings
+        // Persist DB-based courier toggle and fraud check settings
+        foreach (['steadfast_enabled', 'pathao_enabled', 'carrybee_enabled'] as $key) {
+            Setting::updateOrCreate(['key' => $key],
+                ['value' => ($data[$key] ?? false) ? '1' : '0']);
+        }
         Setting::updateOrCreate(['key' => 'fraud_check_enabled'],
             ['value' => ($data['fraud_check_enabled'] ?? false) ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'hoorin_api_key'],

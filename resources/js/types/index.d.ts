@@ -9,11 +9,21 @@ export interface User {
     email_verified_at?: string;
 }
 
+export interface CourierConfig {
+    enabled: boolean;
+    label: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
         user: User;
+    };
+    couriers: {
+        steadfast: CourierConfig;
+        pathao: CourierConfig;
+        carrybee: CourierConfig;
     };
 };
 

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Head, router } from "@inertiajs/react";
+import { useState, useEffect } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
 import Master from "@/Layouts/Master";
-import { Order, PaginatedData, PageProps } from "@/types";
+import { Order, PageProps, PaginatedData } from "@/types";
 import OrderGridItem from "@/Components/Order/OrderGridItem";
 import OrderListItem from "@/Components/Order/OrderListItem";
 import { useDebounce } from "@/Hooks/useDebounce";
@@ -12,6 +12,8 @@ import OrderBulkActions from "./Partials/OrderBulkActions";
 import OrderEmptyState from "./Partials/OrderEmptyState";
 import ShippingConfirmationModal from "./Partials/ShippingConfirmationModal";
 import type { ConfirmData } from "./Partials/ShippingConfirmationModal";
+import BulkConsignmentModal from "./Partials/BulkConsignmentModal";
+import type { BulkConfirmData } from "./Partials/BulkConsignmentModal";
 
 interface Props extends PageProps {
     orders: PaginatedData<Order>;
@@ -22,6 +24,7 @@ interface Props extends PageProps {
 }
 
 export default function Index({ orders, filters }: Props) {
+    const { couriers } = usePage<PageProps>().props;
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [search, setSearch] = useState(filters.search || "");
     const debouncedSearch = useDebounce(search, 500);
@@ -32,6 +35,9 @@ export default function Index({ orders, filters }: Props) {
     const [selectedOrderForShipping, setSelectedOrderForShipping] =
         useState<Order | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Bulk consignment modal
+    const [isBulkConsignmentOpen, setIsBulkConsignmentOpen] = useState(false);
     const [isCreatingConsignments, setIsCreatingConsignments] = useState(false);
 
     // Active Search Effect
@@ -161,15 +167,17 @@ export default function Index({ orders, filters }: Props) {
         window.open(url, "_blank");
     };
 
-    const handleBulkConsignment = () => {
-        if (!selectedIds.length) return;
+    const handleBulkConsignmentConfirm = (data: BulkConfirmData) => {
         setIsCreatingConsignments(true);
         router.post(
-            route("admin.steadfast.bulk-consignment"),
-            { order_ids: selectedIds },
+            route("admin.orders.bulk-consignment"),
+            { order_ids: selectedIds, ...data },
             {
                 preserveScroll: true,
-                onSuccess: () => setSelectedIds([]),
+                onSuccess: () => {
+                    setSelectedIds([]);
+                    setIsBulkConsignmentOpen(false);
+                },
                 onFinish: () => setIsCreatingConsignments(false),
             }
         );
@@ -218,8 +226,7 @@ export default function Index({ orders, filters }: Props) {
                     toggleSelectAll={toggleSelectAll}
                     handleBulkDetails={handleBulkDetails}
                     handleBulkPrint={handleBulkPrint}
-                    handleBulkConsignment={handleBulkConsignment}
-                    isCreatingConsignments={isCreatingConsignments}
+                    onBulkConsignmentOpen={() => setIsBulkConsignmentOpen(true)}
                 />
 
                 {/* Orders Grid/List */}
@@ -264,6 +271,16 @@ export default function Index({ orders, filters }: Props) {
                     onConfirm={handleShippingConfirm}
                     order={selectedOrderForShipping}
                     processing={isProcessing}
+                    enabledCouriers={couriers}
+                />
+
+                <BulkConsignmentModal
+                    isOpen={isBulkConsignmentOpen}
+                    onClose={() => setIsBulkConsignmentOpen(false)}
+                    onConfirm={handleBulkConsignmentConfirm}
+                    selectedCount={selectedIds.length}
+                    processing={isCreatingConsignments}
+                    enabledCouriers={couriers}
                 />
             </div>
         </Master>

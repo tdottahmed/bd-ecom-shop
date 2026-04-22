@@ -28,6 +28,9 @@ import {
 
 interface Props {
     credentials: {
+        steadfast_enabled?: boolean;
+        pathao_enabled?: boolean;
+        carrybee_enabled?: boolean;
         pathao_user?: string;
         pathao_password?: string;
         pathao_client_id?: string;
@@ -211,6 +214,9 @@ export default function Index({ credentials }: Props) {
     };
 
     const { data, setData, post, processing } = useForm({
+        steadfast_enabled: credentials.steadfast_enabled ?? true,
+        pathao_enabled: credentials.pathao_enabled ?? true,
+        carrybee_enabled: credentials.carrybee_enabled ?? true,
         pathao_user: credentials.pathao_user ?? "",
         pathao_password: credentials.pathao_password ?? "",
         pathao_client_id: credentials.pathao_client_id ?? "",
@@ -281,40 +287,46 @@ export default function Index({ credentials }: Props) {
                         <CardContent className="p-6 space-y-5">
                             <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-[#2DE3A7]/10">
-                                        <TruckIcon
-                                            size={18}
-                                            className="text-[#2DE3A7]"
-                                        />
+                                    <div className={`p-2 rounded-lg ${data.pathao_enabled ? "bg-[#2DE3A7]/10" : "bg-gray-500/10"}`}>
+                                        <TruckIcon size={18} className={data.pathao_enabled ? "text-[#2DE3A7]" : "text-gray-500"} />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-white">
-                                            Pathao Courier
-                                        </h3>
-                                        <p className="text-xs text-gray-500">
-                                            OAuth2 credentials from Pathao
-                                            merchant portal
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold text-white">Pathao Courier</h3>
+                                            {data.pathao_enabled ? (
+                                                <span className="text-[11px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">Active</span>
+                                            ) : (
+                                                <span className="text-[11px] font-medium text-gray-500 bg-gray-500/10 border border-gray-500/20 px-2 py-0.5 rounded-full">Disabled</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500">OAuth2 credentials from Pathao merchant portal</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    {data.pathao_sandbox && (
+                                    <Toggle
+                                        enabled={data.pathao_enabled}
+                                        onChange={(v) => setData("pathao_enabled", v)}
+                                        label="Disabled"
+                                        activeLabel="Enabled"
+                                    />
+                                    {data.pathao_enabled && data.pathao_sandbox && (
                                         <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-full">
                                             <FlaskConicalIcon size={11} />
-                                            Sandbox mode
+                                            Sandbox
                                         </span>
                                     )}
-                                    <Toggle
-                                        enabled={data.pathao_sandbox}
-                                        onChange={(v) =>
-                                            setData("pathao_sandbox", v)
-                                        }
-                                        label="Live"
-                                        activeLabel="Sandbox"
-                                    />
+                                    {data.pathao_enabled && (
+                                        <Toggle
+                                            enabled={data.pathao_sandbox}
+                                            onChange={(v) => setData("pathao_sandbox", v)}
+                                            label="Live"
+                                            activeLabel="Sandbox"
+                                        />
+                                    )}
                                 </div>
                             </div>
 
+                            <div className={data.pathao_enabled ? "" : "opacity-40 pointer-events-none select-none"}>
                             <InstructionPanel
                                 title="How to get Pathao credentials"
                                 link="https://merchant.pathao.com"
@@ -430,30 +442,39 @@ export default function Index({ credentials }: Props) {
                             </div>
 
                             <WebhookUrlBox url={pathaoWebhookUrl} />
+                            </div>
                         </CardContent>
                     </Card>
 
                     {/* ── Steadfast ────────────────────────────────────────── */}
                     <Card>
                         <CardContent className="p-6 space-y-5">
-                            <div className="flex items-center gap-3 border-b border-[#1E2826] pb-3 mb-1">
-                                <div className="p-2 rounded-lg bg-blue-500/10">
-                                    <PackageIcon
-                                        size={18}
-                                        className="text-blue-400"
-                                    />
+                            <div className="flex items-center justify-between border-b border-[#1E2826] pb-3 mb-1">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${data.steadfast_enabled ? "bg-blue-500/10" : "bg-gray-500/10"}`}>
+                                        <PackageIcon size={18} className={data.steadfast_enabled ? "text-blue-400" : "text-gray-500"} />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold text-white">Steadfast Courier</h3>
+                                            {data.steadfast_enabled ? (
+                                                <span className="text-[11px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">Active</span>
+                                            ) : (
+                                                <span className="text-[11px] font-medium text-gray-500 bg-gray-500/10 border border-gray-500/20 px-2 py-0.5 rounded-full">Disabled</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500">API key from Steadfast portal (packzy.com)</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-semibold text-white">
-                                        Steadfast Courier
-                                    </h3>
-                                    <p className="text-xs text-gray-500">
-                                        API key from Steadfast portal
-                                        (packzy.com)
-                                    </p>
-                                </div>
+                                <Toggle
+                                    enabled={data.steadfast_enabled}
+                                    onChange={(v) => setData("steadfast_enabled", v)}
+                                    label="Disabled"
+                                    activeLabel="Enabled"
+                                />
                             </div>
 
+                            <div className={data.steadfast_enabled ? "" : "opacity-40 pointer-events-none select-none"}>
                             <InstructionPanel
                                 title="How to get Steadfast credentials"
                                 link="https://packzy.com"
@@ -533,6 +554,8 @@ export default function Index({ credentials }: Props) {
                                 />
                             </div>
 
+                            </div>
+
                             {/* Balance + Dashboard links */}
                             <div className="flex flex-wrap items-center gap-3 pt-1">
                                 <button
@@ -572,40 +595,46 @@ export default function Index({ credentials }: Props) {
                         <CardContent className="p-6 space-y-5">
                             <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-yellow-500/10">
-                                        <BotIcon
-                                            size={18}
-                                            className="text-yellow-400"
-                                        />
+                                    <div className={`p-2 rounded-lg ${data.carrybee_enabled ? "bg-yellow-500/10" : "bg-gray-500/10"}`}>
+                                        <BotIcon size={18} className={data.carrybee_enabled ? "text-yellow-400" : "text-gray-500"} />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-white">
-                                            Carry Bee Courier
-                                        </h3>
-                                        <p className="text-xs text-gray-500">
-                                            OAuth2 credentials from Carry Bee
-                                            developer portal
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold text-white">Carry Bee Courier</h3>
+                                            {data.carrybee_enabled ? (
+                                                <span className="text-[11px] font-medium text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">Active</span>
+                                            ) : (
+                                                <span className="text-[11px] font-medium text-gray-500 bg-gray-500/10 border border-gray-500/20 px-2 py-0.5 rounded-full">Disabled</span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500">OAuth2 credentials from Carry Bee developer portal</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    {data.carrybee_sandbox && (
+                                    <Toggle
+                                        enabled={data.carrybee_enabled}
+                                        onChange={(v) => setData("carrybee_enabled", v)}
+                                        label="Disabled"
+                                        activeLabel="Enabled"
+                                    />
+                                    {data.carrybee_enabled && data.carrybee_sandbox && (
                                         <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-full">
                                             <FlaskConicalIcon size={11} />
-                                            Sandbox mode
+                                            Sandbox
                                         </span>
                                     )}
-                                    <Toggle
-                                        enabled={data.carrybee_sandbox}
-                                        onChange={(v) =>
-                                            setData("carrybee_sandbox", v)
-                                        }
-                                        label="Live"
-                                        activeLabel="Sandbox"
-                                    />
+                                    {data.carrybee_enabled && (
+                                        <Toggle
+                                            enabled={data.carrybee_sandbox}
+                                            onChange={(v) => setData("carrybee_sandbox", v)}
+                                            label="Live"
+                                            activeLabel="Sandbox"
+                                        />
+                                    )}
                                 </div>
                             </div>
 
+                            <div className={data.carrybee_enabled ? "" : "opacity-40 pointer-events-none select-none"}>
                             <InstructionPanel
                                 title="How to get Carry Bee credentials"
                                 link="https://developers.carrybee.com"
@@ -682,6 +711,7 @@ export default function Index({ credentials }: Props) {
                             </div>
 
                             <WebhookUrlBox url={`${origin}/webhooks/carrybee`} />
+                            </div>
                         </CardContent>
                     </Card>
 

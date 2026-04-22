@@ -6,21 +6,18 @@ import TextInput from "@/Components/Ui/TextInput";
 import SelectInput from "@/Components/Ui/SelectInput";
 import PrimaryButton from "@/Components/Actions/PrimaryButton";
 import SecondaryButton from "@/Components/Actions/SecondaryButton";
-import { CourierConfig, Order } from "@/types";
-import { TruckIcon, PackageIcon, BotIcon, LoaderCircleIcon, AlertTriangleIcon } from "lucide-react";
+import { CourierConfig } from "@/types";
+import { PackageIcon, TruckIcon, BotIcon, LoaderCircleIcon, InfoIcon, AlertTriangleIcon } from "lucide-react";
 
-interface PathaoArea   { area_id: number;   area_name: string }
-interface PathaoZone   { zone_id: number;   zone_name: string }
-interface PathaoCity   { city_id: number;   city_name: string }
+interface PathaoCity { city_id: number; city_name: string }
+interface PathaoZone { zone_id: number; zone_name: string }
+interface PathaoArea { area_id: number; area_name: string }
 
 export type CourierType = "steadfast" | "pathao" | "carrybee";
 
-export interface ConfirmData {
-    name: string;
-    address: string;
-    phone: string;
-    note?: string;
+export interface BulkConfirmData {
     courier: CourierType;
+    note?: string;
     pathao_city_id?: number;
     pathao_zone_id?: number;
     pathao_area_id?: number;
@@ -29,25 +26,20 @@ export interface ConfirmData {
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (data: ConfirmData) => void;
-    order: Order | null;
+    onConfirm: (data: BulkConfirmData) => void;
+    selectedCount: number;
     processing?: boolean;
     enabledCouriers: { steadfast: CourierConfig; pathao: CourierConfig; carrybee: CourierConfig };
 }
 
-export default function ShippingConfirmationModal({
+export default function BulkConsignmentModal({
     isOpen,
     onClose,
     onConfirm,
-    order,
+    selectedCount,
     processing = false,
     enabledCouriers,
 }: Props) {
-    const [name,    setName]    = useState("");
-    const [address, setAddress] = useState("");
-    const [phone,   setPhone]   = useState("");
-    const [note,    setNote]    = useState("");
-
     const availableCouriers = (
         [
             { id: "steadfast" as CourierType, label: "Steadfast", icon: <PackageIcon size={15} /> },
@@ -56,39 +48,32 @@ export default function ShippingConfirmationModal({
         ] as const
     ).filter(({ id }) => enabledCouriers[id]?.enabled);
 
-    const defaultCourier = availableCouriers[0]?.id ?? "steadfast";
-    const [courier, setCourier] = useState<CourierType>(defaultCourier);
+    const [courier, setCourier] = useState<CourierType>(availableCouriers[0]?.id ?? "steadfast");
+    const [note,    setNote]    = useState("");
 
-    // Re-pick default when enabled set changes or modal opens
-    useEffect(() => {
-        if (isOpen) {
-            const first = availableCouriers[0]?.id;
-            if (first) setCourier(first);
-        }
-    }, [isOpen]);
-
-    // Pathao address state
-    const [cities,      setCities]      = useState<PathaoCity[]>([]);
-    const [zones,       setZones]       = useState<PathaoZone[]>([]);
-    const [areas,       setAreas]       = useState<PathaoArea[]>([]);
-    const [cityId,      setCityId]      = useState<number | "">("");
-    const [zoneId,      setZoneId]      = useState<number | "">("");
-    const [areaId,      setAreaId]      = useState<number | "">("");
+    // Pathao cascading address
+    const [cities,        setCities]        = useState<PathaoCity[]>([]);
+    const [zones,         setZones]         = useState<PathaoZone[]>([]);
+    const [areas,         setAreas]         = useState<PathaoArea[]>([]);
+    const [cityId,        setCityId]        = useState<number | "">("");
+    const [zoneId,        setZoneId]        = useState<number | "">("");
+    const [areaId,        setAreaId]        = useState<number | "">("");
     const [loadingCities, setLoadingCities] = useState(false);
     const [loadingZones,  setLoadingZones]  = useState(false);
     const [loadingAreas,  setLoadingAreas]  = useState(false);
 
-    // Pre-fill from order
+    // Reset on open
     useEffect(() => {
-        if (order) {
-            setName(order.customer_name || "");
-            setAddress(order.customer_address || "");
-            setPhone(order.customer_phone || "");
+        if (isOpen) {
+            const first = availableCouriers[0]?.id ?? "steadfast";
+            setCourier(first);
             setNote("");
+            setCityId(""); setZoneId(""); setAreaId("");
+            setZones([]); setAreas([]);
         }
-    }, [order]);
+    }, [isOpen]);
 
-    // Load Pathao cities when tab switches
+    // Load Pathao cities when switching to Pathao tab
     useEffect(() => {
         if (courier === "pathao" && cities.length === 0) {
             setLoadingCities(true);
@@ -98,8 +83,7 @@ export default function ShippingConfirmationModal({
                 .catch(() => setCities([]))
                 .finally(() => setLoadingCities(false));
         }
-        // Reset cascading selects when switching courier
-        if (courier === "steadfast") {
+        if (courier !== "pathao") {
             setCityId(""); setZoneId(""); setAreaId("");
             setZones([]); setAreas([]);
         }
@@ -129,9 +113,17 @@ export default function ShippingConfirmationModal({
         setAreaId("");
     }, [zoneId]);
 
+    const cityOptions = useMemo(() => cities.map((c) => ({ value: c.city_id, label: c.city_name })), [cities]);
+    const zoneOptions = useMemo(() => zones.map((z)  => ({ value: z.zone_id, label: z.zone_name })), [zones]);
+    const areaOptions = useMemo(() => areas.map((a)  => ({ value: a.area_id, label: a.area_name })), [areas]);
+
+    const isReady =
+        availableCouriers.length > 0 &&
+        (courier !== "pathao" || (!!cityId && !!zoneId && !!areaId));
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const data: ConfirmData = { name, address, phone, note, courier };
+        const data: BulkConfirmData = { courier, note };
         if (courier === "pathao") {
             data.pathao_city_id = cityId as number;
             data.pathao_zone_id = zoneId as number;
@@ -140,34 +132,16 @@ export default function ShippingConfirmationModal({
         onConfirm(data);
     };
 
-    const cityOptions = useMemo(
-        () => cities.map((c) => ({ value: c.city_id, label: c.city_name })),
-        [cities],
-    );
-    const zoneOptions = useMemo(
-        () => zones.map((z) => ({ value: z.zone_id, label: z.zone_name })),
-        [zones],
-    );
-    const areaOptions = useMemo(
-        () => areas.map((a) => ({ value: a.area_id, label: a.area_name })),
-        [areas],
-    );
-
-    const noCouriersAvailable = availableCouriers.length === 0;
-
-    // Pathao requires city/zone/area; other couriers are always ready
-    const isFormReady =
-        !noCouriersAvailable &&
-        (courier !== "pathao" || (!!cityId && !!zoneId && !!areaId));
-
     return (
         <Modal show={isOpen} onClose={onClose} maxWidth="lg">
             <div className="p-6 bg-[#0E1614] text-gray-100">
                 <h2 className="text-lg font-semibold text-[#2DE3A7] mb-1">
-                    Confirm Shipping Details
+                    Create Bulk Consignments
                 </h2>
                 <p className="text-sm text-gray-400 mb-5">
-                    Review customer info and choose a courier before dispatching.
+                    Choose a courier for the{" "}
+                    <strong className="text-white">{selectedCount} selected order(s)</strong>.
+                    Orders that already have a consignment will be skipped.
                 </p>
 
                 {/* Courier selector */}
@@ -197,66 +171,35 @@ export default function ShippingConfirmationModal({
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Customer details */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <InputLabel htmlFor="ship-name" value="Customer Name" />
-                            <TextInput
-                                id="ship-name"
-                                name="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="mt-1 block w-full"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="ship-phone" value="Phone Number" />
-                            <TextInput
-                                id="ship-phone"
-                                name="phone"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                className="mt-1 block w-full"
-                                required
-                            />
-                        </div>
-                    </div>
-
+                    {/* Note */}
                     <div>
-                        <InputLabel htmlFor="ship-address" value="Delivery Address" />
+                        <InputLabel htmlFor="bulk-note" value="Note (optional — applied to all orders)" />
                         <TextInput
-                            id="ship-address"
-                            name="address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="mt-1 block w-full"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="ship-note" value="Note (optional)" />
-                        <TextInput
-                            id="ship-note"
+                            id="bulk-note"
                             name="note"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             className="mt-1 block w-full"
-                            placeholder="Special instructions for courier"
+                            placeholder="e.g. Handle with care"
                         />
                     </div>
 
-                    {/* Pathao address selectors */}
+                    {/* Pathao address — shared for all orders in the batch */}
                     {courier === "pathao" && (
                         <div className="border border-[#1E2826] rounded-lg p-4 bg-[#0C1311] space-y-3">
                             <p className="text-xs text-[#2DE3A7] font-medium uppercase tracking-wide mb-1">
                                 Pathao Delivery Area
                             </p>
+                            <div className="flex items-start gap-2 text-xs text-amber-400 bg-amber-500/5 border border-amber-500/20 rounded px-3 py-2">
+                                <InfoIcon size={13} className="shrink-0 mt-0.5" />
+                                <span>
+                                    The same city / zone / area will be applied to all selected orders. Use this for batch deliveries within one area.
+                                </span>
+                            </div>
 
                             {/* City */}
                             <div>
-                                <InputLabel htmlFor="pathao-city" value="City" />
+                                <InputLabel htmlFor="bulk-pathao-city" value="City" />
                                 <div className="mt-1">
                                     {loadingCities ? (
                                         <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
@@ -265,7 +208,7 @@ export default function ShippingConfirmationModal({
                                         </div>
                                     ) : (
                                         <SelectInput
-                                            id="pathao-city"
+                                            id="bulk-pathao-city"
                                             value={cityId === "" ? null : cityId}
                                             options={cityOptions}
                                             onChange={(v) => setCityId(v ? Number(v) : "")}
@@ -278,7 +221,7 @@ export default function ShippingConfirmationModal({
 
                             {/* Zone */}
                             <div>
-                                <InputLabel htmlFor="pathao-zone" value="Zone" />
+                                <InputLabel htmlFor="bulk-pathao-zone" value="Zone" />
                                 <div className="mt-1">
                                     {loadingZones ? (
                                         <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
@@ -287,7 +230,7 @@ export default function ShippingConfirmationModal({
                                         </div>
                                     ) : (
                                         <SelectInput
-                                            id="pathao-zone"
+                                            id="bulk-pathao-zone"
                                             value={zoneId === "" ? null : zoneId}
                                             options={zoneOptions}
                                             onChange={(v) => setZoneId(v ? Number(v) : "")}
@@ -301,7 +244,7 @@ export default function ShippingConfirmationModal({
 
                             {/* Area */}
                             <div>
-                                <InputLabel htmlFor="pathao-area" value="Area" />
+                                <InputLabel htmlFor="bulk-pathao-area" value="Area" />
                                 <div className="mt-1">
                                     {loadingAreas ? (
                                         <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 border border-[#1E2826] rounded-xl bg-[#0C1311]">
@@ -310,7 +253,7 @@ export default function ShippingConfirmationModal({
                                         </div>
                                     ) : (
                                         <SelectInput
-                                            id="pathao-area"
+                                            id="bulk-pathao-area"
                                             value={areaId === "" ? null : areaId}
                                             options={areaOptions}
                                             onChange={(v) => setAreaId(v ? Number(v) : "")}
@@ -328,14 +271,14 @@ export default function ShippingConfirmationModal({
                         <SecondaryButton type="button" onClick={onClose} disabled={processing}>
                             Cancel
                         </SecondaryButton>
-                        <PrimaryButton disabled={processing || !isFormReady}>
+                        <PrimaryButton disabled={processing || !isReady}>
                             {processing ? (
                                 <>
                                     <LoaderCircleIcon size={14} className="animate-spin mr-1.5" />
-                                    Processing…
+                                    Creating…
                                 </>
                             ) : (
-                                "Confirm & Ship"
+                                `Create ${selectedCount} Consignment${selectedCount !== 1 ? "s" : ""}`
                             )}
                         </PrimaryButton>
                     </div>

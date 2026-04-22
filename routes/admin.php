@@ -129,6 +129,7 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     // Order Management
     Route::get('orders/bulk-details', [OrderController::class, 'bulkDetails'])->name('orders.bulk-details');
     Route::get('orders/bulk-invoice', [OrderController::class, 'bulkInvoice'])->name('orders.bulk-invoice');
+    Route::post('orders/bulk-consignment', [OrderController::class, 'bulkConsignment'])->name('orders.bulk-consignment');
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/sync-status', [SteadfastController::class, 'syncStatus'])->name('orders.sync-status');

@@ -136,6 +136,12 @@ class HandleInertiaRequests extends Middleware
                 'facebook' => ['enabled' => env('FACEBOOK_LOGIN_ENABLED', '0') === '1' && ! empty(env('FACEBOOK_CLIENT_ID'))],
             ],
 
+            'couriers' => fn () => [
+                'steadfast' => ['enabled' => get_setting('steadfast_enabled', '1') === '1', 'label' => 'Steadfast'],
+                'pathao'    => ['enabled' => get_setting('pathao_enabled',    '1') === '1', 'label' => 'Pathao'],
+                'carrybee'  => ['enabled' => get_setting('carrybee_enabled',  '1') === '1', 'label' => 'Carry Bee'],
+            ],
+
             'paymentMethods' => fn () => [
                 'cod' => ['enabled' => get_setting('cod_enabled', '1') === '1',        'label' => 'Cash on Delivery'],
                 'bkash' => ['enabled' => get_setting('bkash_enabled', '0') === '1',      'label' => 'bKash'],
