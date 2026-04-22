@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NewProductRequest;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -120,6 +121,17 @@ class CustomerAccountController extends Controller
         ]);
 
         return back()->with('success', 'Password updated successfully.');
+    }
+
+    public function productRequests(Request $request): Response
+    {
+        $requests = NewProductRequest::where('user_id', $request->user()->id)
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Customer/Account/ProductRequests', [
+            'productRequests' => $requests,
+        ]);
     }
 
     public function syncCart(Request $request): RedirectResponse

@@ -87,10 +87,17 @@ export const productsMenuItems: MenuItem[] = [
     },
     {
         key: "product_requests",
-        label: "Product Requests",
+        label: "Stock Requests",
         icon: <Bell size={18} />,
         route: "admin.product-requests.index",
         urlPattern: "/admin/product-requests",
+    },
+    {
+        key: "new_product_requests",
+        label: "New Product Requests",
+        icon: <Package size={18} />,
+        route: "admin.new-product-requests.index",
+        urlPattern: "/admin/new-product-requests",
     },
 ];
 
@@ -276,13 +283,6 @@ export const reportsMenuItems: MenuItem[] = [
         icon: <MapPin size={18} />,
         route: "admin.reports.geography",
         urlPattern: "/admin/reports/geography",
-    },
-    {
-        key: "new_product_requests",
-        label: "New Product Requests",
-        icon: <ShoppingBag size={18} />,
-        route: "admin.new-product-requests.index",
-        urlPattern: "/admin/new-product-requests",
     },
 ];
 

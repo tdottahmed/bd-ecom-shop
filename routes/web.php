@@ -113,6 +113,7 @@ Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('a
     Route::put('/profile', [CustomerAccountController::class, 'updateProfile'])->name('profile.update');
     Route::put('/password', [CustomerAccountController::class, 'updatePassword'])->name('password.update');
     Route::post('/cart/sync', [CustomerAccountController::class, 'syncCart'])->name('cart.sync');
+    Route::get('/product-requests', [CustomerAccountController::class, 'productRequests'])->name('product-requests');
 });
 
 Route::get('storage/link', function () {

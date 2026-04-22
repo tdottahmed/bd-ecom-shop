@@ -119,6 +119,19 @@ export interface Order {
     };
 }
 
+export interface NewProductRequest {
+    id: number;
+    product_name: string;
+    category?: string | null;
+    description: string;
+    reference_url?: string | null;
+    quantity: number;
+    budget?: number | null;
+    admin_notes?: string | null;
+    status: 'pending' | 'reviewing' | 'approved' | 'rejected';
+    created_at: string;
+}
+
 export interface BlogPost {
     id: number;
     title: string;
