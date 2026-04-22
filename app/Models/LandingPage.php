@@ -18,7 +18,12 @@ class LandingPage extends Model
         'hero_image',
         'hero_cta_text',
         'hero_cta_url',
+        'hero_layout',
+        'hero_bg_color',
+        'hero_text_color',
         'accent_color',
+        'global_bg_color',
+        'global_font_family',
         'sections',
         'is_published',
     ];

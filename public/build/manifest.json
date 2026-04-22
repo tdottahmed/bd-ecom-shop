@@ -4380,6 +4380,7 @@
       "resources/js/Pages/Customer/PrivacyPolicy.tsx",
       "resources/js/Pages/Customer/ProductList.tsx",
       "resources/js/Pages/Customer/ProductShow.tsx",
+      "resources/js/Pages/Customer/RequestNewProduct.tsx",
       "resources/js/Pages/Customer/TermsConditions.tsx",
       "resources/js/Pages/Dashboard.tsx",
       "resources/js/Pages/OrderSuccess.tsx",

@@ -29,18 +29,23 @@ class LandingPageController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'page_title'       => 'required|string|max:255',
-            'slug'             => 'required|string|max:255|unique:landing_pages,slug|regex:/^[a-z0-9\-]+$/',
-            'meta_description' => 'nullable|string|max:500',
-            'product_id'       => 'nullable|exists:products,id',
-            'hero_headline'    => 'required|string|max:255',
-            'hero_subheadline' => 'nullable|string|max:500',
-            'hero_badge'       => 'nullable|string|max:100',
-            'hero_image'       => 'nullable|image|max:4096',
-            'hero_cta_text'    => 'nullable|string|max:100',
-            'hero_cta_url'     => 'nullable|string|max:500',
-            'accent_color'     => 'nullable|string|max:20',
-            'sections'         => 'nullable|string',
+            'page_title'         => 'required|string|max:255',
+            'slug'               => 'required|string|max:255|unique:landing_pages,slug|regex:/^[a-z0-9\-]+$/',
+            'meta_description'   => 'nullable|string|max:500',
+            'product_id'         => 'nullable|exists:products,id',
+            'hero_headline'      => 'required|string|max:255',
+            'hero_subheadline'   => 'nullable|string|max:500',
+            'hero_badge'         => 'nullable|string|max:100',
+            'hero_image'         => 'nullable|image|max:4096',
+            'hero_cta_text'      => 'nullable|string|max:100',
+            'hero_cta_url'       => 'nullable|string|max:500',
+            'hero_layout'        => 'nullable|string|in:split-right,split-left,centered,full-overlay',
+            'hero_bg_color'      => 'nullable|string|max:20',
+            'hero_text_color'    => 'nullable|string|max:20',
+            'accent_color'       => 'nullable|string|max:20',
+            'global_bg_color'    => 'nullable|string|max:20',
+            'global_font_family' => 'nullable|string|max:80',
+            'sections'           => 'nullable|string',
         ]);
 
         if ($request->hasFile('hero_image')) {
@@ -69,18 +74,23 @@ class LandingPageController extends Controller
     public function update(Request $request, LandingPage $landingPage)
     {
         $validated = $request->validate([
-            'page_title'       => 'required|string|max:255',
-            'slug'             => 'required|string|max:255|unique:landing_pages,slug,' . $landingPage->id . '|regex:/^[a-z0-9\-]+$/',
-            'meta_description' => 'nullable|string|max:500',
-            'product_id'       => 'nullable|exists:products,id',
-            'hero_headline'    => 'required|string|max:255',
-            'hero_subheadline' => 'nullable|string|max:500',
-            'hero_badge'       => 'nullable|string|max:100',
-            'hero_image'       => 'nullable|image|max:4096',
-            'hero_cta_text'    => 'nullable|string|max:100',
-            'hero_cta_url'     => 'nullable|string|max:500',
-            'accent_color'     => 'nullable|string|max:20',
-            'sections'         => 'nullable|string',
+            'page_title'         => 'required|string|max:255',
+            'slug'               => 'required|string|max:255|unique:landing_pages,slug,' . $landingPage->id . '|regex:/^[a-z0-9\-]+$/',
+            'meta_description'   => 'nullable|string|max:500',
+            'product_id'         => 'nullable|exists:products,id',
+            'hero_headline'      => 'required|string|max:255',
+            'hero_subheadline'   => 'nullable|string|max:500',
+            'hero_badge'         => 'nullable|string|max:100',
+            'hero_image'         => 'nullable|image|max:4096',
+            'hero_cta_text'      => 'nullable|string|max:100',
+            'hero_cta_url'       => 'nullable|string|max:500',
+            'hero_layout'        => 'nullable|string|in:split-right,split-left,centered,full-overlay',
+            'hero_bg_color'      => 'nullable|string|max:20',
+            'hero_text_color'    => 'nullable|string|max:20',
+            'accent_color'       => 'nullable|string|max:20',
+            'global_bg_color'    => 'nullable|string|max:20',
+            'global_font_family' => 'nullable|string|max:80',
+            'sections'           => 'nullable|string',
         ]);
 
         if ($request->hasFile('hero_image')) {

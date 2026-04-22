@@ -75,7 +75,7 @@ export default function Contact({
             icon: Mail,
             label: "Email",
             lines: [
-                contactInfo?.email || "support@truebymalaysia.com",
+                contactInfo?.email || "support@directmalaysia.com",
                 "We reply within 24 hours",
             ],
             color: "bg-brand-tint/15 text-brand-primary",

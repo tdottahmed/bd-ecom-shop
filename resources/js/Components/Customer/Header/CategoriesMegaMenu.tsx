@@ -108,185 +108,187 @@ const CategoriesMegaMenu: React.FC<Props> = ({
                         onMouseLeave={scheduleClose}
                     />
                     <div
-                        className="absolute left-0 top-full mt-2 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-[100px] xl:left-16 xl:right-16 bg-white border border-gray-100/50 lg:rounded-b-2xl md:rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
+                        className="absolute left-0 top-full mt-4 lg:mt-0 lg:fixed lg:left-8 lg:right-8 lg:top-[120px] xl:left-16 xl:right-16 bg-white border border-gray-100/50 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
                         onMouseEnter={cancelClose}
                         onMouseLeave={scheduleClose}
                     >
-                    {allCategories.length > 0 ? (
-                        <div className="flex flex-col md:flex-row max-h-[70vh]">
-                            {/* Left: Category List */}
-                            <div className="md:w-56 lg:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100 overflow-y-auto">
-                                <div className="p-4">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-2">
-                                        All Categories
-                                    </p>
-                                    <ul className="space-y-0.5">
-                                        {allCategories.map((c) => (
-                                            <li key={c.id}>
-                                                <Link
-                                                    href={route(
-                                                        "products.category",
-                                                        c.slug,
-                                                    )}
-                                                    onMouseEnter={() =>
-                                                        setActiveCategorySlug(
+                        {allCategories.length > 0 ? (
+                            <div className="flex flex-col md:flex-row max-h-[70vh]">
+                                {/* Left: Category List */}
+                                <div className="md:w-56 lg:w-64 flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100 overflow-y-auto">
+                                    <div className="p-4">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-2">
+                                            All Categories
+                                        </p>
+                                        <ul className="space-y-0.5">
+                                            {allCategories.map((c) => (
+                                                <li key={c.id}>
+                                                    <Link
+                                                        href={route(
+                                                            "products.category",
                                                             c.slug,
-                                                        )
-                                                    }
-                                                    onFocus={() =>
-                                                        setActiveCategorySlug(
-                                                            c.slug,
-                                                        )
-                                                    }
-                                                    onClick={onClose}
-                                                    className={`flex items-center gap-3 px-2 py-2 rounded-xl group transition-colors ${
-                                                        activeCategory?.slug ===
-                                                        c.slug
-                                                            ? "bg-brand-bg text-brand-primary"
-                                                            : "hover:bg-brand-bg/60"
-                                                    }`}
-                                                >
-                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                        <Image
-                                                            src={getAssetUrl(
-                                                                c.image,
-                                                            )}
-                                                            alt={c.title}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1 truncate">
-                                                        {c.title}
-                                                    </span>
-                                                    <ArrowRight
-                                                        size={13}
-                                                        className="text-gray-300 group-hover:text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all"
-                                                    />
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                                <div className="p-4 border-t border-gray-100">
-                                    <Link
-                                        href={route("products.index")}
-                                        onClick={onClose}
-                                        className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-brand-primary/10 hover:bg-brand-primary/15 text-brand-primary text-sm font-medium rounded-xl transition-colors"
-                                    >
-                                        <LayoutGrid size={14} />
-                                        Browse All
-                                    </Link>
-                                </div>
-                            </div>
-
-                            {/* Right: Hovered Category Products */}
-                            <div className="flex-1 overflow-y-auto p-6">
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
-                                    {activeCategory
-                                        ? `${activeCategory.title} Products`
-                                        : "Category Products"}
-                                </p>
-
-                                {activeProducts.length > 0 ? (
-                                    <div className="grid grid-cols-3 lg:grid-cols-6 gap-2.5">
-                                        {activeProducts.map((p) => {
-                                            const price = p.has_discount
-                                                ? p.discounted_sale_price
-                                                : p.sale_price;
-                                            const primaryImage = p.images?.[0]
-                                                ? getAssetUrl(p.images[0])
-                                                : null;
-
-                                            return (
-                                                <Link
-                                                    key={p.id}
-                                                    href={route(
-                                                        "products.show",
-                                                        p.slug,
-                                                    )}
-                                                    onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm rounded-lg p-1.5 transition-all duration-300"
-                                                >
-                                                    <div className="aspect-square w-full rounded-md bg-white border border-gray-100 mb-1.5 overflow-hidden">
-                                                        {primaryImage ? (
-                                                            <Image
-                                                                src={
-                                                                    primaryImage
-                                                                }
-                                                                alt={p.name}
-                                                                className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                                <span className="text-gray-400 text-xs">
-                                                                    No image
-                                                                </span>
-                                                            </div>
                                                         )}
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col justify-between">
-                                                        <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-brand-primary transition-colors leading-tight">
-                                                            {p.name}
-                                                        </h4>
-                                                        <div className="text-[11px] font-bold text-gray-900 mt-auto">
-                                                            {formatCurrency(
-                                                                price || 0,
+                                                        onMouseEnter={() =>
+                                                            setActiveCategorySlug(
+                                                                c.slug,
+                                                            )
+                                                        }
+                                                        onFocus={() =>
+                                                            setActiveCategorySlug(
+                                                                c.slug,
+                                                            )
+                                                        }
+                                                        onClick={onClose}
+                                                        className={`flex items-center gap-3 px-2 py-2 rounded-xl group transition-colors ${
+                                                            activeCategory?.slug ===
+                                                            c.slug
+                                                                ? "bg-brand-bg text-brand-primary"
+                                                                : "hover:bg-brand-bg/60"
+                                                        }`}
+                                                    >
+                                                        <div className="w-8 h-8 rounded-lg bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
+                                                            <Image
+                                                                src={getAssetUrl(
+                                                                    c.image,
+                                                                )}
+                                                                alt={c.title}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1 truncate">
+                                                            {c.title}
+                                                        </span>
+                                                        <ArrowRight
+                                                            size={13}
+                                                            className="text-gray-300 group-hover:text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all"
+                                                        />
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div className="p-4 border-t border-gray-100">
+                                        <Link
+                                            href={route("products.index")}
+                                            onClick={onClose}
+                                            className="flex items-center justify-center gap-2 w-full py-2 px-3 bg-brand-primary/10 hover:bg-brand-primary/15 text-brand-primary text-sm font-medium rounded-xl transition-colors"
+                                        >
+                                            <LayoutGrid size={14} />
+                                            Browse All
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {/* Right: Hovered Category Products */}
+                                <div className="flex-1 overflow-y-auto p-6">
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                                        {activeCategory
+                                            ? `${activeCategory.title} Products`
+                                            : "Category Products"}
+                                    </p>
+
+                                    {activeProducts.length > 0 ? (
+                                        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2.5">
+                                            {activeProducts.map((p) => {
+                                                const price = p.has_discount
+                                                    ? p.discounted_sale_price
+                                                    : p.sale_price;
+                                                const primaryImage = p
+                                                    .images?.[0]
+                                                    ? getAssetUrl(p.images[0])
+                                                    : null;
+
+                                                return (
+                                                    <Link
+                                                        key={p.id}
+                                                        href={route(
+                                                            "products.show",
+                                                            p.slug,
+                                                        )}
+                                                        onClick={onClose}
+                                                        className="group/card flex flex-col bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm rounded-lg p-1.5 transition-all duration-300"
+                                                    >
+                                                        <div className="aspect-square w-full rounded-md bg-white border border-gray-100 mb-1.5 overflow-hidden">
+                                                            {primaryImage ? (
+                                                                <Image
+                                                                    src={
+                                                                        primaryImage
+                                                                    }
+                                                                    alt={p.name}
+                                                                    className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                                    <span className="text-gray-400 text-xs">
+                                                                        No image
+                                                                    </span>
+                                                                </div>
                                                             )}
                                                         </div>
-                                                    </div>
-                                                </Link>
-                                            );
-                                        })}
-                                        {fillerCount > 0 && (
-                                            <>
-                                                <Link
-                                                    key="filler-explore-category"
-                                                    href={route(
-                                                        "products.category",
-                                                        activeCategory?.slug,
-                                                    )}
-                                                    onClick={onClose}
-                                                    className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-lg p-2 transition-all duration-300 hover:border-gray-300 hover:bg-white"
-                                                >
-                                                    <div className="aspect-square w-full rounded-md bg-gray-100/80 border border-gray-100 mb-1.5 flex items-center justify-center">
-                                                        <span className="text-gray-400 text-[11px] text-center px-2">
-                                                            More from{" "}
-                                                            {
-                                                                activeCategory?.title
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col justify-end">
-                                                        <div className="text-[11px] font-semibold text-gray-700 group-hover/card:text-blue-600">
-                                                            Explore Category
+                                                        <div className="flex-1 flex flex-col justify-between">
+                                                            <h4 className="text-[11px] font-semibold text-gray-800 line-clamp-2 mb-0.5 group-hover/card:text-brand-primary transition-colors leading-tight">
+                                                                {p.name}
+                                                            </h4>
+                                                            <div className="text-[11px] font-bold text-gray-900 mt-auto">
+                                                                {formatCurrency(
+                                                                    price || 0,
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </Link>
-                                                {Array.from({
-                                                    length: fillerCount - 1,
-                                                }).map((_, idx) => (
-                                                    <div
-                                                        key={`filler-empty-${idx}`}
-                                                        className="hidden lg:block rounded-lg border border-transparent"
-                                                        aria-hidden="true"
-                                                    />
-                                                ))}
-                                            </>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                        No products available in this category.
-                                    </div>
-                                )}
+                                                    </Link>
+                                                );
+                                            })}
+                                            {fillerCount > 0 && (
+                                                <>
+                                                    <Link
+                                                        key="filler-explore-category"
+                                                        href={route(
+                                                            "products.category",
+                                                            activeCategory?.slug,
+                                                        )}
+                                                        onClick={onClose}
+                                                        className="group/card flex flex-col bg-gray-50/60 border border-dashed border-gray-200 rounded-lg p-2 transition-all duration-300 hover:border-gray-300 hover:bg-white"
+                                                    >
+                                                        <div className="aspect-square w-full rounded-md bg-gray-100/80 border border-gray-100 mb-1.5 flex items-center justify-center">
+                                                            <span className="text-gray-400 text-[11px] text-center px-2">
+                                                                More from{" "}
+                                                                {
+                                                                    activeCategory?.title
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex-1 flex flex-col justify-end">
+                                                            <div className="text-[11px] font-semibold text-gray-700 group-hover/card:text-blue-600">
+                                                                Explore Category
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                    {Array.from({
+                                                        length: fillerCount - 1,
+                                                    }).map((_, idx) => (
+                                                        <div
+                                                            key={`filler-empty-${idx}`}
+                                                            className="hidden lg:block rounded-lg border border-transparent"
+                                                            aria-hidden="true"
+                                                        />
+                                                    ))}
+                                                </>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center h-40 text-sm text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                            No products available in this
+                                            category.
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="text-sm text-gray-500 p-8 text-center bg-gray-50">
-                            No categories available
-                        </div>
-                    )}
+                        ) : (
+                            <div className="text-sm text-gray-500 p-8 text-center bg-gray-50">
+                                No categories available
+                            </div>
+                        )}
                     </div>
                 </>
             )}

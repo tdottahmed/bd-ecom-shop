@@ -29,13 +29,40 @@ interface ProductShowProps {
     random_products?: Product[];
 }
 
+const ProductDescriptionSection = ({
+    html,
+    className = "",
+}: {
+    html?: string | null;
+    className?: string;
+}) => {
+    const content = (html ?? "").trim();
+    if (!content) return null;
+
+    return (
+        <div
+            className={`bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(15,23,42,0.04)] p-5 sm:p-6 ${className}`}
+        >
+            <div className="flex items-center justify-between gap-4">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                    Description
+                </h2>
+                <span className="text-[11px] font-bold text-brand-primary bg-brand-bg px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Details
+                </span>
+            </div>
+            <ExpandableDescription htmlContent={content} />
+        </div>
+    );
+};
+
 const ExpandableDescription = ({ htmlContent }: { htmlContent: string }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="relative mt-2">
             <div
-                className={`prose prose-slate prose-sm max-w-none text-slate-600 leading-relaxed font-medium transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? "max-h-full" : "max-h-[200px]"}`}
+                className={`prose prose-slate prose-sm sm:prose-base max-w-none text-slate-700 leading-relaxed font-medium transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? "max-h-full" : "max-h-[220px] sm:max-h-[260px]"}`}
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
             {!isExpanded && (
@@ -201,80 +228,68 @@ export default function ProductShow({
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-10 lg:p-12 items-start">
-                                {/* Left Column: Image Gallery & Description */}
-                                <div className="flex flex-col space-y-10 w-full max-w-5xl mx-auto lg:mx-0">
-                                    {/* Image Gallery Element */}
-                                    <div className="space-y-6">
-                                        <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
-                                            <Image
-                                                src={getAssetUrl(
-                                                    selectedImage ||
-                                                        product.images[0],
-                                                )}
-                                                alt={product.name}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                            />
-                                            {isOutOfStock && (
-                                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-                                                        <span className="bg-rose-100 text-rose-800 px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-rose-200">
-                                                            Out of Stock
-                                                        </span>
-                                                    </div>
-                                                )}
-                                        </div>
-                                        {product.images &&
-                                            product.images.length > 1 && (
-                                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1">
-                                                    {product.images.map(
-                                                        (image, index) => (
-                                                            <button
-                                                                key={index}
-                                                                onClick={() =>
-                                                                    setSelectedImage(
-                                                                        image,
-                                                                    )
-                                                                }
-                                                                className={`relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 snap-start shadow-sm ${
-                                                                    (selectedImage ||
-                                                                        product
-                                                                            .images[0]) ===
-                                                                    image
-                                                                        ? "border-brand-primary ring-4 ring-brand-primary/20 translate-y-[-2px]"
-                                                                        : "border-slate-200 hover:border-brand-tint opacity-70 hover:opacity-100"
-                                                                }`}
-                                                            >
-                                                                <img
-                                                                    src={getAssetUrl(
-                                                                        image,
-                                                                    )}
-                                                                    alt={`${product.name} thumbnail ${index + 1}`}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            </button>
-                                                        ),
-                                                    )}
-                                                </div>
+                                {/* ── Col 1 / Row 1: Image Gallery ── */}
+                                <div className="space-y-6 w-full max-w-5xl mx-auto lg:mx-0">
+                                    <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
+                                        <Image
+                                            src={getAssetUrl(
+                                                selectedImage ||
+                                                    product.images[0],
                                             )}
-                                    </div>
-
-                                    {/* Product Description Block (Moved to Left Column) */}
-                                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex-grow">
-                                        <h3 className="text-xl font-extrabold text-slate-900 mb-5 pb-4 border-b border-slate-100 flex items-center">
-                                            <span className="w-2 h-6 bg-brand-primary rounded-full mr-3"></span>
-                                            Details & Features
-                                        </h3>
-                                        <ExpandableDescription
-                                            htmlContent={(
-                                                product.description || ""
-                                            )
-                                                .replace(/\\n/g, "<br/>")
-                                                .replace(/\n/g, "<br/>")}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
+                                        {isOutOfStock && (
+                                            <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+                                                <span className="bg-rose-100 text-rose-800 px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-rose-200">
+                                                    Out of Stock
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
+                                    {product.images &&
+                                        product.images.length > 1 && (
+                                            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1">
+                                                {product.images.map(
+                                                    (image, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() =>
+                                                                setSelectedImage(
+                                                                    image,
+                                                                )
+                                                            }
+                                                            className={`relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 snap-start shadow-sm ${
+                                                                (selectedImage ||
+                                                                    product
+                                                                        .images[0]) ===
+                                                                image
+                                                                    ? "border-brand-primary ring-4 ring-brand-primary/20 translate-y-[-2px]"
+                                                                    : "border-slate-200 hover:border-brand-tint opacity-70 hover:opacity-100"
+                                                            }`}
+                                                        >
+                                                            <img
+                                                                src={getAssetUrl(
+                                                                    image,
+                                                                )}
+                                                                alt={`${product.name} thumbnail ${index + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </button>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+
+                                    {/* Desktop: description right after image */}
+                                    <ProductDescriptionSection
+                                        html={product.description}
+                                        className="hidden lg:block"
+                                    />
                                 </div>
 
-                                {/* Right Column: Title, Price, Attributes */}
-                                <div className="flex flex-col h-full lg:sticky lg:top-8">
+                                {/* ── Col 2 / spans both rows on desktop: Title, Price, Attributes ── */}
+                                <div className="flex flex-col h-full lg:sticky lg:top-8 lg:row-span-2">
                                     <div className="mb-8">
                                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight leading-tight">
                                             {product.name}
@@ -613,6 +628,14 @@ export default function ProductShow({
                                 </div>
                             </div>
                         </div>
+                    </ScrollReveal>
+
+                    {/* Mobile: description at the bottom */}
+                    <ScrollReveal animation="fade-up" delay="delay-75">
+                        <ProductDescriptionSection
+                            html={product.description}
+                            className="lg:hidden"
+                        />
                     </ScrollReveal>
 
                     {/* Related/Random Products Slider Section */}

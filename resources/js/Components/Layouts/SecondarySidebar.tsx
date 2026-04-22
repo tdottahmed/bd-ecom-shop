@@ -277,6 +277,13 @@ export const reportsMenuItems: MenuItem[] = [
         route: "admin.reports.geography",
         urlPattern: "/admin/reports/geography",
     },
+    {
+        key: "new_product_requests",
+        label: "New Product Requests",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.new-product-requests.index",
+        urlPattern: "/admin/new-product-requests",
+    },
 ];
 
 const MenuLink = ({

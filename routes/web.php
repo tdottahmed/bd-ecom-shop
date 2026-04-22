@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\NewProductRequestController;
 use App\Http\Controllers\ProductRequestController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAccountController;
@@ -85,6 +86,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('api/product-requests', [ProductRequestController::class, 'store'])->middleware('throttle:10,1')->name('product-requests.store');
+
+Route::middleware('auth')->group(function () {
+    Route::get('request-new-product', [NewProductRequestController::class, 'create'])->name('new-product-requests.create');
+    Route::post('request-new-product', [NewProductRequestController::class, 'store'])->name('new-product-requests.store');
+});
 
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 

@@ -1,6 +1,6 @@
 import { Link, usePage } from "@inertiajs/react";
 import axios from "axios";
-import { Facebook, Instagram, Youtube, Video } from "lucide-react";
+import { Facebook, Instagram, Youtube } from "lucide-react";
 import { useState } from "react";
 import { useAntiSpam } from "@/Hooks/useAntiSpam";
 import { resolvePageHref } from "@/Utils/pageLink";
@@ -140,6 +140,30 @@ export default function Footer() {
                             >
                                 FAQ
                             </Link>
+                            <Link
+                                href={route("pages.contact")}
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
+                            >
+                                Contact Us
+                            </Link>
+                            <Link
+                                href={route("new-product-requests.create")}
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
+                            >
+                                Request a Product
+                            </Link>
+                            <Link
+                                href={route("pages.privacy-policy")}
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
+                            >
+                                Privacy Policy
+                            </Link>
+                            <Link
+                                href={route("pages.terms")}
+                                className="text-gray-600 hover:text-brand-primary transition-colors"
+                            >
+                                Terms & Conditions
+                            </Link>
                             {customPages.map((page) => (
                                 <Link
                                     key={page.slug}
@@ -176,7 +200,16 @@ export default function Footer() {
                                 />
                                 <SocialLink
                                     href={footer?.tiktok}
-                                    icon={Video}
+                                    icon={() => (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                            className="w-5 h-5"
+                                        >
+                                            <path d="M16.5 3c.4 2.1 1.9 3.6 4 4v3.1c-1.5 0-3-.5-4-1.3v6.5c0 3.3-2.7 6-6 6s-6-2.7-6-6 2.7-6 6-6c.3 0 .7 0 1 .1v3.2c-.3-.1-.6-.2-1-.2-1.6 0-2.9 1.3-2.9 2.9S8.9 18 10.5 18s2.9-1.3 2.9-2.9V3h3.1z" />
+                                        </svg>
+                                    )}
                                     label="TikTok"
                                 />
                             </div>
