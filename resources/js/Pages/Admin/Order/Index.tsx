@@ -11,6 +11,7 @@ import OrderToolbar from "./Partials/OrderToolbar";
 import OrderBulkActions from "./Partials/OrderBulkActions";
 import OrderEmptyState from "./Partials/OrderEmptyState";
 import ShippingConfirmationModal from "./Partials/ShippingConfirmationModal";
+import type { ConfirmData } from "./Partials/ShippingConfirmationModal";
 
 interface Props extends PageProps {
     orders: PaginatedData<Order>;
@@ -106,16 +107,7 @@ export default function Index({ orders, filters }: Props) {
         );
     };
 
-    const handleShippingConfirm = (data: {
-        name: string;
-        address: string;
-        phone: string;
-        note?: string;
-        courier: "steadfast" | "pathao";
-        pathao_city_id?: number;
-        pathao_zone_id?: number;
-        pathao_area_id?: number;
-    }) => {
+    const handleShippingConfirm = (data: ConfirmData) => {
         if (!selectedOrderForShipping) return;
 
         router.post(

@@ -5,8 +5,8 @@ $sandbox = (bool) env('PATHAO_SANDBOX', false);
 return [
     'sandbox'       => $sandbox,
     'base_url'      => $sandbox
-                           ? 'https://hermes-sandbox.pathao.com'
-                           : 'https://hermes.pathao.com',
+        ? 'https://courier-api-sandbox.pathao.com'
+        : 'https://api-hermes.pathao.com',
     'client_id'     => env('PATHAO_CLIENT_ID'),
     'client_secret' => env('PATHAO_CLIENT_SECRET'),
     'username'      => env('PATHAO_USER'),

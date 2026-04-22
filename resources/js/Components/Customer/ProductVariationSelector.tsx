@@ -271,7 +271,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                     }}
                                                     className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                         variation.image ? "pl-2" : "pl-4"
-                                                    } border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 rounded-lg cursor-pointer group`}
+                                                    } border-brand-primary/25 bg-brand-bg text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/35 rounded-lg cursor-pointer group`}
                                                     title="Out of stock – click to request"
                                                 >
                                                     {variation.image && (
@@ -283,7 +283,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                     )}
                                                     <span className="relative z-10 flex items-center gap-1.5">
                                                         {variation.value}
-                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-sm border border-amber-200">
+                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded-sm border border-brand-primary/20">
                                                             <Bell size={8} />
                                                             Request
                                                         </span>
@@ -351,12 +351,12 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
 
                 {/* Out-of-stock combination prompt */}
                 {isOutOfStockCombo && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="rounded-xl border border-brand-primary/20 bg-brand-bg p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-amber-800 mb-0.5">
+                            <p className="text-sm font-bold text-brand-dark mb-0.5">
                                 This combination is out of stock
                             </p>
-                            <p className="text-xs text-amber-700">
+                            <p className="text-xs text-brand-primary/90">
                                 <span className="font-medium">{buildVariationLabel(selectedVariations)}</span>
                                 {" "}— submit a request and we'll notify you.
                             </p>
@@ -364,7 +364,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                         {onRequestVariation && (
                             <button
                                 onClick={handleRequestCombination}
-                                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors"
+                                className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-bold rounded-lg transition-colors"
                             >
                                 <Bell size={14} />
                                 Request
@@ -495,7 +495,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                 onClick={() =>
                                                     handleRemoveFromBatch(index)
                                                 }
-                                                className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-md transition-colors"
+                                                className="text-gray-400 hover:text-brand-primary p-1.5 hover:bg-brand-bg rounded-md transition-colors"
                                             >
                                                 <X size={16} />
                                             </button>

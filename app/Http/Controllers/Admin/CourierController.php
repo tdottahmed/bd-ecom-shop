@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -22,8 +23,14 @@ class CourierController extends Controller
                 'steadfast_password'   => env('STEADFAST_PASSWORD'),
                 'steadfast_api_key'    => env('STEADFAST_API_KEY'),
                 'steadfast_secret_key' => env('STEADFAST_SECRET_KEY'),
+                'carrybee_sandbox'        => env('CARRYBEE_SANDBOX', 'false') === 'true',
+                'carrybee_client_id'      => env('CARRYBEE_CLIENT_ID'),
+                'carrybee_client_secret'  => env('CARRYBEE_CLIENT_SECRET'),
+                'carrybee_client_context' => env('CARRYBEE_CLIENT_CONTEXT'),
                 'redx_phone'           => env('REDX_PHONE'),
                 'redx_password'        => env('REDX_PASSWORD'),
+                'fraud_check_enabled'  => get_setting('fraud_check_enabled', '0') === '1',
+                'hoorin_api_key'       => get_setting('hoorin_api_key', ''),
             ]
         ]);
     }
@@ -41,14 +48,29 @@ class CourierController extends Controller
             'steadfast_password'   => 'nullable|string',
             'steadfast_api_key'    => 'nullable|string',
             'steadfast_secret_key' => 'nullable|string',
+            'carrybee_sandbox'        => 'nullable|boolean',
+            'carrybee_client_id'      => 'nullable|string',
+            'carrybee_client_secret'  => 'nullable|string',
+            'carrybee_client_context' => 'nullable|string',
             'redx_phone'           => 'nullable|string',
             'redx_password'        => 'nullable|string',
+            'fraud_check_enabled'  => 'nullable|boolean',
+            'hoorin_api_key'       => 'nullable|string',
         ]);
 
         $this->updateEnv($data);
 
-        // Clear cached Pathao token whenever credentials change
-        \Illuminate\Support\Facades\Cache::forget('pathao_access_token');
+        // Persist DB-based fraud check settings
+        Setting::updateOrCreate(['key' => 'fraud_check_enabled'],
+            ['value' => ($data['fraud_check_enabled'] ?? false) ? '1' : '0']);
+        Setting::updateOrCreate(['key' => 'hoorin_api_key'],
+            ['value' => $data['hoorin_api_key'] ?? '']);
+
+        flush_settings_cache();
+
+        // Clear cached tokens whenever credentials change
+        app(\App\Services\PathaoService::class)->forgetToken();
+        app(\App\Services\CarryBeeService::class)->forgetToken();
 
         return back()->with('success', 'Courier credentials updated successfully.');
     }
@@ -70,6 +92,10 @@ class CourierController extends Controller
                 'STEADFAST_PASSWORD'   => $data['steadfast_password'] ?? '',
                 'STEADFAST_API_KEY'    => $data['steadfast_api_key'] ?? '',
                 'STEADFAST_SECRET_KEY' => $data['steadfast_secret_key'] ?? '',
+                'CARRYBEE_SANDBOX'        => ($data['carrybee_sandbox'] ?? false) ? 'true' : 'false',
+                'CARRYBEE_CLIENT_ID'      => $data['carrybee_client_id'] ?? '',
+                'CARRYBEE_CLIENT_SECRET'  => $data['carrybee_client_secret'] ?? '',
+                'CARRYBEE_CLIENT_CONTEXT' => $data['carrybee_client_context'] ?? '',
                 'REDX_PHONE'           => $data['redx_phone'] ?? '',
                 'REDX_PASSWORD'        => $data['redx_password'] ?? '',
             ];

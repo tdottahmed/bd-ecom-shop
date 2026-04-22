@@ -21,14 +21,29 @@ import {
     ExternalLink,
     ShieldCheck,
     Bell,
+    BarChart3,
+    TrendingUp,
+    Package,
     ShoppingBag,
+    Warehouse,
+    CreditCard,
+    Undo2,
+    Receipt,
+    ShoppingCart,
+    MapPin,
+    Scale,
+    LayoutTemplate,
+    CircleHelp,
 } from "lucide-react";
 import { useForm, Link, usePage } from "@inertiajs/react";
+
+export type SecondaryPanel = "menu" | "reports" | "products" | "pages";
 
 interface SecondarySidebarProps {
     isOpen: boolean;
     onClose: () => void;
     mobile?: boolean;
+    panel?: SecondaryPanel;
 }
 
 interface MenuItem {
@@ -37,9 +52,18 @@ interface MenuItem {
     icon: React.ReactNode;
     route?: string;
     urlPattern?: string;
+    /** `exact` = path must equal urlPattern (after stripping query). Default: prefix match. */
+    match?: "exact" | "prefix";
 }
 
-export const secondaryMenuItems: MenuItem[] = [
+export const productsMenuItems: MenuItem[] = [
+    {
+        key: "all_products",
+        label: "All Products",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.products.index",
+        urlPattern: "/admin/products",
+    },
     {
         key: "categories",
         label: "Categories",
@@ -56,74 +80,27 @@ export const secondaryMenuItems: MenuItem[] = [
     },
     {
         key: "discounts",
-        label: "Discounts",
+        label: "Qty Discounts",
         icon: <BadgePercent size={18} />,
         route: "admin.discounts.index",
         urlPattern: "/admin/discounts",
     },
     {
-        key: "website",
-        label: "Website",
-        icon: <Globe size={18} />,
-        route: "admin.website.index",
-        urlPattern: "/admin/website",
+        key: "product_requests",
+        label: "Product Requests",
+        icon: <Bell size={18} />,
+        route: "admin.product-requests.index",
+        urlPattern: "/admin/product-requests",
     },
-    {
-        key: "home_settings",
-        label: "Home Settings",
-        icon: <Sparkles size={18} />,
-        route: "admin.home-settings.index",
-        urlPattern: "/admin/home-settings",
-    },
-    {
-        key: "users",
-        label: "Users",
-        icon: <Users size={18} />,
-        route: "admin.users.index",
-        urlPattern: "/admin/users",
-    },
-    {
-        key: "gateway",
-        label: "Payment Gateways",
-        icon: <Truck size={18} />,
-        route: "admin.payment-gateways.index",
-        urlPattern: "/admin/payment-gateways",
-    },
-    {
-        key: "courier",
-        label: "Courier",
-        icon: <Truck size={18} />,
-        route: "admin.courier.index",
-        urlPattern: "/admin/courier",
-    },
-    {
-        key: "social_login",
-        label: "Social Login",
-        icon: <LogIn size={18} />,
-        route: "admin.social-login.index",
-        urlPattern: "/admin/social-login",
-    },
+];
 
+export const pagesMenuItems: MenuItem[] = [
     {
-        key: "marketing",
-        label: "Marketing",
-        icon: <Target size={18} />,
-        route: "admin.marketing.index",
-        urlPattern: "/admin/marketing",
-    },
-    {
-        key: "seo",
-        label: "SEO",
-        icon: <Search size={18} />,
-        route: "admin.seo.index",
-        urlPattern: "/admin/seo",
-    },
-    {
-        key: "pages",
-        label: "Pages",
+        key: "landing_pages",
+        label: "Landing Pages",
         icon: <FileText size={18} />,
-        route: "admin.pages.index",
-        urlPattern: "/admin/pages",
+        route: "admin.landing-pages.index",
+        urlPattern: "/admin/landing-pages",
     },
     {
         key: "blogs",
@@ -141,17 +118,164 @@ export const secondaryMenuItems: MenuItem[] = [
     },
     {
         key: "contact_messages",
-        label: "Contact Msgs",
+        label: "Contact Messages",
         icon: <MessageCircle size={18} />,
         route: "admin.contact-messages.index",
         urlPattern: "/admin/contact-messages",
     },
     {
-        key: "product_requests",
-        label: "Product Requests",
-        icon: <Bell size={18} />,
-        route: "admin.product-requests.index",
-        urlPattern: "/admin/product-requests",
+        key: "legal_pages",
+        label: "Legal Pages",
+        icon: <Scale size={18} />,
+        route: "admin.legal-pages.index",
+        urlPattern: "/admin/legal-pages",
+    },
+    {
+        key: "custom_pages",
+        label: "Custom Pages",
+        icon: <LayoutTemplate size={18} />,
+        route: "admin.pages.index",
+        urlPattern: "/admin/pages",
+    },
+    {
+        key: "home_page_builder",
+        label: "Home Page",
+        icon: <Sparkles size={18} />,
+        route: "admin.home-settings.index",
+        urlPattern: "/admin/home-settings",
+    },
+    {
+        key: "content_settings",
+        label: "Others Contents",
+        icon: <FileText size={18} />,
+        route: "admin.content-settings.index",
+        urlPattern: "/admin/content-settings",
+    },
+    {
+        key: "faq_manager",
+        label: "FAQ Manager",
+        icon: <CircleHelp size={18} />,
+        route: "admin.faq.index",
+        urlPattern: "/admin/faq",
+    },
+];
+
+export const secondaryMenuItems: MenuItem[] = [
+    {
+        key: "website",
+        label: "Website",
+        icon: <Globe size={18} />,
+        route: "admin.website.index",
+        urlPattern: "/admin/website",
+    },
+    {
+        key: "users",
+        label: "Users",
+        icon: <Users size={18} />,
+        route: "admin.users.index",
+        urlPattern: "/admin/users",
+    },
+    {
+        key: "gateway",
+        label: "Payment Gateways",
+        icon: <CreditCard size={18} />,
+        route: "admin.payment-gateways.index",
+        urlPattern: "/admin/payment-gateways",
+    },
+    {
+        key: "courier",
+        label: "Courier",
+        icon: <Truck size={18} />,
+        route: "admin.courier.index",
+        urlPattern: "/admin/courier",
+    },
+    {
+        key: "social_login",
+        label: "Social Login",
+        icon: <LogIn size={18} />,
+        route: "admin.social-login.index",
+        urlPattern: "/admin/social-login",
+    },
+    {
+        key: "marketing",
+        label: "Marketing",
+        icon: <Target size={18} />,
+        route: "admin.marketing.index",
+        urlPattern: "/admin/marketing",
+    },
+    {
+        key: "seo",
+        label: "SEO",
+        icon: <Search size={18} />,
+        route: "admin.seo.index",
+        urlPattern: "/admin/seo",
+    },
+];
+
+export const reportsMenuItems: MenuItem[] = [
+    {
+        key: "reports_overview",
+        label: "Overview",
+        icon: <BarChart3 size={18} />,
+        route: "admin.reports.index",
+        urlPattern: "/admin/reports",
+        match: "exact",
+    },
+    {
+        key: "reports_sales",
+        label: "Sales performance",
+        icon: <TrendingUp size={18} />,
+        route: "admin.reports.sales",
+        urlPattern: "/admin/reports/sales",
+    },
+    {
+        key: "reports_orders",
+        label: "Orders",
+        icon: <Package size={18} />,
+        route: "admin.reports.orders",
+        urlPattern: "/admin/reports/orders",
+    },
+    {
+        key: "reports_products",
+        label: "Products",
+        icon: <ShoppingBag size={18} />,
+        route: "admin.reports.products",
+        urlPattern: "/admin/reports/products",
+    },
+    {
+        key: "reports_inventory",
+        label: "Inventory",
+        icon: <Warehouse size={18} />,
+        route: "admin.reports.inventory",
+        urlPattern: "/admin/reports/inventory",
+    },
+    {
+        key: "reports_customers",
+        label: "Customers",
+        icon: <Users size={18} />,
+        route: "admin.reports.customers",
+        urlPattern: "/admin/reports/customers",
+    },
+    {
+        key: "reports_shipping",
+        label: "Shipping & delivery",
+        icon: <Truck size={18} />,
+        route: "admin.reports.shipping",
+        urlPattern: "/admin/reports/shipping",
+    },
+    {
+        key: "reports_refunds",
+        label: "Refunds & returns",
+        icon: <Undo2 size={18} />,
+        route: "admin.reports.refunds",
+        urlPattern: "/admin/reports/refunds",
+    },
+    {
+        key: "reports_geography",
+        label: "Geography",
+        icon: <MapPin size={18} />,
+        route: "admin.reports.geography",
+        urlPattern: "/admin/reports/geography",
     },
     {
         key: "new_product_requests",
@@ -206,19 +330,55 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
     isOpen,
     onClose,
     mobile = false,
+    panel = "menu",
 }) => {
     const { post } = useForm();
     const { url, props } = usePage();
     const authUser = (props as any)?.auth?.user;
 
+    const pathOnly = url.split("?")[0];
+
     const handleLogout = () => {
         post(route("logout"));
     };
 
+    const items =
+        panel === "reports"
+            ? reportsMenuItems
+            : panel === "products"
+              ? productsMenuItems
+              : panel === "pages"
+                ? pagesMenuItems
+                : secondaryMenuItems;
+
     const isMenuItemActive = (item: MenuItem): boolean => {
         if (!item.urlPattern) return false;
-        return url.startsWith(item.urlPattern);
+        if (item.match === "exact") {
+            return (
+                pathOnly === item.urlPattern ||
+                pathOnly === `${item.urlPattern}/`
+            );
+        }
+        return pathOnly.startsWith(item.urlPattern);
     };
+
+    const panelTitle =
+        panel === "reports"
+            ? "Reports"
+            : panel === "products"
+              ? "Products"
+              : panel === "pages"
+                ? "Content"
+                : "Settings";
+
+    const panelSubtitle =
+        panel === "reports"
+            ? "Sales, inventory, and store analytics"
+            : panel === "products"
+              ? "Catalog, categories & promotions"
+              : panel === "pages"
+                ? "Pages, blogs & communications"
+                : "Store configuration & tools";
 
     const initials = (authUser?.name || "A")
         .split(" ")
@@ -254,29 +414,19 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                             <X size={18} />
                         </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <Link
-                            href={route("profile.edit")}
-                            onClick={onClose}
-                            className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                        >
-                            <UserCog size={12} />
-                            Profile
-                        </Link>
-                        <a
-                            href={route("home")}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                        >
-                            <ExternalLink size={12} />
-                            View Store
-                        </a>
-                    </div>
+                </div>
+
+                <div className="px-4 pb-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                        {panelTitle}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                        {panelSubtitle}
+                    </p>
                 </div>
 
                 <nav className="p-3 space-y-1">
-                    {secondaryMenuItems.map((item) => (
+                    {items.map((item) => (
                         <MenuLink
                             key={item.key}
                             item={item}
@@ -327,38 +477,17 @@ const SecondarySidebar: React.FC<SecondarySidebarProps> = ({
                         </p>
                     </div>
                 </div>
+            </div>
 
-                {/* Role badge */}
-                <div className="flex items-center gap-1.5 mb-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#2DE3A7]/10 border border-[#2DE3A7]/20 text-[#2DE3A7] text-[10px] font-semibold tracking-wide">
-                        <ShieldCheck size={10} />
-                        Administrator
-                    </span>
-                </div>
-
-                {/* Quick actions */}
-                <div className="grid grid-cols-2 gap-2">
-                    <Link
-                        href={route("profile.edit")}
-                        className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                    >
-                        <UserCog size={13} />
-                        Profile
-                    </Link>
-                    <a
-                        href={route("home")}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#151F1D] hover:bg-[#1a2b28] text-gray-300 hover:text-white text-xs font-medium transition-colors"
-                    >
-                        <ExternalLink size={13} />
-                        View Store
-                    </a>
-                </div>
+            <div className="px-4 pt-2 pb-1 border-b border-gray-800/40">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                    {panelTitle}
+                </p>
+                <p className="text-xs text-gray-600 mt-0.5">{panelSubtitle}</p>
             </div>
 
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {secondaryMenuItems.map((item) => (
+                {items.map((item) => (
                     <MenuLink
                         key={item.key}
                         item={item}

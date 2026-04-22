@@ -12,7 +12,12 @@
 
 <main id="lp-content">
     @if($page->sections)
-        @php $validSections = ['description','features','gallery','video','reviews','specs','faq','cta']; @endphp
+        @php
+            $validSections = [
+                'description','features','gallery','video','reviews',
+                'specs','faq','cta','trust_badges','countdown','pricing','comparison',
+            ];
+        @endphp
         @foreach($page->sections as $section)
             @if(in_array($section['type'], $validSections))
                 @include('landing.partials.sections._' . $section['type'], [
@@ -24,7 +29,10 @@
         @endforeach
     @endif
 
-    @if($page->product)
+    @if($page->category_id && $categoryProducts && $categoryProducts->count() > 0)
+        @include('landing.partials._category-showcase')
+        @include('landing.partials._category-checkout')
+    @elseif($page->product)
         @include('landing.partials._checkout')
     @endif
 </main>

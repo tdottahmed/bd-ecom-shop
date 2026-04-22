@@ -9,7 +9,9 @@ import Card, { CardContent } from "@/Components/Ui/Card";
 import {
     TruckIcon,
     PackageIcon,
+    BotIcon,
     ZapIcon,
+    ShieldCheckIcon,
     InfoIcon,
     CopyIcon,
     CheckIcon,
@@ -19,6 +21,7 @@ import {
     ToggleLeftIcon,
     ToggleRightIcon,
     FlaskConicalIcon,
+    AlertTriangleIcon,
 } from "lucide-react";
 
 interface Props {
@@ -33,8 +36,14 @@ interface Props {
         steadfast_password?: string;
         steadfast_api_key?: string;
         steadfast_secret_key?: string;
+        carrybee_sandbox?: boolean;
+        carrybee_client_id?: string;
+        carrybee_client_secret?: string;
+        carrybee_client_context?: string;
         redx_phone?: string;
         redx_password?: string;
+        fraud_check_enabled?: boolean;
+        hoorin_api_key?: string;
     };
 }
 
@@ -160,6 +169,26 @@ function InstructionPanel({
     );
 }
 
+function WebhookUrlBox({ url }: { url: string }) {
+    return (
+        <div className="flex items-start gap-2.5 bg-[#0C1311] border border-[#1E2826] rounded-lg p-3.5 text-xs text-gray-400">
+            <InfoIcon size={13} className="text-[#2DE3A7] shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0 space-y-1.5">
+                <p>
+                    Register this webhook URL in your merchant panel to receive
+                    live delivery status updates automatically.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <code className="flex-1 min-w-0 text-[#2DE3A7] bg-[#1A2420] border border-[#2DE3A7]/20 px-2 py-1 rounded text-[11px] break-all font-mono">
+                        {url}
+                    </code>
+                    <CopyButton value={url} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 const origin = typeof window !== "undefined" ? window.location.origin : "";
 
 export default function Index({ credentials }: Props) {
@@ -174,8 +203,14 @@ export default function Index({ credentials }: Props) {
         steadfast_password: credentials.steadfast_password ?? "",
         steadfast_api_key: credentials.steadfast_api_key ?? "",
         steadfast_secret_key: credentials.steadfast_secret_key ?? "",
+        carrybee_sandbox: credentials.carrybee_sandbox ?? false,
+        carrybee_client_id: credentials.carrybee_client_id ?? "",
+        carrybee_client_secret: credentials.carrybee_client_secret ?? "",
+        carrybee_client_context: credentials.carrybee_client_context ?? "",
         redx_phone: credentials.redx_phone ?? "",
         redx_password: credentials.redx_password ?? "",
+        fraud_check_enabled: credentials.fraud_check_enabled ?? false,
+        hoorin_api_key: credentials.hoorin_api_key ?? "",
     });
 
     const submit = (e: React.FormEvent) => {
@@ -212,7 +247,8 @@ export default function Index({ credentials }: Props) {
         </div>
     );
 
-    const webhookUrl = `${origin}/webhooks/pathao`;
+    const pathaoWebhookUrl    = `${origin}/webhooks/pathao`;
+    const steadfastWebhookUrl = `${origin}/webhooks/steadfast`;
 
     return (
         <Master
@@ -375,25 +411,7 @@ export default function Index({ credentials }: Props) {
                                 />
                             </div>
 
-                            <div className="flex items-start gap-2 bg-[#0C1311] border border-[#1E2826] rounded-lg p-3 text-xs text-gray-400">
-                                <InfoIcon
-                                    size={13}
-                                    className="text-[#2DE3A7] shrink-0 mt-0.5"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <span>
-                                        Register this webhook URL in your Pathao
-                                        merchant panel to receive live status
-                                        updates:{" "}
-                                    </span>
-                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                        <code className="text-[#2DE3A7] bg-[#1E2826] px-1.5 py-0.5 rounded break-all">
-                                            {webhookUrl}
-                                        </code>
-                                        <CopyButton value={webhookUrl} />
-                                    </div>
-                                </div>
-                            </div>
+                            <WebhookUrlBox url={pathaoWebhookUrl} />
                         </CardContent>
                     </Card>
 
@@ -496,78 +514,193 @@ export default function Index({ credentials }: Props) {
                                     }
                                 />
                             </div>
+
+                            <WebhookUrlBox url={steadfastWebhookUrl} />
                         </CardContent>
                     </Card>
 
-                    {/* ── RedX ─────────────────────────────────────────────── */}
+                    {/* ── Carry Bee ────────────────────────────────────────── */}
                     <Card>
                         <CardContent className="p-6 space-y-5">
-                            <div className="flex items-center gap-3 border-b border-[#1E2826] pb-3 mb-1">
-                                <div className="p-2 rounded-lg bg-red-500/10">
-                                    <ZapIcon
-                                        size={18}
-                                        className="text-red-400"
-                                    />
+                            <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-yellow-500/10">
+                                        <BotIcon
+                                            size={18}
+                                            className="text-yellow-400"
+                                        />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white">
+                                            Carry Bee Courier
+                                        </h3>
+                                        <p className="text-xs text-gray-500">
+                                            OAuth2 credentials from Carry Bee
+                                            developer portal
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-semibold text-white">
-                                        RedX Courier
-                                    </h3>
-                                    <p className="text-xs text-gray-500">
-                                        Phone & password from RedX merchant
-                                        account
-                                    </p>
+                                <div className="flex items-center gap-3">
+                                    {data.carrybee_sandbox && (
+                                        <span className="flex items-center gap-1 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-full">
+                                            <FlaskConicalIcon size={11} />
+                                            Sandbox mode
+                                        </span>
+                                    )}
+                                    <Toggle
+                                        enabled={data.carrybee_sandbox}
+                                        onChange={(v) =>
+                                            setData("carrybee_sandbox", v)
+                                        }
+                                        label="Live"
+                                        activeLabel="Sandbox"
+                                    />
                                 </div>
                             </div>
 
                             <InstructionPanel
-                                title="How to get RedX credentials"
-                                link="https://merchant.redx.com.bd"
-                                linkLabel="Open RedX Merchant Portal →"
+                                title="How to get Carry Bee credentials"
+                                link="https://developers.carrybee.com"
+                                linkLabel="Open Carry Bee Developer Portal →"
                                 steps={[
                                     <>
-                                        Register or log in at the{" "}
+                                        Log in to the{" "}
                                         <strong className="text-white">
-                                            RedX Merchant Portal
+                                            Carry Bee developer portal
+                                        </strong>{" "}
+                                        and go to{" "}
+                                        <strong className="text-white">
+                                            API Credentials
                                         </strong>
                                         .
                                     </>,
                                     <>
-                                        Your{" "}
+                                        Copy your{" "}
                                         <strong className="text-white">
-                                            Phone Number
+                                            Client ID
+                                        </strong>
+                                        ,{" "}
+                                        <strong className="text-white">
+                                            Client Secret
+                                        </strong>
+                                        , and{" "}
+                                        <strong className="text-white">
+                                            Client Context
                                         </strong>{" "}
-                                        is the mobile number used during
-                                        registration.
+                                        from the Secrets section.
                                     </>,
                                     <>
-                                        Your{" "}
+                                        Toggle{" "}
                                         <strong className="text-white">
-                                            Password
+                                            Sandbox
                                         </strong>{" "}
-                                        is your merchant account login password.
+                                        while testing; switch to{" "}
+                                        <strong className="text-white">
+                                            Live
+                                        </strong>{" "}
+                                        before going to production.
                                     </>,
                                 ]}
                             />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Field
-                                    id="redx_phone"
-                                    label="Phone Number"
-                                    value={data.redx_phone}
-                                    onChange={(v) => setData("redx_phone", v)}
-                                    placeholder="01XXXXXXXXX"
+                                    id="carrybee_client_id"
+                                    label="Client ID"
+                                    value={data.carrybee_client_id}
+                                    onChange={(v) =>
+                                        setData("carrybee_client_id", v)
+                                    }
+                                    placeholder="From Carry Bee developer portal"
                                 />
                                 <Field
-                                    id="redx_password"
-                                    label="Password"
-                                    value={data.redx_password}
+                                    id="carrybee_client_secret"
+                                    label="Client Secret"
+                                    value={data.carrybee_client_secret}
                                     type="password"
                                     onChange={(v) =>
-                                        setData("redx_password", v)
+                                        setData("carrybee_client_secret", v)
+                                    }
+                                />
+                                <Field
+                                    id="carrybee_client_context"
+                                    label="Client Context"
+                                    value={data.carrybee_client_context}
+                                    type="password"
+                                    onChange={(v) =>
+                                        setData("carrybee_client_context", v)
                                     }
                                 />
                             </div>
+
+                            <WebhookUrlBox url={`${origin}/webhooks/carrybee`} />
+                        </CardContent>
+                    </Card>
+
+                    {/* ── Fraud Check (Hoorin) ─────────────────────────── */}
+                    <Card>
+                        <CardContent className="p-6 space-y-5">
+                            {/* Header */}
+                            <div className="flex items-center justify-between border-b border-[#1E2826] pb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${data.fraud_check_enabled ? "bg-[#2DE3A7]/10" : "bg-gray-500/10"}`}>
+                                        <ShieldCheckIcon size={18} className={data.fraud_check_enabled ? "text-[#2DE3A7]" : "text-gray-500"} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white">
+                                            Courier Fraud Check
+                                        </h3>
+                                        <p className="text-xs text-gray-500">
+                                            Powered by Hoorin — checks delivery history across Steadfast, RedX, Pathao &amp; more
+                                        </p>
+                                    </div>
+                                </div>
+                                <Toggle
+                                    enabled={data.fraud_check_enabled}
+                                    onChange={(v) => setData("fraud_check_enabled", v)}
+                                    label="Disabled"
+                                    activeLabel="Enabled"
+                                />
+                            </div>
+
+                            {/* Disabled state hint */}
+                            {!data.fraud_check_enabled && (
+                                <p className="text-xs text-gray-500 italic">
+                                    Enable fraud check to verify customer delivery history before dispatching orders.
+                                </p>
+                            )}
+
+                            {data.fraud_check_enabled && (
+                                <>
+                                    <InstructionPanel
+                                        title="How to get your Hoorin API key"
+                                        link="https://dash.hoorin.com"
+                                        linkLabel="Open Hoorin Dashboard →"
+                                        steps={[
+                                            <>Log in to <strong className="text-white">dash.hoorin.com</strong> and go to your account settings.</>,
+                                            <>Copy your <strong className="text-white">API Key</strong> and paste it below.</>,
+                                            <>The API checks delivery history across Steadfast, RedX, Pathao, and Paperfly in a single call.</>,
+                                        ]}
+                                    />
+
+                                    <Field
+                                        id="hoorin_api_key"
+                                        label="Hoorin API Key"
+                                        value={data.hoorin_api_key}
+                                        type="password"
+                                        onChange={(v) => setData("hoorin_api_key", v)}
+                                        placeholder="Your Hoorin API key"
+                                    />
+
+                                    {/* Usage policy warning */}
+                                    <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3.5 text-xs text-amber-400">
+                                        <AlertTriangleIcon size={13} className="shrink-0 mt-0.5" />
+                                        <p>
+                                            Your API key is for <strong>single-domain use only</strong>. Using it across multiple domains or in bulk will result in a <strong>permanent ban with no refund</strong>. Keep it private.
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 

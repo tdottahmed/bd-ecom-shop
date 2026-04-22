@@ -277,14 +277,14 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                                                             className={`inline-flex items-center gap-1 text-[11px] font-medium ${
                                                                 product.in_stock
                                                                     ? "text-brand-success"
-                                                                    : "text-red-500"
+                                                                    : "text-brand-primary"
                                                             }`}
                                                         >
                                                             <span
                                                                 className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
                                                                     product.in_stock
                                                                         ? "bg-brand-success"
-                                                                        : "bg-red-400"
+                                                                        : "bg-brand-primary"
                                                                 }`}
                                                             />
                                                             {product.in_stock
@@ -293,7 +293,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <ArrowRight className="w-4 h-4 text-gray-300 group-hover/item:text-gray-500 flex-shrink-0 transition-colors" />
+                                                <ArrowRight className="w-4 h-4 text-gray-300 group-hover/item:text-brand-primary flex-shrink-0 transition-colors" />
                                             </Link>
                                         </li>
                                     ))}

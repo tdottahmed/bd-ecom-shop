@@ -1,16 +1,29 @@
 import React from "react";
-import { Home, ShoppingBag, Package, Grid } from "lucide-react";
+import { Home, ShoppingBag, Package, Settings, BarChart3 } from "lucide-react";
 import { Link } from "@inertiajs/react";
 import { useActiveRoute } from "@/Utils/routeHelpers";
+import type { SecondaryPanel } from "@/Components/Layouts/SecondarySidebar";
 
 interface MobileBottomNavProps {
-    onSecondaryToggle: () => void;
+    isSecondaryOpen: boolean;
+    secondaryPanel: SecondaryPanel;
+    onProductsPress: () => void;
+    onReportsPress: () => void;
+    onSettingsPress: () => void;
 }
+
+const PRODUCTS_ROUTES = [
+    "products",
+    "categories",
+    "brands",
+    "discounts",
+    "product-requests",
+];
 
 const mobileMenuItems = [
     {
         key: "dashboard",
-        label: "Dashboard",
+        label: "Home",
         icon: <Home size={20} />,
         route: "admin.dashboard",
     },
@@ -18,7 +31,7 @@ const mobileMenuItems = [
         key: "products",
         label: "Products",
         icon: <ShoppingBag size={20} />,
-        route: "admin.products.index",
+        route: null as string | null,
     },
     {
         key: "orders",
@@ -26,67 +39,129 @@ const mobileMenuItems = [
         icon: <Package size={20} />,
         route: "admin.orders.index",
     },
-    { key: "more", label: "More", icon: <Grid size={20} />, route: null },
+    {
+        key: "reports",
+        label: "Reports",
+        icon: <BarChart3 size={20} />,
+        route: null as string | null,
+    },
+    {
+        key: "settings",
+        label: "Settings",
+        icon: <Settings size={20} />,
+        route: null as string | null,
+    },
 ];
 
 const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-    onSecondaryToggle,
+    isSecondaryOpen,
+    secondaryPanel,
+    onProductsPress,
+    onReportsPress,
+    onSettingsPress,
 }) => {
     const activeRoute = useActiveRoute();
 
-    const handleMoreClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        onSecondaryToggle();
-    };
-
-    const isActive = (item: (typeof mobileMenuItems)[0]) => {
+    const isActive = (item: (typeof mobileMenuItems)[0]): boolean => {
         if (item.key === "dashboard") {
             return activeRoute === "dashboard" || activeRoute === "";
         }
-        return activeRoute === item.key;
+        if (item.key === "orders") {
+            return activeRoute === "orders";
+        }
+        return false;
     };
+
+    const productsBtnActive =
+        PRODUCTS_ROUTES.includes(activeRoute) ||
+        (isSecondaryOpen && secondaryPanel === "products");
+
+    const reportsBtnActive =
+        activeRoute === "reports" ||
+        (isSecondaryOpen && secondaryPanel === "reports");
+
+    const settingsBtnActive =
+        isSecondaryOpen && secondaryPanel === "menu";
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-[#0E1614] border-t border-gray-800 z-30 md:hidden">
-            <div className="flex justify-around items-center">
+            <div className="flex justify-around items-center max-w-lg mx-auto">
                 {mobileMenuItems.map((item) => {
-                    const isMore = item.key === "more";
-
-                    return (
-                        isMore ? (
+                    if (item.key === "products") {
+                        return (
                             <button
                                 key={item.key}
                                 type="button"
-                                className={`flex flex-col items-center py-3 px-4 flex-1 transition-all ${
-                                    isActive(item)
+                                className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
+                                    productsBtnActive
                                         ? "text-[#2DE3A7]"
                                         : "text-gray-300"
                                 }`}
-                                onClick={handleMoreClick}
+                                onClick={onProductsPress}
                             >
                                 {item.icon}
-                                <span className="text-xs mt-1">
-                                    {" "}
-                                    {item.label}{" "}
+                                <span className="text-[10px] mt-1 truncate w-full text-center">
+                                    {item.label}
                                 </span>
                             </button>
-                        ) : (
-                            <Link
+                        );
+                    }
+
+                    if (item.key === "reports") {
+                        return (
+                            <button
                                 key={item.key}
-                                href={route(item.route as string)}
-                                className={`flex flex-col items-center py-3 px-4 flex-1 transition-all ${
-                                    isActive(item)
+                                type="button"
+                                className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
+                                    reportsBtnActive
                                         ? "text-[#2DE3A7]"
                                         : "text-gray-300"
                                 }`}
+                                onClick={onReportsPress}
                             >
                                 {item.icon}
-                                <span className="text-xs mt-1">
-                                    {" "}
-                                    {item.label}{" "}
+                                <span className="text-[10px] mt-1 truncate w-full text-center">
+                                    {item.label}
                                 </span>
-                            </Link>
-                        )
+                            </button>
+                        );
+                    }
+
+                    if (item.key === "settings") {
+                        return (
+                            <button
+                                key={item.key}
+                                type="button"
+                                className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
+                                    settingsBtnActive
+                                        ? "text-[#2DE3A7]"
+                                        : "text-gray-300"
+                                }`}
+                                onClick={onSettingsPress}
+                            >
+                                {item.icon}
+                                <span className="text-[10px] mt-1 truncate w-full text-center">
+                                    {item.label}
+                                </span>
+                            </button>
+                        );
+                    }
+
+                    return (
+                        <Link
+                            key={item.key}
+                            href={route(item.route as string)}
+                            className={`flex flex-col items-center py-2.5 px-2 flex-1 min-w-0 transition-all ${
+                                isActive(item)
+                                    ? "text-[#2DE3A7]"
+                                    : "text-gray-300"
+                            }`}
+                        >
+                            {item.icon}
+                            <span className="text-[10px] mt-1 truncate w-full text-center">
+                                {item.label}
+                            </span>
+                        </Link>
                     );
                 })}
             </div>

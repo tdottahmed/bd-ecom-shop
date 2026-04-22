@@ -22,14 +22,15 @@ export default {
                 luxury: {
                     accent: '#6366f1',
                 },
+                // Driven by CSS variables (see resources/css/app.css + theme_colors_style_tag in Blade).
                 brand: {
-                    primary:  '#E11D6D', // Rose 600 — primary CTA
-                    tint:     '#F87BB4', // Rose 300 — icons / tints
-                    dark:     '#1A111A', // Deep Plum — dark surfaces
-                    accent:   '#FF9545', // Peach 400 — promo / countdown
-                    success:  '#16B57D', // Emerald 500 — Halal / success
-                    bg:       '#FFEBF2', // Rose 50 — background tints
-                    ivory:    '#FDF9F4', // Ivory — page base
+                    primary: 'rgb(var(--color-brand-primary) / <alpha-value>)',
+                    tint: 'rgb(var(--color-brand-tint) / <alpha-value>)',
+                    dark: 'rgb(var(--color-brand-dark) / <alpha-value>)',
+                    accent: 'rgb(var(--color-brand-accent) / <alpha-value>)',
+                    success: 'rgb(var(--color-brand-success) / <alpha-value>)',
+                    bg: 'rgb(var(--color-brand-bg) / <alpha-value>)',
+                    ivory: 'rgb(var(--color-brand-ivory) / <alpha-value>)',
                 },
             },
             boxShadow: {

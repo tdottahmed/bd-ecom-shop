@@ -15,7 +15,7 @@ class PathaoService
     public function __construct()
     {
         $this->sandbox = (bool) config('pathao.sandbox', false);
-        $this->baseUrl = rtrim(config('pathao.base_url', 'https://hermes.pathao.com'), '/');
+        $this->baseUrl = rtrim(trim(config('pathao.base_url', 'https://api-hermes.pathao.com')), '/');
     }
 
     public function isSandbox(): bool
@@ -25,43 +25,106 @@ class PathaoService
 
     // ── Auth ──────────────────────────────────────────────────────────────────
 
+    private function cacheKey(string $type): string
+    {
+        $suffix = $this->sandbox ? '_sandbox' : '';
+        return "pathao_{$type}_token{$suffix}";
+    }
+
     /**
-     * Return a valid access token, fetching a new one if the cached one has expired.
+     * Return a valid access token.
+     * Tries the cached access token first, then refresh token, then full re-auth.
      */
     public function getToken(): ?string
     {
-        $cacheKey = $this->sandbox ? 'pathao_access_token_sandbox' : 'pathao_access_token';
-        return Cache::remember($cacheKey, 3500, function () {
-            return $this->issueToken();
-        });
-    }
+        $accessKey = $this->cacheKey('access');
 
-    private function issueToken(): ?string
-    {
-        try {
-            $response = Http::asJson()->post("{$this->baseUrl}/aladdin/api/v1/issue-token", [
+        if (Cache::has($accessKey)) {
+            return Cache::get($accessKey);
+        }
+
+        // Try refresh token before doing a full password grant
+        $refreshKey = $this->cacheKey('refresh');
+        if ($refreshToken = Cache::get($refreshKey)) {
+            $tokens = $this->requestToken([
                 'client_id'     => config('pathao.client_id'),
                 'client_secret' => config('pathao.client_secret'),
-                'username'      => config('pathao.username'),
-                'password'      => config('pathao.password'),
-                'grant_type'    => 'password',
+                'grant_type'    => 'refresh_token',
+                'refresh_token' => $refreshToken,
             ]);
 
-            if ($response->successful() && $response->json('access_token')) {
-                return $response->json('access_token');
+            if ($tokens) {
+                $this->cacheTokens($tokens);
+                return $tokens['access_token'];
             }
 
-            Log::error('Pathao: failed to issue token', ['body' => $response->json()]);
+            // Refresh token invalid — forget it and fall through to password grant
+            Cache::forget($refreshKey);
+        }
+
+        // Full password grant
+        $tokens = $this->requestToken([
+            'client_id'     => config('pathao.client_id'),
+            'client_secret' => config('pathao.client_secret'),
+            'grant_type'    => 'password',
+            'username'      => config('pathao.username'),
+            'password'      => config('pathao.password'),
+        ]);
+
+        if ($tokens) {
+            $this->cacheTokens($tokens);
+            return $tokens['access_token'];
+        }
+
+        return null;
+    }
+
+    /**
+     * POST to the issue-token endpoint and return the decoded response on success.
+     *
+     * @return array{access_token:string,refresh_token?:string,expires_in?:int}|null
+     */
+    private function requestToken(array $payload): ?array
+    {
+        try {
+            $response = Http::asJson()->post("{$this->baseUrl}/aladdin/api/v1/issue-token", $payload);
+
+            if ($response->successful() && $response->json('access_token')) {
+                return $response->json();
+            }
+
+            Log::error('Pathao: failed to obtain token', [
+                'grant_type' => $payload['grant_type'],
+                'body'       => $response->json(),
+            ]);
             return null;
         } catch (\Exception $e) {
-            Log::error('Pathao: token exception — ' . $e->getMessage());
+            Log::error('Pathao: token request exception — ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Persist access token (and optionally refresh token) from a token response.
+     * TTL is derived from `expires_in`; a 60-second buffer prevents using a stale token.
+     */
+    private function cacheTokens(array $tokens): void
+    {
+        $expiresIn = (int) ($tokens['expires_in'] ?? 3600);
+        $accessTtl = max($expiresIn - 60, 60);
+
+        Cache::put($this->cacheKey('access'), $tokens['access_token'], $accessTtl);
+
+        if (!empty($tokens['refresh_token'])) {
+            // Refresh tokens are typically long-lived (30 days). Cache for 29 days.
+            Cache::put($this->cacheKey('refresh'), $tokens['refresh_token'], 29 * 24 * 3600);
         }
     }
 
     public function forgetToken(): void
     {
-        Cache::forget('pathao_access_token');
+        Cache::forget($this->cacheKey('access'));
+        Cache::forget($this->cacheKey('refresh'));
     }
 
     // ── HTTP helper ───────────────────────────────────────────────────────────

@@ -3,11 +3,14 @@
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\Admin\LegalPageController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -19,6 +22,7 @@ use App\Http\Controllers\Admin\PathaoController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImportController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\UserController;
@@ -33,6 +37,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('sales', [ReportController::class, 'sales'])->name('sales');
+        Route::get('orders', [ReportController::class, 'orders'])->name('orders');
+        Route::get('products', [ReportController::class, 'products'])->name('products');
+        Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
+        Route::get('customers', [ReportController::class, 'customers'])->name('customers');
+        Route::get('discounts', [ReportController::class, 'discounts'])->name('discounts');
+        Route::get('payments', [ReportController::class, 'payments'])->name('payments');
+        Route::get('shipping', [ReportController::class, 'shipping'])->name('shipping');
+        Route::get('refunds', [ReportController::class, 'refunds'])->name('refunds');
+        Route::get('tax', [ReportController::class, 'tax'])->name('tax');
+        Route::get('abandoned-checkouts', [ReportController::class, 'abandonedCheckouts'])->name('abandoned-checkouts');
+        Route::get('geography', [ReportController::class, 'geography'])->name('geography');
+    });
 
     // Landing Pages
     Route::post('landing-pages/upload-image', [LandingPageController::class, 'uploadImage'])->name('landing-pages.upload-image');
@@ -62,6 +82,7 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('discounts/update', [DiscountController::class, 'update'])->name('discounts.update');
     Route::get('website', [WebsiteController::class, 'index'])->name('website.index');
     Route::post('website/update', [WebsiteController::class, 'update'])->name('website.update');
+    Route::get('content-settings', [WebsiteController::class, 'content'])->name('content-settings.index');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
@@ -87,11 +108,18 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
     Route::resource('pages', PageController::class)->except(['show']);
-    
-    Route::get('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages.index');
-    Route::get('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
-    Route::post('contact-messages/{contactMessage}/reply', [\App\Http\Controllers\Admin\ContactMessageController::class, 'reply'])->name('contact-messages.reply');
-    Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+    Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
+    Route::post('faq', [FaqController::class, 'update'])->name('faq.update');
+
+    // Legal Pages (fixed: Privacy Policy, Terms & Conditions, Refund Policy)
+    Route::get('legal-pages', [LegalPageController::class, 'index'])->name('legal-pages.index');
+    Route::get('legal-pages/{page}/edit', [LegalPageController::class, 'edit'])->name('legal-pages.edit');
+    Route::put('legal-pages/{page}', [LegalPageController::class, 'update'])->name('legal-pages.update');
+
+    Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::post('contact-messages/{contactMessage}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
+    Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
     Route::get('newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index'])->name('newsletter-subscriptions.index');
     Route::post('newsletter-subscriptions/{newsletterSubscription}/toggle-status', [NewsletterSubscriptionController::class, 'toggleStatus'])->name('newsletter-subscriptions.toggle-status');

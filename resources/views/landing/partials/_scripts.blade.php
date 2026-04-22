@@ -273,4 +273,296 @@ function lpResetCheckout() {
 
 lpUpdateSummary();
 @endif
+
+/* ══════════════════════════════════════════════
+   Category Multi-Product Cart
+══════════════════════════════════════════════ */
+@if($page->category_id && $categoryProducts && $categoryProducts->count() > 0)
+const CAT_ORDER_URL = '{{ route('landing-page.category-order', $page->slug) }}';
+const catCart = new Map(); /* productId → { qty, variationIds, varLabels, unitPrice, name } */
+const catSelVars = {};    /* productId → { attrName → { id, price, value } }              */
+const catFmt = n => '৳' + Number(n).toLocaleString('en-BD', { maximumFractionDigits: 0 });
+
+function catSelectVariation(pill) {
+    if (pill.disabled || pill.classList.contains('oos')) return;
+    const pid  = parseInt(pill.dataset.productId);
+    const attr = pill.dataset.attr;
+
+    /* Deselect siblings */
+    document.querySelectorAll(`.cat-pill[data-product-id="${pid}"][data-attr="${attr}"]`)
+        .forEach(p => p.classList.remove('selected'));
+    pill.classList.add('selected');
+
+    if (!catSelVars[pid]) catSelVars[pid] = {};
+    catSelVars[pid][attr] = {
+        id:    parseInt(pill.dataset.id),
+        price: parseFloat(pill.dataset.price) || 0,
+        value: pill.textContent.trim(),
+    };
+
+    /* Swap product image */
+    if (pill.dataset.image) {
+        const img = document.getElementById(`cat-img-${pid}`);
+        if (img) img.src = pill.dataset.image;
+    }
+
+    /* Update displayed price */
+    const priceEl = document.getElementById(`cat-price-${pid}`);
+    if (priceEl && pill.dataset.price) {
+        priceEl.textContent = catFmt(pill.dataset.price);
+    }
+
+    /* Sync cart if already added */
+    if (catCart.has(pid)) catSyncItem(pid);
+}
+
+function catGetUnitPrice(pid) {
+    const vars = catSelVars[pid];
+    if (vars && Object.keys(vars).length > 0) {
+        return Object.values(vars)[0].price || 0;
+    }
+    /* Fall back to displayed price */
+    const el = document.getElementById(`cat-price-${pid}`);
+    if (el) {
+        const n = parseFloat(el.textContent.replace(/[^0-9.]/g, ''));
+        if (!isNaN(n)) return n;
+    }
+    return 0;
+}
+
+function catGetVarIds(pid) {
+    const vars = catSelVars[pid];
+    return vars ? Object.values(vars).map(v => v.id) : [];
+}
+
+function catGetVarLabels(pid) {
+    const vars = catSelVars[pid];
+    return vars ? Object.values(vars).map(v => v.value) : [];
+}
+
+function catChangeQty(pid, delta) {
+    const input = document.getElementById(`cat-qty-${pid}`);
+    input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+    if (catCart.has(pid)) catSyncItem(pid);
+}
+
+function catSyncItem(pid) {
+    const qty  = parseInt(document.getElementById(`cat-qty-${pid}`).value) || 1;
+    const name = document.getElementById(`cat-card-${pid}`)?.querySelector('.cat-card-name')?.textContent?.trim() || '';
+    catCart.set(pid, {
+        qty,
+        variationIds: catGetVarIds(pid),
+        varLabels:    catGetVarLabels(pid),
+        unitPrice:    catGetUnitPrice(pid),
+        name,
+    });
+    catRender();
+}
+
+function catToggleItem(pid) {
+    const btn  = document.getElementById(`cat-add-${pid}`);
+    const card = document.getElementById(`cat-card-${pid}`);
+    if (catCart.has(pid)) {
+        catCart.delete(pid);
+        btn.querySelector('span').textContent = 'Add to Order';
+        btn.classList.remove('added');
+        card.classList.remove('in-order');
+    } else {
+        catSyncItem(pid);
+        btn.querySelector('span').textContent = '✓ In Order';
+        btn.classList.add('added');
+        card.classList.add('in-order');
+    }
+    catRender();
+}
+
+function catRender() {
+    const totalItems = Array.from(catCart.values()).reduce((s, i) => s + i.qty, 0);
+    const subtotal   = Array.from(catCart.values()).reduce((s, i) => s + i.unitPrice * i.qty, 0);
+
+    /* Cart bar */
+    const bar = document.getElementById('cat-cart-bar');
+    if (catCart.size === 0) {
+        bar.classList.remove('show');
+    } else {
+        bar.classList.add('show');
+        document.getElementById('cat-bar-count').textContent  = totalItems + ' item' + (totalItems !== 1 ? 's' : '');
+        document.getElementById('cat-bar-total').textContent  = catFmt(subtotal);
+        const preview = document.getElementById('cat-bar-preview');
+        if (preview) {
+            preview.innerHTML = '';
+            catCart.forEach((item) => {
+                const chip = document.createElement('span');
+                chip.className = 'cat-bar-item-chip';
+                chip.textContent = item.name;
+                preview.appendChild(chip);
+            });
+        }
+    }
+
+    /* Order summary panel */
+    const badge   = document.getElementById('cat-summary-badge');
+    const empty   = document.getElementById('cat-empty-notice');
+    const list    = document.getElementById('cat-order-list');
+    if (badge) badge.textContent = totalItems + ' item' + (totalItems !== 1 ? 's' : '');
+
+    if (catCart.size === 0) {
+        if (empty) empty.style.display = '';
+        if (list)  list.style.display  = 'none';
+    } else {
+        if (empty) empty.style.display = 'none';
+        if (list) {
+            list.style.display = '';
+            list.innerHTML = '';
+            catCart.forEach((item, pid) => {
+                const row = document.createElement('div');
+                row.className = 'cat-order-row';
+                const labels = item.varLabels.length ? `<div class="cat-order-row-meta">${item.varLabels.join(' · ')} · ×${item.qty}</div>` : `<div class="cat-order-row-meta">×${item.qty}</div>`;
+                row.innerHTML = `
+                    <div class="cat-order-row-info">
+                        <div class="cat-order-row-name">${item.name}</div>
+                        ${labels}
+                    </div>
+                    <div class="cat-order-row-price">${catFmt(item.unitPrice * item.qty)}</div>
+                    <button class="cat-order-row-remove" onclick="catRemoveItem(${pid})" title="Remove">×</button>
+                `;
+                list.appendChild(row);
+            });
+        }
+    }
+
+    /* Totals */
+    const subEl = document.getElementById('cat-co-sub');
+    if (subEl) subEl.textContent = catFmt(subtotal);
+    catUpdateTotals();
+}
+
+function catRemoveItem(pid) {
+    catCart.delete(pid);
+    const btn  = document.getElementById(`cat-add-${pid}`);
+    const card = document.getElementById(`cat-card-${pid}`);
+    if (btn)  { btn.querySelector('span').textContent = 'Add to Order'; btn.classList.remove('added'); }
+    if (card) card.classList.remove('in-order');
+    catRender();
+}
+
+function catUpdateTotals() {
+    const subtotal = Array.from(catCart.values()).reduce((s, i) => s + i.unitPrice * i.qty, 0);
+    const sel      = document.getElementById('cat-delivery');
+    const opt      = sel?.options[sel.selectedIndex];
+    const dc       = opt && opt.value ? parseFloat(opt.dataset.cost) : null;
+    const delEl    = document.getElementById('cat-co-del');
+    const totEl    = document.getElementById('cat-co-total');
+    if (delEl) delEl.textContent = dc !== null ? catFmt(dc) : 'Select area';
+    if (totEl) totEl.textContent = dc !== null ? catFmt(subtotal + dc) : '—';
+}
+
+function catScrollToCheckout() {
+    document.getElementById('cat-checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function catValidateField(id, errId, fn) {
+    const el  = document.getElementById(id);
+    const err = document.getElementById(errId);
+    const ok  = fn(el.value.trim());
+    el.classList.toggle('error', !ok);
+    err.classList.toggle('show', !ok);
+    return ok;
+}
+
+function catValidateAll() {
+    const a = catValidateField('cat-name',     'cat-err-name',     v => v.length > 0);
+    const b = catValidateField('cat-phone',    'cat-err-phone',    v => /^[0-9+]{7,15}$/.test(v));
+    const c = catValidateField('cat-address',  'cat-err-address',  v => v.length > 5);
+    const d = catValidateField('cat-delivery', 'cat-err-delivery', v => v.length > 0);
+    return a && b && c && d;
+}
+
+async function catSubmitOrder() {
+    if (catCart.size === 0) {
+        catScrollToCheckout();
+        const notice = document.getElementById('cat-err-banner');
+        notice.textContent = 'Please add at least one product to your order.';
+        notice.classList.add('show');
+        return;
+    }
+    if (!catValidateAll()) return;
+
+    const btn    = document.getElementById('cat-submit-btn');
+    const banner = document.getElementById('cat-err-banner');
+    banner.classList.remove('show');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const phone = document.getElementById('cat-phone').value.trim();
+
+    const items = [];
+    catCart.forEach((item, pid) => {
+        items.push({ product_id: pid, quantity: item.qty, variation_ids: item.variationIds });
+    });
+
+    try {
+        const res = await fetch(CAT_ORDER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+                'X-XSRF-TOKEN': lpGetXsrf(),
+            },
+            body: JSON.stringify({
+                customer_name:      document.getElementById('cat-name').value.trim(),
+                customer_phone:     phone,
+                customer_address:   document.getElementById('cat-address').value.trim(),
+                delivery_charge_id: document.getElementById('cat-delivery').value,
+                items,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById('cat-form-wrap').style.display = 'none';
+            document.getElementById('cat-success-id').textContent    = '#' + data.order_id;
+            document.getElementById('cat-success-phone').textContent = phone;
+            const suc = document.getElementById('cat-success');
+            suc.classList.add('show');
+            suc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('cat-cart-bar').classList.remove('show');
+        } else {
+            banner.textContent = data.message || 'Something went wrong. Please try again.';
+            banner.classList.add('show');
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    } catch (_) {
+        banner.textContent = 'Network error. Please check your connection and try again.';
+        banner.classList.add('show');
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+function catResetCheckout() {
+    catCart.clear();
+    catSelVars && Object.keys(catSelVars).forEach(k => delete catSelVars[k]);
+    document.querySelectorAll('.cat-add-btn').forEach(btn => {
+        btn.querySelector('span').textContent = 'Add to Order';
+        btn.classList.remove('added');
+    });
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('in-order'));
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('selected'));
+    ['cat-name','cat-phone','cat-address'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const del = document.getElementById('cat-delivery');
+    if (del) del.value = '';
+    document.getElementById('cat-form-wrap').style.display = '';
+    document.getElementById('cat-success').classList.remove('show');
+    catRender();
+    document.getElementById('cat-showcase')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+catRender();
+@endif
 </script>
