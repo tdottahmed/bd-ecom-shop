@@ -1,7 +1,7 @@
 import Master from "@/Layouts/Master";
 import Header from "@/Components/Layouts/Header";
 import { Link, router } from "@inertiajs/react";
-import { Plus, ExternalLink, Pencil, Trash2, Globe, GlobeLock } from "lucide-react";
+import { Plus, ExternalLink, Pencil, Trash2, Globe, GlobeLock, Tag, Package } from "lucide-react";
 
 interface LandingPage {
     id: number;
@@ -9,7 +9,8 @@ interface LandingPage {
     page_title: string;
     is_published: boolean;
     created_at: string;
-    product: { id: number; name: string } | null;
+    product:  { id: number; name: string } | null;
+    category: { id: number; title: string } | null;
 }
 
 export default function Index({ pages }: { pages: LandingPage[] }) {
@@ -59,8 +60,18 @@ export default function Index({ pages }: { pages: LandingPage[] }) {
                                         <td className="px-5 py-4">
                                             <p className="text-white font-medium">{page.page_title}</p>
                                         </td>
-                                        <td className="px-5 py-4 text-gray-400">
-                                            {page.product?.name ?? <span className="text-gray-600 italic">No product</span>}
+                                        <td className="px-5 py-4">
+                                            {page.category ? (
+                                                <span className="inline-flex items-center gap-1.5 text-violet-400 text-xs font-medium">
+                                                    <Tag size={11} /> {page.category.title}
+                                                </span>
+                                            ) : page.product ? (
+                                                <span className="inline-flex items-center gap-1.5 text-gray-400 text-xs">
+                                                    <Package size={11} /> {page.product.name}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-600 italic text-xs">None</span>
+                                            )}
                                         </td>
                                         <td className="px-5 py-4">
                                             <a

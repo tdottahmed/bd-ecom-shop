@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('lp/{slug}', [LandingPageController::class, 'show'])->name('landing-page.show');
 Route::post('lp/{slug}/order', [LandingPageController::class, 'order'])->name('landing-page.order');
+Route::post('lp/{slug}/category-order', [LandingPageController::class, 'categoryOrder'])->name('landing-page.category-order');
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');

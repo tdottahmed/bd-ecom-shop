@@ -9,6 +9,7 @@ class LandingPage extends Model
 {
     protected $fillable = [
         'product_id',
+        'category_id',
         'slug',
         'page_title',
         'meta_description',
@@ -36,6 +37,11 @@ class LandingPage extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Category::class);
     }
 
     public function getPublicUrlAttribute(): string

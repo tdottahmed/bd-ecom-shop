@@ -35,7 +35,8 @@ interface Section {
     design: SectionDesign;
 }
 
-interface Product { id: number; name: string }
+interface Product  { id: number; name: string }
+interface Category { id: number; title: string }
 
 interface LandingPage {
     id: number;
@@ -43,6 +44,7 @@ interface LandingPage {
     page_title: string;
     meta_description: string;
     product_id: number | null;
+    category_id: number | null;
     hero_headline: string;
     hero_subheadline: string;
     hero_badge: string;
@@ -898,11 +900,15 @@ const PANEL_TABS: { id: PanelTab; label: string; icon: React.ReactNode }[] = [
 
 // ─── Main Builder ──────────────────────────────────────────────────────────────
 
-export default function Builder({ products, page }: { products: Product[]; page: LandingPage | null }) {
+export default function Builder({ products, categories, page }: { products: Product[]; categories: Category[]; page: LandingPage | null }) {
     const isEdit = !!page;
 
+    const initMode = page?.category_id ? "category" : page?.product_id ? "product" : "none";
+    const [pageMode, setPageMode] = useState<"product" | "category" | "none">(initMode);
+
     const { data, setData, post, put, processing, errors } = useForm<{
-        page_title: string; slug: string; meta_description: string; product_id: string;
+        page_title: string; slug: string; meta_description: string;
+        product_id: string; category_id: string;
         hero_headline: string; hero_subheadline: string; hero_badge: string;
         hero_image: File | null; hero_cta_text: string; hero_cta_url: string;
         hero_layout: HeroLayout; hero_bg_color: string; hero_text_color: string;
@@ -913,6 +919,7 @@ export default function Builder({ products, page }: { products: Product[]; page:
         slug:               page?.slug ?? "",
         meta_description:   page?.meta_description ?? "",
         product_id:         page?.product_id?.toString() ?? "",
+        category_id:        page?.category_id?.toString() ?? "",
         hero_headline:      page?.hero_headline ?? "",
         hero_subheadline:   page?.hero_subheadline ?? "",
         hero_badge:         page?.hero_badge ?? "",
@@ -1067,12 +1074,51 @@ export default function Builder({ products, page }: { products: Product[]; page:
                                     <Input value={data.slug} onChange={e => setData("slug", toSlug(e.target.value))} placeholder="my-amazing-product" />
                                     {err("slug")}
                                 </Field>
-                                <Field label="Linked Product">
-                                    <StyledSelect value={data.product_id} onChange={v => setData("product_id", v)}>
-                                        <option value="">— None —</option>
-                                        {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                    </StyledSelect>
+
+                                <Divider />
+
+                                {/* Page type toggle */}
+                                <Field label="Page Type" hint="What this landing page showcases">
+                                    <div className="flex rounded-xl border border-[#1E2826] overflow-hidden mt-1">
+                                        {(["product", "category", "none"] as const).map((mode, i) => (
+                                            <button key={mode} type="button"
+                                                onClick={() => {
+                                                    setPageMode(mode);
+                                                    if (mode !== "product")  setData("product_id",  "");
+                                                    if (mode !== "category") setData("category_id", "");
+                                                }}
+                                                className={`flex-1 py-2 text-xs font-semibold transition-colors capitalize ${i > 0 ? "border-l border-[#1E2826]" : ""} ${pageMode === mode ? "bg-[#2DE3A7] text-black" : "text-gray-500 hover:text-white hover:bg-[#1E2826]"}`}>
+                                                {mode === "none" ? "No product" : mode}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </Field>
+
+                                {pageMode === "product" && (
+                                    <Field label="Linked Product">
+                                        <StyledSelect value={data.product_id} onChange={v => setData("product_id", v)}>
+                                            <option value="">— Select product —</option>
+                                            {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                        </StyledSelect>
+                                    </Field>
+                                )}
+
+                                {pageMode === "category" && (
+                                    <div className="space-y-3">
+                                        <Field label="Linked Category">
+                                            <StyledSelect value={data.category_id} onChange={v => setData("category_id", v)}>
+                                                <option value="">— Select category —</option>
+                                                {categories.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                                            </StyledSelect>
+                                        </Field>
+                                        <div className="bg-[#2DE3A7]/5 border border-[#2DE3A7]/20 rounded-xl p-3 text-xs text-[#2DE3A7]/80 leading-relaxed">
+                                            All in-stock products from this category will be displayed in a shoppable grid. Customers can select variants and add multiple items before placing one order.
+                                        </div>
+                                    </div>
+                                )}
+
+                                <Divider />
+
                                 <Field label="Meta Description" hint="SEO snippet — up to 160 characters">
                                     <Textarea value={data.meta_description} onChange={e => setData("meta_description", e.target.value)} rows={3}
                                         placeholder="Brief description for search engines…" />
