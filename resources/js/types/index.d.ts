@@ -25,6 +25,7 @@ export type PageProps<
         pathao: CourierConfig;
         carrybee: CourierConfig;
     };
+    fraudCheckEnabled: boolean;
 };
 
 // Category type

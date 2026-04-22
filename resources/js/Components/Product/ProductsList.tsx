@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "@inertiajs/react";
-import { Edit2, Eye, Package, TrendingUp, Layers, PackagePlus } from "lucide-react";
+import { Link, usePage } from "@inertiajs/react";
+import { Edit2, Eye, Package, TrendingUp, Layers, PackagePlus, Shield } from "lucide-react";
 import { getAssetUrl, formatPrice } from "@/Utils/helpers";
-import { Product, ProductVariation } from "@/types";
+import { PageProps, Product, ProductVariation } from "@/types";
 import StockUpdateDialog from "./StockUpdateDialog";
 
 interface ProductsListProps {
@@ -54,6 +54,7 @@ const Skeleton = () => (
 
 const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false }) => {
     const [stockProduct, setStockProduct] = useState<Product | null>(null);
+    const { fraudCheckEnabled } = usePage<PageProps>().props;
 
     if (isLoading) return <Skeleton />;
 
@@ -74,6 +75,7 @@ const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false
                         key={product.id}
                         product={product}
                         onUpdateStock={() => setStockProduct(product)}
+                        fraudCheckEnabled={fraudCheckEnabled}
                     />
                 ))}
             </div>
@@ -87,7 +89,7 @@ const ProductsList: React.FC<ProductsListProps> = ({ products, isLoading = false
 
 // ── list item ─────────────────────────────────────────────────────────────────
 
-const ProductListItem: React.FC<{ product: Product; onUpdateStock: () => void }> = ({ product, onUpdateStock }) => {
+const ProductListItem: React.FC<{ product: Product; onUpdateStock: () => void; fraudCheckEnabled: boolean }> = ({ product, onUpdateStock, fraudCheckEnabled }) => {
     const isVariant = product.product_type === "variant";
     const variations = product.product_variations ?? [];
 
@@ -226,6 +228,15 @@ const ProductListItem: React.FC<{ product: Product; onUpdateStock: () => void }>
                                 <PackagePlus size={13} />
                                 Stock
                             </button>
+                            {fraudCheckEnabled && (
+                                <Link
+                                    href={route("admin.product.show", product.id)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-400/10 text-purple-400 rounded-lg text-sm hover:bg-purple-400/20 transition-colors border border-purple-400/30"
+                                >
+                                    <Shield size={13} />
+                                    Check Fraud
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>

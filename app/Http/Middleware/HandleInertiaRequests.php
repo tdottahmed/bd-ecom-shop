@@ -142,6 +142,8 @@ class HandleInertiaRequests extends Middleware
                 'carrybee'  => ['enabled' => get_setting('carrybee_enabled',  '1') === '1', 'label' => 'Carry Bee'],
             ],
 
+            'fraudCheckEnabled' => fn () => get_setting('fraud_check_enabled', '0') === '1',
+
             'paymentMethods' => fn () => [
                 'cod' => ['enabled' => get_setting('cod_enabled', '1') === '1',        'label' => 'Cash on Delivery'],
                 'bkash' => ['enabled' => get_setting('bkash_enabled', '0') === '1',      'label' => 'bKash'],

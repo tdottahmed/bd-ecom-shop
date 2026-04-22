@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ShieldCheck, ShieldAlert, Shield, RefreshCw } from "lucide-react";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
+import { PageProps } from "@/types";
 
 export interface SuccessRateData {
     total_orders: number;
@@ -16,6 +17,7 @@ interface Props {
 
 export default function SuccessRate({ rate, orderId, className = "" }: Props) {
     const [isLoading, setIsLoading] = useState(false);
+    const { fraudCheckEnabled } = usePage<PageProps>().props;
 
     const handleCheckFraud = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -36,48 +38,42 @@ export default function SuccessRate({ rate, orderId, className = "" }: Props) {
     };
 
     if (!rate) {
-        if (orderId) {
+        if (orderId && fraudCheckEnabled) {
             return (
                 <button
-                    onClick= { handleCheckFraud }
-            disabled = { isLoading }
-            className = {`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#2DE3A7]/10 text-[#2DE3A7] hover:bg-[#2DE3A7]/20 transition-colors text-xs font-medium w-full justify-center ${className}`
-        }
+                    onClick={handleCheckFraud}
+                    disabled={isLoading}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#2DE3A7]/10 text-[#2DE3A7] hover:bg-[#2DE3A7]/20 transition-colors text-xs font-medium w-full justify-center ${className}`}
                 >
-            {
-                isLoading?(
-                        <RefreshCw className = "w-3.5 h-3.5 animate-spin" />
-                    ): (
-                        <Shield className = "w-3.5 h-3.5" />
-                    )
-    }
-    { isLoading ? "Checking..." : "Check Fraud Status" }
-    </button>
+                    {isLoading ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                        <Shield className="w-3.5 h-3.5" />
+                    )}
+                    {isLoading ? "Checking..." : "Check Fraud Status"}
+                </button>
             );
-}
-return null;
+        }
+        return null;
     }
 
-if (rate.total_orders === 0) {
-    return (
-        <div className= {`space-y-2 ${className}`
-}>
-    <div className="flex items-center justify-between text-xs text-gray-400" >
-        <span>No Orders Found </span>
-{
-    orderId && (
-        <button
-                            onClick={ handleCheckFraud }
-    disabled = { isLoading }
-    className = "p-1 hover:bg-[#2DE3A7]/10 rounded text-[#2DE3A7] transition-colors"
-    title = "Check Again"
-        >
-        <RefreshCw className={ `w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}` } />
-            </button>
-                    )
-}
-</div>
-    </div>
+    if (rate.total_orders === 0) {
+        return (
+            <div className={`space-y-2 ${className}`}>
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                    <span>No Orders Found</span>
+                    {orderId && fraudCheckEnabled && (
+                        <button
+                            onClick={handleCheckFraud}
+                            disabled={isLoading}
+                            className="p-1 hover:bg-[#2DE3A7]/10 rounded text-[#2DE3A7] transition-colors"
+                            title="Check Again"
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+                        </button>
+                    )}
+                </div>
+            </div>
         );
     }
 
