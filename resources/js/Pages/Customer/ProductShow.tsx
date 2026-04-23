@@ -10,6 +10,7 @@ import {
     Truck,
     PackageCheck,
     ChevronDown,
+    Zap,
 } from "lucide-react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
@@ -161,8 +162,19 @@ export default function ProductShow({
         }
     };
 
+    const handleBuyNow = () => {
+        if (!isInCart) {
+            addToCart(product, quantity);
+        }
+        router.visit(route("checkout"));
+    };
+
     const handleVariationAddToCart = (variations: any[], quantity: number) => {
         addToCart(product, quantity, variations);
+    };
+
+    const handleVariationBuyNow = () => {
+        router.visit(route("checkout"));
     };
 
     const displayProducts =
@@ -432,6 +444,7 @@ export default function ProductShow({
                                                     onAddToCart={
                                                         handleVariationAddToCart
                                                     }
+                                                    onBuyNow={handleVariationBuyNow}
                                                     onRequestVariation={handleRequestVariation}
                                                     onVariationSelect={(
                                                         variation,
@@ -507,42 +520,53 @@ export default function ProductShow({
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div className="flex flex-col sm:flex-row gap-5 items-center">
-                                                <QuantitySelector
-                                                    quantity={quantity}
-                                                    onDecrease={() =>
-                                                        handleQuantityChange(
-                                                            "decrement",
-                                                        )
-                                                    }
-                                                    onIncrease={() =>
-                                                        handleQuantityChange(
-                                                            "increment",
-                                                        )
-                                                    }
-                                                    max={
-                                                        product.is_preorder
-                                                            ? undefined
-                                                            : product.stock
-                                                    }
-                                                    size="lg"
-                                                />
+                                            <div className="flex flex-col gap-3">
+                                                {/* Row 1: Quantity + Buy Now */}
+                                                <div className="flex gap-3 items-stretch">
+                                                    <QuantitySelector
+                                                        quantity={quantity}
+                                                        onDecrease={() =>
+                                                            handleQuantityChange(
+                                                                "decrement",
+                                                            )
+                                                        }
+                                                        onIncrease={() =>
+                                                            handleQuantityChange(
+                                                                "increment",
+                                                            )
+                                                        }
+                                                        max={
+                                                            product.is_preorder
+                                                                ? undefined
+                                                                : product.stock
+                                                        }
+                                                        size="lg"
+                                                    />
+                                                    <button
+                                                        className="flex-1 px-6 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-2.5 bg-brand-primary hover:bg-brand-primary/90 text-white shadow-lg shadow-brand-primary/30 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                                                        onClick={handleBuyNow}
+                                                    >
+                                                        <Zap size={20} strokeWidth={2.5} />
+                                                        Buy Now
+                                                    </button>
+                                                </div>
+                                                {/* Row 2: Add to Cart */}
                                                 <button
-                                                    className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
+                                                    className={`w-full px-8 py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${
                                                         isInCart
-                                                            ? "bg-brand-success hover:bg-brand-success/90 text-white shadow-brand-success/30"
-                                                            : "bg-brand-dark hover:bg-brand-dark/80 text-white shadow-brand-dark/20"
+                                                            ? "bg-brand-success hover:bg-brand-success/90 text-white shadow-brand-success/20"
+                                                            : "bg-white border-2 border-slate-200 hover:border-brand-dark/40 text-brand-dark hover:bg-slate-50"
                                                     }`}
                                                     onClick={handleAddToCart}
                                                 >
                                                     {isInCart ? (
                                                         <>
-                                                            <Check size={22} strokeWidth={3} />
+                                                            <Check size={20} strokeWidth={3} />
                                                             Added to Cart
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ShoppingCart size={22} strokeWidth={2.5} />
+                                                            <ShoppingCart size={20} strokeWidth={2.5} />
                                                             {product.is_preorder && product.stock <= 0
                                                                 ? "Pre Order"
                                                                 : "Add to Cart"}

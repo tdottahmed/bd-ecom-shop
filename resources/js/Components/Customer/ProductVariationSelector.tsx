@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Product, ProductVariation } from "@/types";
-import { Check, X, Bell } from "lucide-react";
+import { Check, X, Bell, Zap, ShoppingCart } from "lucide-react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { toast } from "sonner";
 
 interface ProductVariationSelectorProps {
     product: Product;
     onAddToCart: (variations: ProductVariation[], quantity: number) => void;
+    onBuyNow?: () => void;
     onVariationSelect?: (
         variation: ProductVariation,
         allSelected: Record<number, ProductVariation>,
@@ -17,6 +18,7 @@ interface ProductVariationSelectorProps {
 const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
     product,
     onAddToCart,
+    onBuyNow,
     onVariationSelect,
     onRequestVariation,
 }) => {
@@ -188,6 +190,18 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
         setCartBatch([]);
         setSelectedVariations({});
         setIsOutOfStockCombo(false);
+    };
+
+    const handleBuyNow = () => {
+        if (cartBatch.length === 0) return;
+
+        cartBatch.forEach((item) => {
+            onAddToCart(item.variations, item.quantity);
+        });
+        setCartBatch([]);
+        setSelectedVariations({});
+        setIsOutOfStockCombo(false);
+        onBuyNow?.();
     };
 
     const handleRequestCombination = () => {
@@ -516,13 +530,24 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                     </span>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className="w-full inline-flex justify-center rounded-lg bg-brand-primary px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-brand-primary/90 hover:shadow-xl transition-all transform active:scale-[0.98]"
-                                    onClick={handleAddToCart}
-                                >
-                                    Add All to Cart
-                                </button>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        type="button"
+                                        className="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-brand-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-primary/30 hover:bg-brand-primary/90 hover:shadow-xl transition-all transform active:scale-[0.98]"
+                                        onClick={handleBuyNow}
+                                    >
+                                        <Zap size={16} strokeWidth={2.5} />
+                                        Buy Now
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-white border-2 border-slate-200 hover:border-brand-dark/40 text-brand-dark px-4 py-2.5 text-sm font-bold hover:bg-slate-50 transition-all transform active:scale-[0.98]"
+                                        onClick={handleAddToCart}
+                                    >
+                                        <ShoppingCart size={16} strokeWidth={2.5} />
+                                        Add All to Cart
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

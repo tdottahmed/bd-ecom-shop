@@ -143,7 +143,7 @@ export const useCartStore = create<CartState>()(
                                     !isNaN(s)
                             );
                         if (variationStocks.length > 0) {
-                            stock = Math.min(Number(product.stock), ...variationStocks);
+                            stock = Math.min(...variationStocks);
                         }
                     }
 
