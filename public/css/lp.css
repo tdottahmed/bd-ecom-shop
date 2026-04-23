@@ -1,7 +1,10 @@
-═══════════════════════════════════════════ */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* ═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body.lp {
+    margin: 0;
+    padding: 0;
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text);
@@ -46,16 +49,23 @@ a   { color: inherit; text-decoration: none; }
 .bg-cool   { background: var(--bg-cool); }
 
 /* ── Section layout styles ── */
+.lp-layout-bordered .lp-container,
+.lp-layout-card .lp-container,
+.lp-layout-shadow .lp-container {
+    width: calc(100% - 32px);
+    margin-left: auto;
+    margin-right: auto;
+}
 .lp-layout-bordered .lp-container {
     border: 2px solid var(--border);
     border-radius: 16px;
-    padding: 36px 40px;
+    padding: 32px 36px;
 }
 .lp-layout-card .lp-container {
     background: var(--card);
     box-shadow: var(--shadow-md);
     border-radius: 20px;
-    padding: 48px;
+    padding: 40px;
 }
 .lp-layout-accent-left .lp-container {
     border-left: 4px solid var(--accent);
@@ -68,7 +78,7 @@ a   { color: inherit; text-decoration: none; }
     background: var(--card);
     box-shadow: var(--shadow-lg);
     border-radius: 16px;
-    padding: 40px 48px;
+    padding: 36px 40px;
 }
 
 /* ── Section padding size overrides ── */
@@ -87,6 +97,7 @@ a   { color: inherit; text-decoration: none; }
     transition: transform 0.25s, box-shadow 0.25s;
     font-family: inherit;
 }
+.hero-btn-main { font-size: 1.05rem; padding: 16px 38px; }
 .btn-accent:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 36px var(--accent-50);
@@ -925,9 +936,14 @@ textarea.co-input { resize: none; }
     /* Layout & Base Spacing */
     .lp-section { padding: 56px 0; }
     .lp-container { padding: 0 20px; }
-    .lp-layout-bordered .lp-container { padding: 24px 20px; }
-    .lp-layout-card .lp-container    { padding: 28px 20px; }
-    .lp-layout-shadow .lp-container  { padding: 28px 20px; }
+    .lp-layout-bordered .lp-container,
+    .lp-layout-card .lp-container,
+    .lp-layout-shadow .lp-container {
+        width: calc(100% - 24px);
+    }
+    .lp-layout-bordered .lp-container { padding: 20px 16px; }
+    .lp-layout-card .lp-container    { padding: 24px 16px; }
+    .lp-layout-shadow .lp-container  { padding: 24px 16px; }
     .lp-layout-accent-left .lp-container { padding-left: 32px; }
     
     /* Typography */

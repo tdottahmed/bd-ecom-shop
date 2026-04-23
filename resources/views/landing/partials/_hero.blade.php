@@ -45,7 +45,7 @@
                     @endif
 
                     <div class="hero-actions hero-actions-split" id="hero-actions">
-                        <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent" style="font-size:1.05rem;padding:16px 38px;">
+                        <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent hero-btn-main">
                             {{ $page->hero_cta_text }}
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </a>
@@ -88,7 +88,7 @@
             @endif
 
             <div class="hero-actions" id="hero-actions">
-                <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent" style="font-size:1.05rem;padding:16px 38px;">
+                <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent hero-btn-main">
                     {{ $page->hero_cta_text }}
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
@@ -126,7 +126,7 @@
             @endif
 
             <div class="hero-actions" id="hero-actions">
-                <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent" style="font-size:1.05rem;padding:16px 38px;">
+                <a href="{{ $page->hero_cta_url ?: '#checkout' }}" class="btn-accent hero-btn-main">
                     {{ $page->hero_cta_text }}
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
