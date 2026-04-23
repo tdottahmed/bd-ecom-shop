@@ -3,6 +3,12 @@
 @include('landing.partials._head')
 <body class="lp">
 
+{{-- GTM noscript (must be first element after <body>) --}}
+@if(get_setting('google_tag_manager_enabled', '0') === '1' && get_setting('google_tag_manager_container_id'))
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ get_setting('google_tag_manager_container_id') }}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+@endif
+
 @if(!$page->is_published)
     @include('landing.partials._draft-banner')
 @endif
