@@ -18,7 +18,7 @@ class LandingPageController extends Controller
     {
         $page = LandingPage::where('slug', $slug)
             ->with([
-                'product:id,name,sale_price,discounted_sale_price,stock,is_preorder',
+                'product:id,name,sale_price,discounted_sale_price,stock,is_preorder,product_type',
                 'product.product_variations.product_attribute',
                 'category:id,title,slug,image',
             ])
@@ -35,12 +35,21 @@ class LandingPageController extends Controller
             $categoryProducts = Product::where('category_id', $page->category_id)
                 ->where('stock', '>', 0)
                 ->orWhere('is_preorder', true)
-                ->with(['product_variations' => fn ($q) => $q->with('product_attribute')])
+                ->with(['product_variations' => fn($q) => $q->with('product_attribute')])
                 ->orderBy('name')
                 ->get([
-                    'id', 'category_id', 'name', 'slug', 'sale_price',
-                    'discounted_sale_price', 'has_discount', 'discount_value',
-                    'stock', 'is_preorder', 'images', 'product_type',
+                    'id',
+                    'category_id',
+                    'name',
+                    'slug',
+                    'sale_price',
+                    'discounted_sale_price',
+                    'has_discount',
+                    'discount_value',
+                    'stock',
+                    'is_preorder',
+                    'images',
+                    'product_type',
                 ]);
         }
 
@@ -52,7 +61,7 @@ class LandingPageController extends Controller
         $page = LandingPage::where('slug', $slug)
             ->where('is_published', true)
             ->with([
-                'product:id,name,sale_price,discounted_sale_price,stock,is_preorder',
+                'product:id,name,sale_price,discounted_sale_price,stock,is_preorder,product_type',
                 'product.product_variations',
             ])
             ->firstOrFail();
@@ -71,13 +80,22 @@ class LandingPageController extends Controller
             'variation_ids.*'    => 'integer|exists:product_variations,id',
         ]);
 
-        $product        = $page->product;
-        $unitPrice      = $product->discounted_sale_price ?: $product->sale_price;
-        $quantity       = (int) $validated['quantity'];
+        $product      = $page->product;
+        $unitPrice    = $product->discounted_sale_price ?: $product->sale_price;
+        $quantity     = (int) $validated['quantity'];
+        $variationIds = $validated['variation_ids'] ?? [];
+
+        // For variant products, price lives on the variation record, not the product
+        if ($product->product_type === 'variant' && ! empty($variationIds)) {
+            $firstVar = $product->product_variations->firstWhere('id', $variationIds[0]);
+            if ($firstVar && $firstVar->price) {
+                $unitPrice = (float) $firstVar->price;
+            }
+        }
+
         $deliveryCharge = DeliveryCharge::findOrFail($validated['delivery_charge_id']);
         $subtotal       = $unitPrice * $quantity;
         $total          = $subtotal + $deliveryCharge->cost;
-        $variationIds   = $validated['variation_ids'] ?? [];
 
         DB::beginTransaction();
         try {

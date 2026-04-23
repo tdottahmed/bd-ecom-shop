@@ -1,4 +1,12 @@
-<section class="cta-block">
+@php
+  $d       = $section['design'] ?? [];
+  $hasBg   = !empty($d['bg_color']);
+  $layout  = $d['layout_style'] ?? 'default';
+  $padCls  = match($d['padding'] ?? 'md') { 'sm' => ' lp-pad-sm', 'lg' => ' lp-pad-lg', default => '' };
+  $sStyle  = ($hasBg ? 'background:' . e($d['bg_color']) . ';' : '')
+           . (!empty($d['text_color']) ? 'color:' . e($d['text_color']) . ';' : '');
+@endphp
+<section class="cta-block lp-layout-{{ $layout }}{{ $padCls }}" style="{{ $sStyle }}">
     <div class="lp-container cta-block-inner">
         <h2 class="cta-block-headline" data-gsap="fade-up">{{ $section['data']['headline'] ?? '' }}</h2>
         @if(!empty($section['data']['subtext']))

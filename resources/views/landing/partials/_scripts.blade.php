@@ -186,9 +186,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') lpCloseLight
    Checkout
 ══════════════════════════════════════════════ */
 @if($page->product)
-const LP_UNIT_PRICE = {{ $page->product->discounted_sale_price ?: $page->product->sale_price }};
-const LP_ORDER_URL  = '{{ route('landing-page.order', $page->slug) }}';
-const LP_SEL_VARS   = {}; /* { attrName: variationId } */
+@php
+    $lpIsVariant = $page->product->product_type === 'variant';
+    $lpInitPrice = $lpIsVariant
+        ? (float) ($page->product->product_variations->first()?->price ?? 0)
+        : ($page->product->discounted_sale_price ?: $page->product->sale_price);
+@endphp
+const LP_PRODUCT_TYPE   = '{{ $lpIsVariant ? 'variant' : 'single' }}';
+let   lpCurrentUnitPrice = {{ $lpInitPrice }};
+const LP_ORDER_URL      = '{{ route('landing-page.order', $page->slug) }}';
+const LP_SEL_VARS       = {}; /* { attrName: variationId } */
 
 const lpFmt = n => '৳' + Number(n).toLocaleString('en-BD', { maximumFractionDigits: 0 });
 
@@ -198,6 +205,12 @@ function lpSelectVariation(pill) {
     document.querySelectorAll(`.co-pill[data-attr="${attr}"]`).forEach(p => p.classList.remove('selected'));
     pill.classList.add('selected');
     LP_SEL_VARS[attr] = parseInt(pill.dataset.id);
+
+    if (LP_PRODUCT_TYPE === 'variant' && pill.dataset.price) {
+        lpCurrentUnitPrice = parseFloat(pill.dataset.price) || 0;
+        document.getElementById('co-display-price').textContent = lpFmt(lpCurrentUnitPrice);
+    }
+
     lpUpdateSummary();
 }
 
@@ -212,11 +225,11 @@ function lpUpdateSummary() {
     const sel = document.getElementById('co-delivery');
     const opt = sel.options[sel.selectedIndex];
     const dc  = opt && opt.value ? parseFloat(opt.dataset.cost) : null;
-    const sub = LP_UNIT_PRICE * qty;
+    const sub = lpCurrentUnitPrice * qty;
 
-    document.getElementById('co-sum-unit').textContent = lpFmt(LP_UNIT_PRICE);
-    document.getElementById('co-sum-sub').textContent  = lpFmt(sub);
-    document.getElementById('co-sum-del').textContent  = dc !== null ? lpFmt(dc) : 'Select area';
+    document.getElementById('co-sum-unit').textContent  = lpFmt(lpCurrentUnitPrice);
+    document.getElementById('co-sum-sub').textContent   = lpFmt(sub);
+    document.getElementById('co-sum-del').textContent   = dc !== null ? lpFmt(dc) : 'Select area';
     document.getElementById('co-sum-total').textContent = dc !== null ? lpFmt(sub + dc) : '—';
 }
 
@@ -303,6 +316,10 @@ function lpResetCheckout() {
     document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' });
 }
 
+// Pre-populate LP_SEL_VARS from auto-selected pills (variant products on page load)
+document.querySelectorAll('.co-pill.selected').forEach(pill => {
+    LP_SEL_VARS[pill.dataset.attr] = parseInt(pill.dataset.id);
+});
 lpUpdateSummary();
 @endif
 

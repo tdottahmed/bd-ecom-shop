@@ -106,6 +106,36 @@ a   { color: inherit; text-decoration: none; }
 .bg-warm   { background: var(--bg-warm); }
 .bg-cool   { background: var(--bg-cool); }
 
+/* ── Section layout styles ── */
+.lp-layout-bordered .lp-container {
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+}
+.lp-layout-card .lp-container {
+    background: var(--card);
+    box-shadow: var(--shadow-md);
+    border-radius: 20px;
+    padding: 48px;
+}
+.lp-layout-accent-left .lp-container {
+    border-left: 4px solid var(--accent);
+    padding-left: 44px;
+}
+.lp-layout-accent-top {
+    border-top: 4px solid var(--accent);
+}
+.lp-layout-shadow .lp-container {
+    background: var(--card);
+    box-shadow: var(--shadow-lg);
+    border-radius: 16px;
+    padding: 40px 48px;
+}
+
+/* ── Section padding size overrides ── */
+.lp-pad-sm { padding-top: 56px !important; padding-bottom: 56px !important; }
+.lp-pad-lg { padding-top: 128px !important; padding-bottom: 128px !important; }
+
 /* ═══════════════════════════════════════════
    5 · BUTTONS
 ═══════════════════════════════════════════ */
@@ -876,6 +906,10 @@ textarea.co-input { resize: none; }
     /* Layout & Base Spacing */
     .lp-section { padding: 56px 0; }
     .lp-container { padding: 0 20px; }
+    .lp-layout-bordered .lp-container { padding: 24px 20px; }
+    .lp-layout-card .lp-container    { padding: 28px 20px; }
+    .lp-layout-shadow .lp-container  { padding: 28px 20px; }
+    .lp-layout-accent-left .lp-container { padding-left: 32px; }
     
     /* Typography */
     .section-title { font-size: clamp(1.75rem, 8vw, 2.1rem); line-height: 1.2; }

@@ -20,12 +20,14 @@ type SectionType =
 type HeroLayout = "split-right" | "split-left" | "centered" | "full-overlay";
 type PaddingSize = "sm" | "md" | "lg";
 type TextAlign = "left" | "center" | "right";
+type LayoutStyle = "default" | "bordered" | "card" | "accent-left" | "accent-top" | "shadow";
 
 interface SectionDesign {
     bg_color: string;
     text_color: string;
     padding: PaddingSize;
     align: TextAlign;
+    layout_style: LayoutStyle;
 }
 
 interface Section {
@@ -64,8 +66,84 @@ interface LandingPage {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const DEFAULT_DESIGN: SectionDesign = {
-    bg_color: "", text_color: "", padding: "md", align: "left",
+    bg_color: "", text_color: "", padding: "md", align: "left", layout_style: "default",
 };
+
+const LAYOUT_STYLES: { value: LayoutStyle; label: string; preview: React.ReactNode }[] = [
+    {
+        value: "default",
+        label: "Default",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#1E2826"/>
+                <rect x="8" y="11" width="22" height="3" rx="1" fill="#374151"/>
+                <rect x="8" y="17" width="16" height="2" rx="1" fill="#374151" opacity="0.5"/>
+            </svg>
+        ),
+    },
+    {
+        value: "bordered",
+        label: "Bordered",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#0C1311"/>
+                <rect x="4" y="4" width="40" height="24" rx="3" fill="none" stroke="#2DE3A7" strokeWidth="1.5"/>
+                <rect x="12" y="12" width="18" height="2.5" rx="1" fill="#374151"/>
+                <rect x="12" y="17" width="12" height="2" rx="1" fill="#374151" opacity="0.5"/>
+            </svg>
+        ),
+    },
+    {
+        value: "card",
+        label: "Card",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#0C1311"/>
+                <rect x="6" y="7" width="40" height="22" rx="3" fill="#000" opacity="0.25"/>
+                <rect x="4" y="5" width="40" height="22" rx="3" fill="#1a2320"/>
+                <rect x="10" y="12" width="16" height="2.5" rx="1" fill="#2DE3A7" opacity="0.5"/>
+                <rect x="10" y="17" width="12" height="2" rx="1" fill="#374151"/>
+            </svg>
+        ),
+    },
+    {
+        value: "accent-left",
+        label: "Accent Left",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#1E2826"/>
+                <rect x="4" y="5" width="3" height="22" rx="1.5" fill="#2DE3A7"/>
+                <rect x="11" y="11" width="22" height="2.5" rx="1" fill="#374151"/>
+                <rect x="11" y="16" width="16" height="2" rx="1" fill="#374151" opacity="0.5"/>
+            </svg>
+        ),
+    },
+    {
+        value: "accent-top",
+        label: "Accent Top",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#1E2826"/>
+                <rect x="4" y="4" width="40" height="3" rx="1.5" fill="#2DE3A7"/>
+                <rect x="12" y="13" width="18" height="2.5" rx="1" fill="#374151"/>
+                <rect x="12" y="18" width="14" height="2" rx="1" fill="#374151" opacity="0.5"/>
+            </svg>
+        ),
+    },
+    {
+        value: "shadow",
+        label: "Shadow",
+        preview: (
+            <svg viewBox="0 0 48 32" className="w-full h-full">
+                <rect x="1" y="1" width="46" height="30" rx="2" fill="#0C1311"/>
+                <rect x="5" y="8" width="40" height="22" rx="3" fill="#000" opacity="0.35"/>
+                <rect x="4" y="5" width="40" height="22" rx="3" fill="#1a2320"/>
+                <rect x="10" y="12" width="18" height="2.5" rx="1" fill="#374151"/>
+                <rect x="10" y="17" width="12" height="2" rx="1" fill="#374151" opacity="0.5"/>
+            </svg>
+        ),
+    },
+];
 
 const SECTION_DEFAULTS: Record<SectionType, Record<string, any>> = {
     description: { title: "About This Product", content: "" },
@@ -301,10 +379,30 @@ function SectionDesignPanel({ design, onChange }: {
     onChange: (d: SectionDesign) => void;
 }) {
     return (
-        <div className="px-4 pt-3 pb-4 bg-[#060f0e] border-t border-[#1E2826] space-y-3">
+        <div className="px-4 pt-3 pb-4 bg-[#060f0e] border-t border-[#1E2826] space-y-4">
             <p className="text-[#2DE3A7]/50 text-[9px] uppercase tracking-[0.2em] font-bold flex items-center gap-1.5">
                 <Palette size={10} /> Section Styling
             </p>
+
+            {/* Layout style picker */}
+            <Field label="Layout Style">
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                    {LAYOUT_STYLES.map(ls => (
+                        <button key={ls.value} type="button"
+                            onClick={() => onChange({ ...design, layout_style: ls.value })}
+                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${design.layout_style === ls.value ? "border-[#2DE3A7] bg-[#2DE3A7]/5" : "border-[#1E2826] hover:border-[#2DE3A7]/30 hover:bg-[#1E2826]"}`}>
+                            <div className="w-full h-9 rounded-lg overflow-hidden">
+                                {ls.preview}
+                            </div>
+                            <span className={`text-[9px] font-semibold leading-tight ${design.layout_style === ls.value ? "text-[#2DE3A7]" : "text-gray-500"}`}>
+                                {ls.label}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            </Field>
+
+            {/* Colors */}
             <div className="grid grid-cols-2 gap-3">
                 <Field label="Background">
                     <ColorInput value={design.bg_color} onChange={v => onChange({ ...design, bg_color: v })} placeholder="transparent" />
@@ -313,6 +411,8 @@ function SectionDesignPanel({ design, onChange }: {
                     <ColorInput value={design.text_color} onChange={v => onChange({ ...design, text_color: v })} placeholder="inherit" />
                 </Field>
             </div>
+
+            {/* Padding & Alignment */}
             <div className="flex items-end gap-4">
                 <div className="flex-1">
                     <Field label="Padding">
@@ -776,7 +876,7 @@ function SectionCard({
         comparison:   <ComparisonEditor   data={section.data} onChange={d => onUpdateData(section.id, d)} />,
     };
 
-    const hasCustomDesign = section.design.bg_color || section.design.text_color || section.design.padding !== "md" || section.design.align !== "left";
+    const hasCustomDesign = section.design.bg_color || section.design.text_color || section.design.padding !== "md" || section.design.align !== "left" || section.design.layout_style !== "default";
 
     return (
         <div className="bg-[#0b1818] border border-[#1E2826] rounded-2xl overflow-hidden">
