@@ -132,6 +132,25 @@
 .cat-add-btn.added { background: #10b981; color: #fff; }
 .cat-add-btn.added:hover { filter: brightness(1.05); }
 
+/* Variation required error */
+@keyframes catShake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+}
+.cat-attr-group.var-error .cat-attr-label { color: #ef4444; }
+.cat-attr-group.var-error .cat-pills { animation: catShake 0.45s ease; }
+.cat-attr-group.var-error .cat-pill:not(.selected):not(.oos) {
+    border-color: #fca5a5; background: #fff5f5; color: #ef4444;
+}
+.cat-var-hint {
+    font-size: 11px; font-weight: 600; color: #ef4444;
+    display: none; margin-top: -2px;
+}
+.cat-var-hint.show { display: block; }
+
 /* ── Sticky Cart Bar ──────────────────────────────── */
 #cat-cart-bar {
     position: fixed; bottom: -90px; left: 0; right: 0; z-index: 200;
@@ -255,6 +274,7 @@
                             </div>
                         </div>
                         @endforeach
+                        <p class="cat-var-hint" id="cat-var-hint-{{ $product->id }}">Please select your options above to add to order.</p>
                     @endif
 
                     {{-- Quantity --}}

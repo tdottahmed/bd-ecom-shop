@@ -361,6 +361,9 @@ function catSelectVariation(pill) {
         priceEl.textContent = catFmt(pill.dataset.price);
     }
 
+    /* Clear variation error once all required attrs are satisfied */
+    if (catCheckVariationsSelected(pid)) catClearVariationError(pid);
+
     /* Sync cart if already added */
     if (catCart.has(pid)) catSyncItem(pid);
 }
@@ -408,6 +411,50 @@ function catSyncItem(pid) {
     catRender();
 }
 
+function catGetRequiredAttrs(pid) {
+    const pills = document.querySelectorAll(`.cat-pill[data-product-id="${pid}"]`);
+    const attrs = new Set();
+    pills.forEach(p => attrs.add(p.dataset.attr));
+    return [...attrs];
+}
+
+function catCheckVariationsSelected(pid) {
+    const required = catGetRequiredAttrs(pid);
+    if (required.length === 0) return true;
+    const selected = catSelVars[pid] || {};
+    return required.every(attr => selected[attr] !== undefined);
+}
+
+function catShowVariationError(pid) {
+    const required = catGetRequiredAttrs(pid);
+    const selected = catSelVars[pid] || {};
+    required.forEach(attr => {
+        if (selected[attr]) return;
+        const pill  = document.querySelector(`.cat-pill[data-product-id="${pid}"][data-attr="${attr}"]`);
+        const group = pill?.closest('.cat-attr-group');
+        if (!group) return;
+        /* Restart animation by removing, forcing reflow, then re-adding */
+        group.classList.remove('var-error');
+        void group.offsetWidth;
+        group.classList.add('var-error');
+        setTimeout(() => group.classList.remove('var-error'), 2000);
+    });
+    const hint = document.getElementById(`cat-var-hint-${pid}`);
+    if (hint) {
+        hint.classList.add('show');
+        setTimeout(() => hint.classList.remove('show'), 3000);
+    }
+    document.getElementById(`cat-card-${pid}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function catClearVariationError(pid) {
+    document.querySelectorAll(`.cat-pill[data-product-id="${pid}"]`).forEach(p => {
+        p.closest('.cat-attr-group')?.classList.remove('var-error');
+    });
+    const hint = document.getElementById(`cat-var-hint-${pid}`);
+    if (hint) hint.classList.remove('show');
+}
+
 function catToggleItem(pid) {
     const btn  = document.getElementById(`cat-add-${pid}`);
     const card = document.getElementById(`cat-card-${pid}`);
@@ -417,6 +464,10 @@ function catToggleItem(pid) {
         btn.classList.remove('added');
         card.classList.remove('in-order');
     } else {
+        if (!catCheckVariationsSelected(pid)) {
+            catShowVariationError(pid);
+            return;
+        }
         catSyncItem(pid);
         btn.querySelector('span').textContent = '✓ In Order';
         btn.classList.add('added');
