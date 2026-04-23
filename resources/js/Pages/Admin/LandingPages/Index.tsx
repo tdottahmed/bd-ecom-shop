@@ -1,6 +1,7 @@
 import Master from "@/Layouts/Master";
 import Header from "@/Components/Layouts/Header";
 import { Link, router } from "@inertiajs/react";
+import { useState } from "react";
 import { Plus, ExternalLink, Pencil, Trash2, Globe, GlobeLock, Tag, Package } from "lucide-react";
 
 interface LandingPage {
@@ -14,12 +15,22 @@ interface LandingPage {
 }
 
 export default function Index({ pages }: { pages: LandingPage[] }) {
-    const togglePublish = (id: number) =>
-        router.post(route("admin.landing-pages.toggle-publish", id), {}, { preserveScroll: true });
+    const [togglingId, setTogglingId] = useState<number | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
+    const togglePublish = (id: number) => {
+        setTogglingId(id);
+        router.post(route("admin.landing-pages.toggle-publish", id), {}, {
+            preserveScroll: true,
+            onFinish: () => setTogglingId(null),
+        });
+    };
 
     const destroy = (id: number) => {
-        if (confirm("Delete this landing page?"))
-            router.delete(route("admin.landing-pages.destroy", id), { preserveScroll: true });
+        router.delete(route("admin.landing-pages.destroy", id), {
+            preserveScroll: true,
+            onFinish: () => setConfirmDeleteId(null),
+        });
     };
 
     return (
@@ -47,7 +58,7 @@ export default function Index({ pages }: { pages: LandingPage[] }) {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-[#1E2826]">
-                                    {["Page", "Product", "URL", "Status", "Created", ""].map((h) => (
+                                    {["Page", "Linked To", "URL", "Status", "Created", ""].map((h) => (
                                         <th key={h} className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide px-5 py-3">
                                             {h}
                                         </th>
@@ -86,15 +97,18 @@ export default function Index({ pages }: { pages: LandingPage[] }) {
                                         <td className="px-5 py-4">
                                             <button
                                                 onClick={() => togglePublish(page.id)}
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                                                disabled={togglingId === page.id}
+                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                                     page.is_published
                                                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
                                                         : "bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500/20"
                                                 }`}
                                             >
-                                                {page.is_published
-                                                    ? <><Globe size={11} /> Published</>
-                                                    : <><GlobeLock size={11} /> Draft</>
+                                                {togglingId === page.id
+                                                    ? <><div className="w-2.5 h-2.5 border border-current border-t-transparent rounded-full animate-spin" /> Saving…</>
+                                                    : page.is_published
+                                                        ? <><Globe size={11} /> Published</>
+                                                        : <><GlobeLock size={11} /> Draft</>
                                                 }
                                             </button>
                                         </td>
@@ -103,18 +117,37 @@ export default function Index({ pages }: { pages: LandingPage[] }) {
                                         </td>
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-2 justify-end">
-                                                <Link
-                                                    href={route("admin.landing-pages.edit", page.id)}
-                                                    className="p-1.5 text-gray-400 hover:text-white hover:bg-[#1E2826] rounded-lg transition-colors"
-                                                >
-                                                    <Pencil size={15} />
-                                                </Link>
-                                                <button
-                                                    onClick={() => destroy(page.id)}
-                                                    className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                >
-                                                    <Trash2 size={15} />
-                                                </button>
+                                                {confirmDeleteId === page.id ? (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button
+                                                            onClick={() => destroy(page.id)}
+                                                            className="px-2 py-1 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors font-medium"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setConfirmDeleteId(null)}
+                                                            className="px-2 py-1 text-xs text-gray-500 hover:text-white hover:bg-[#1E2826] rounded-lg transition-colors"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <Link
+                                                            href={route("admin.landing-pages.edit", page.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-white hover:bg-[#1E2826] rounded-lg transition-colors"
+                                                        >
+                                                            <Pencil size={15} />
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => setConfirmDeleteId(page.id)}
+                                                            className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                        >
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
