@@ -78,18 +78,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between p-6 border-b border-brand-primary/10 bg-brand-bg/40">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gray-100 rounded-lg">
-                                <SlidersHorizontal className="w-5 h-5 text-gray-900" />
+                            <div className="p-2 bg-brand-bg rounded-lg border border-brand-primary/15">
+                                <SlidersHorizontal className="w-5 h-5 text-brand-primary" />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">
+                            <h2 className="text-xl font-bold text-brand-dark">
                                 Filters
                             </h2>
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                            className="p-2 text-gray-400 hover:text-brand-primary hover:bg-brand-bg rounded-full transition-all duration-200"
                         >
                             <X size={20} />
                         </button>
@@ -100,7 +100,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         {/* Categories */}
                         {categories.length > 0 && (
                             <div>
-                                <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                                <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wider">
                                     Categories
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 }
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                                     selected
-                                                        ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             >
@@ -138,7 +138,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         {/* Brands */}
                         {brands.length > 0 && (
                             <div className="border-t border-gray-100 pt-8">
-                                <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                                <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wider">
                                     Brands
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
@@ -158,7 +158,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 }
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                                     selected
-                                                        ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                        ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             >
@@ -172,7 +172,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
                         {/* Sort Options */}
                         <div className="border-t border-gray-100 pt-8">
-                            <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                            <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wider">
                                 Sort By
                             </h3>
                             <div className="flex flex-wrap gap-2">
@@ -193,7 +193,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                         onClick={() => setSort(option.value)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
                                             sort === option.value
-                                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                                ? "bg-brand-primary text-white border-brand-primary shadow-md"
                                                 : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                                         }`}
                                     >
@@ -205,7 +205,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
                         {/* Price Range */}
                         <div className="border-t border-gray-100 pt-8">
-                            <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                            <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wider">
                                 Price Range
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
@@ -224,7 +224,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 setMinPrice(e.target.value)
                                             }
                                             placeholder="0"
-                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent transition-all duration-200"
                                         />
                                     </div>
                                 </div>
@@ -243,7 +243,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                                                 setMaxPrice(e.target.value)
                                             }
                                             placeholder="10000"
-                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
+                                            className="w-full pl-8 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-transparent transition-all duration-200"
                                         />
                                     </div>
                                 </div>
@@ -252,17 +252,17 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
                         {/* Stock Status */}
                         <div className="border-t border-gray-100 pt-8">
-                            <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                            <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wider">
                                 Availability
                             </h3>
-                            <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200 group">
-                                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                            <label className="flex items-center justify-between p-4 bg-brand-bg/50 rounded-xl cursor-pointer hover:bg-brand-bg transition-colors border border-brand-primary/15 group">
+                                <span className="text-sm font-medium text-brand-dark/80 group-hover:text-brand-dark">
                                     In Stock Only
                                 </span>
                                 <div
                                     className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all duration-200 ${
                                         inStock
-                                            ? "bg-gray-900 border-gray-900"
+                                            ? "bg-brand-primary border-brand-primary"
                                             : "bg-white border-gray-300"
                                     }`}
                                 >
@@ -289,13 +289,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     <div className="border-t border-gray-100 p-6 space-y-3 bg-white">
                         <button
                             onClick={applyFilters}
-                            className="w-full bg-gray-900 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-all duration-200 shadow-lg shadow-gray-200 active:scale-[0.98]"
+                            className="w-full bg-brand-primary text-white px-6 py-3.5 rounded-xl font-bold hover:bg-brand-primary/90 transition-all duration-200 shadow-lg shadow-brand-bg active:scale-[0.98]"
                         >
                             Apply Filters
                         </button>
                         <button
                             onClick={clearFilters}
-                            className="w-full bg-white border border-gray-200 text-gray-700 px-6 py-3.5 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 active:scale-[0.98]"
+                            className="w-full bg-white border border-brand-primary/20 text-brand-dark px-6 py-3.5 rounded-xl font-bold hover:bg-brand-bg hover:border-brand-primary/30 transition-all duration-200 active:scale-[0.98]"
                         >
                             Clear All
                         </button>

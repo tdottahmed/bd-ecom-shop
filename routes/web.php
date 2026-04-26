@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\NewProductRequestController;
+use App\Http\Controllers\ProductRequestController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAccountController;
 use App\Http\Controllers\CustomerController;
@@ -14,13 +16,16 @@ use App\Http\Controllers\Payment\SSLCommerzController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RssController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Webhook\CarryBeeWebhookController;
 use App\Http\Controllers\Webhook\PathaoWebhookController;
+use App\Http\Controllers\Webhook\SteadfastWebhookController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('lp/{slug}', [LandingPageController::class, 'show'])->name('landing-page.show');
 Route::post('lp/{slug}/order', [LandingPageController::class, 'order'])->name('landing-page.order');
+Route::post('lp/{slug}/category-order', [LandingPageController::class, 'categoryOrder'])->name('landing-page.category-order');
 
 Route::get('/', [CustomerController::class, 'index'])->name('home');
 Route::get('products/{category}', [CustomerController::class, 'category'])->name('products.category');
@@ -48,7 +53,9 @@ Route::get('rss.xml', [RssController::class, 'index'])->name('rss');
 Route::post('newsletter/subscribe', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1')->name('newsletter.subscribe');
 
 // Courier webhooks (public — excluded from CSRF by bootstrap/app.php or VerifyCsrfToken)
-Route::post('webhooks/pathao', [PathaoWebhookController::class, 'handle'])->name('webhooks.pathao');
+Route::post('webhooks/pathao',    [PathaoWebhookController::class,    'handle'])->name('webhooks.pathao');
+Route::post('webhooks/steadfast', [SteadfastWebhookController::class, 'handle'])->name('webhooks.steadfast');
+Route::post('webhooks/carrybee',  [CarryBeeWebhookController::class,  'handle'])->name('webhooks.carrybee');
 
 // Payment gateway callbacks (excluded from CSRF — see bootstrap/app.php)
 Route::prefix('payment')->name('payment.')->group(function () {
@@ -79,6 +86,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::post('api/product-requests', [ProductRequestController::class, 'store'])->middleware('throttle:10,1')->name('product-requests.store');
+
+Route::middleware('auth')->group(function () {
+    Route::get('request-new-product', [NewProductRequestController::class, 'create'])->name('new-product-requests.create');
+    Route::post('request-new-product', [NewProductRequestController::class, 'store'])->name('new-product-requests.store');
+});
+
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -99,6 +113,7 @@ Route::middleware(['auth', 'customer.auth.enabled'])->prefix('account')->name('a
     Route::put('/profile', [CustomerAccountController::class, 'updateProfile'])->name('profile.update');
     Route::put('/password', [CustomerAccountController::class, 'updatePassword'])->name('password.update');
     Route::post('/cart/sync', [CustomerAccountController::class, 'syncCart'])->name('cart.sync');
+    Route::get('/product-requests', [CustomerAccountController::class, 'productRequests'])->name('product-requests');
 });
 
 Route::get('storage/link', function () {

@@ -10,6 +10,7 @@ import {
     Truck,
     PackageCheck,
     ChevronDown,
+    Zap,
 } from "lucide-react";
 import Image from "@/Components/Ui/Image";
 import { getAssetUrl } from "@/Utils/helpers";
@@ -17,9 +18,11 @@ import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "@/Components/Ui/QuantitySelector";
 import ProductVariationSelector from "@/Components/Customer/ProductVariationSelector";
+import ProductRequestModal from "@/Components/Customer/ProductRequestModal";
 import ProductSlider from "@/Components/Customer/ProductSlider";
 import NewsletterSection from "@/Components/Customer/CtaSection";
 import ScrollReveal from "@/Components/Ui/ScrollReveal";
+import { Bell } from "lucide-react";
 
 interface ProductShowProps {
     product: Product;
@@ -27,13 +30,40 @@ interface ProductShowProps {
     random_products?: Product[];
 }
 
+const ProductDescriptionSection = ({
+    html,
+    className = "",
+}: {
+    html?: string | null;
+    className?: string;
+}) => {
+    const content = (html ?? "").trim();
+    if (!content) return null;
+
+    return (
+        <div
+            className={`bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgba(15,23,42,0.04)] p-5 sm:p-6 ${className}`}
+        >
+            <div className="flex items-center justify-between gap-4">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                    Description
+                </h2>
+                <span className="text-[11px] font-bold text-brand-primary bg-brand-bg px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Details
+                </span>
+            </div>
+            <ExpandableDescription htmlContent={content} />
+        </div>
+    );
+};
+
 const ExpandableDescription = ({ htmlContent }: { htmlContent: string }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div className="relative mt-2">
             <div
-                className={`prose prose-slate prose-sm max-w-none text-slate-600 leading-relaxed font-medium transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? "max-h-full" : "max-h-[200px]"}`}
+                className={`prose prose-slate prose-sm sm:prose-base max-w-none text-slate-700 leading-relaxed font-medium transition-all duration-700 ease-in-out overflow-hidden ${isExpanded ? "max-h-full" : "max-h-[220px] sm:max-h-[260px]"}`}
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
             />
             {!isExpanded && (
@@ -44,7 +74,7 @@ const ExpandableDescription = ({ htmlContent }: { htmlContent: string }) => {
             >
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="inline-flex items-center px-6 py-2.5 rounded-full bg-slate-50 hover:bg-slate-100 font-bold text-indigo-600 transition-colors group border border-slate-100 shadow-sm"
+                    className="inline-flex items-center px-6 py-2.5 rounded-full bg-slate-50 hover:bg-slate-100 font-bold text-brand-primary transition-colors group border border-slate-100 shadow-sm"
                 >
                     {isExpanded ? "Read Less" : "Read More"}
                     <ChevronDown
@@ -68,14 +98,34 @@ export default function ProductShow({
     const hasVariations =
         product.product_variations && product.product_variations.length > 0;
 
+    // For variant products, availability should be based on variation-level stock.
+    const hasInStockVariation =
+        hasVariations &&
+        (product.product_variations ?? []).some((variation) => {
+            const stock = variation.stock ?? product.stock;
+            return Number(stock) > 0;
+        });
+
     const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
     const [selectedImage, setSelectedImage] = useState(
         product.images?.[0] || null,
     );
-    const [selectedVariationPrice, setSelectedVariationPrice] = useState<
-        number | null
-    >(null);
+    const [selectedVariationPrice, setSelectedVariationPrice] = useState<number | null>(null);
+    const [selectedVariationDiscountedPrice, setSelectedVariationDiscountedPrice] = useState<number | null>(null);
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [requestVariationLabel, setRequestVariationLabel] = useState<string | undefined>(undefined);
     const debouncedQuantity = useDebounce(quantity, 300);
+
+    const isOutOfStock = !product.is_preorder
+        ? hasVariations
+            ? !hasInStockVariation
+            : Number(product.stock) <= 0
+        : false;
+
+    const handleRequestVariation = (label: string) => {
+        setRequestVariationLabel(label);
+        setShowRequestModal(true);
+    };
 
     // Sync local quantity with store quantity (handling external updates)
     useEffect(() => {
@@ -111,8 +161,21 @@ export default function ProductShow({
         }
     };
 
+    const handleBuyNow = () => {
+        if (!isInCart) {
+            addToCart(product, quantity);
+        }
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
+    };
+
     const handleVariationAddToCart = (variations: any[], quantity: number) => {
         addToCart(product, quantity, variations);
+    };
+
+    const handleVariationBuyNow = () => {
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
     };
 
     const displayProducts =
@@ -136,7 +199,7 @@ export default function ProductShow({
                                 <nav className="flex items-center text-sm text-slate-500">
                                     <Link
                                         href="/"
-                                        className="hover:text-indigo-600 transition-colors"
+                                        className="hover:text-brand-primary transition-colors"
                                     >
                                         Home
                                     </Link>
@@ -146,7 +209,7 @@ export default function ProductShow({
                                     />
                                     <Link
                                         href={route("products.index")}
-                                        className="hover:text-indigo-600 transition-colors"
+                                        className="hover:text-brand-primary transition-colors"
                                     >
                                         Products
                                     </Link>
@@ -161,7 +224,7 @@ export default function ProductShow({
                                                     "products.category",
                                                     product.category.slug,
                                                 )}
-                                                className="hover:text-indigo-600 transition-colors"
+                                                className="hover:text-brand-primary transition-colors"
                                             >
                                                 {product.category.title}
                                             </Link>
@@ -178,81 +241,68 @@ export default function ProductShow({
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-10 lg:p-12 items-start">
-                                {/* Left Column: Image Gallery & Description */}
-                                <div className="flex flex-col space-y-10 w-full max-w-3xl mx-auto lg:mx-0">
-                                    {/* Image Gallery Element */}
-                                    <div className="space-y-6">
-                                        <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
-                                            <Image
-                                                src={getAssetUrl(
-                                                    selectedImage ||
-                                                        product.images[0],
-                                                )}
-                                                alt={product.name}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                            />
-                                            {product.stock <= 0 &&
-                                                !product.is_preorder && (
-                                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-                                                        <span className="bg-rose-100 text-rose-800 px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-rose-200">
-                                                            Out of Stock
-                                                        </span>
-                                                    </div>
-                                                )}
-                                        </div>
-                                        {product.images &&
-                                            product.images.length > 1 && (
-                                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1">
-                                                    {product.images.map(
-                                                        (image, index) => (
-                                                            <button
-                                                                key={index}
-                                                                onClick={() =>
-                                                                    setSelectedImage(
-                                                                        image,
-                                                                    )
-                                                                }
-                                                                className={`relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 snap-start shadow-sm ${
-                                                                    (selectedImage ||
-                                                                        product
-                                                                            .images[0]) ===
-                                                                    image
-                                                                        ? "border-indigo-600 ring-4 ring-indigo-600/20 translate-y-[-2px]"
-                                                                        : "border-slate-200 hover:border-indigo-400 opacity-70 hover:opacity-100"
-                                                                }`}
-                                                            >
-                                                                <img
-                                                                    src={getAssetUrl(
-                                                                        image,
-                                                                    )}
-                                                                    alt={`${product.name} thumbnail ${index + 1}`}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            </button>
-                                                        ),
-                                                    )}
-                                                </div>
+                                {/* ── Col 1 / Row 1: Image Gallery ── */}
+                                <div className="space-y-6 w-full max-w-5xl mx-auto lg:mx-0">
+                                    <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden relative group border border-slate-100 shadow-inner">
+                                        <Image
+                                            src={getAssetUrl(
+                                                selectedImage ||
+                                                    product.images[0],
                                             )}
-                                    </div>
-
-                                    {/* Product Description Block (Moved to Left Column) */}
-                                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-[0_4px_20px_rgba(15,23,42,0.03)] flex-grow">
-                                        <h3 className="text-xl font-extrabold text-slate-900 mb-5 pb-4 border-b border-slate-100 flex items-center">
-                                            <span className="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
-                                            Details & Features
-                                        </h3>
-                                        <ExpandableDescription
-                                            htmlContent={(
-                                                product.description || ""
-                                            )
-                                                .replace(/\\n/g, "<br/>")
-                                                .replace(/\n/g, "<br/>")}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
+                                        {isOutOfStock && (
+                                            <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+                                                <span className="bg-rose-100 text-rose-800 px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-rose-200">
+                                                    Out of Stock
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
+                                    {product.images &&
+                                        product.images.length > 1 && (
+                                            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x px-1">
+                                                {product.images.map(
+                                                    (image, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() =>
+                                                                setSelectedImage(
+                                                                    image,
+                                                                )
+                                                            }
+                                                            className={`relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300 snap-start shadow-sm ${
+                                                                (selectedImage ||
+                                                                    product
+                                                                        .images[0]) ===
+                                                                image
+                                                                    ? "border-brand-primary ring-4 ring-brand-primary/20 translate-y-[-2px]"
+                                                                    : "border-slate-200 hover:border-brand-tint opacity-70 hover:opacity-100"
+                                                            }`}
+                                                        >
+                                                            <img
+                                                                src={getAssetUrl(
+                                                                    image,
+                                                                )}
+                                                                alt={`${product.name} thumbnail ${index + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </button>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+
+                                    {/* Desktop: description right after image */}
+                                    <ProductDescriptionSection
+                                        html={product.description}
+                                        className="hidden lg:block"
+                                    />
                                 </div>
 
-                                {/* Right Column: Title, Price, Attributes */}
-                                <div className="flex flex-col h-full lg:sticky lg:top-8">
+                                {/* ── Col 2 / spans both rows on desktop: Title, Price, Attributes ── */}
+                                <div className="flex flex-col h-full lg:sticky lg:top-8 lg:row-span-2">
                                     <div className="mb-8">
                                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight leading-tight">
                                             {product.name}
@@ -260,103 +310,103 @@ export default function ProductShow({
 
                                         <div className="flex flex-wrap items-baseline gap-4 mt-6">
                                             {useMemo(() => {
-                                                if (
-                                                    selectedVariationPrice !==
-                                                        null &&
-                                                    selectedVariationPrice > 0
-                                                ) {
+                                                // ── Variation selected ──────────────────────────
+                                                if (selectedVariationPrice !== null && selectedVariationPrice > 0) {
+                                                    const hasVarDiscount =
+                                                        selectedVariationDiscountedPrice !== null &&
+                                                        selectedVariationDiscountedPrice < selectedVariationPrice;
+                                                    if (hasVarDiscount) {
+                                                        return (
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                <span className="text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                    ৳{selectedVariationDiscountedPrice}
+                                                                </span>
+                                                                <span className="text-2xl text-slate-400 line-through decoration-slate-300 font-medium">
+                                                                    ৳{selectedVariationPrice}
+                                                                </span>
+                                                                <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                                    Sale
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
                                                     return (
-                                                        <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
-                                                            ৳
-                                                            {
-                                                                selectedVariationPrice
-                                                            }
+                                                        <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                            ৳{selectedVariationPrice}
                                                         </span>
                                                     );
                                                 }
 
-                                                // Check if base price is effectively 0 and we have variations with prices
+                                                // ── Variant product (no selection yet) ─────────
                                                 if (
-                                                    (!product.sale_price ||
-                                                        Number(
-                                                            product.sale_price,
-                                                        ) === 0) &&
+                                                    (!product.sale_price || Number(product.sale_price) === 0) &&
                                                     hasVariations &&
                                                     product.product_variations
                                                 ) {
-                                                    const validPrices =
-                                                        product.product_variations
-                                                            .map((v) =>
-                                                                v.price != null
-                                                                    ? parseFloat(
-                                                                          String(
-                                                                              v.price,
-                                                                          ),
-                                                                      )
-                                                                    : 0,
-                                                            )
-                                                            .filter(
-                                                                (p) => p > 0,
-                                                            );
+                                                    const effectivePrices = product.product_variations
+                                                        .map((v) =>
+                                                            v.discounted_price != null
+                                                                ? Number(v.discounted_price)
+                                                                : v.price != null
+                                                                  ? parseFloat(String(v.price))
+                                                                  : 0,
+                                                        )
+                                                        .filter((p) => p > 0);
+                                                    const originalPrices = product.product_variations
+                                                        .map((v) => (v.price != null ? parseFloat(String(v.price)) : 0))
+                                                        .filter((p) => p > 0);
+                                                    const hasAnyVarDiscount = product.product_variations.some(
+                                                        (v) => v.discounted_price != null && v.discount_type,
+                                                    );
 
-                                                    if (
-                                                        validPrices.length > 0
-                                                    ) {
-                                                        const minPrice =
-                                                            Math.min(
-                                                                ...validPrices,
-                                                            );
-                                                        const maxPrice =
-                                                            Math.max(
-                                                                ...validPrices,
-                                                            );
+                                                    if (effectivePrices.length > 0) {
+                                                        const minE = Math.min(...effectivePrices);
+                                                        const maxE = Math.max(...effectivePrices);
+                                                        const effectiveStr =
+                                                            minE === maxE ? `৳${minE}` : `৳${minE} – ৳${maxE}`;
 
-                                                        if (
-                                                            minPrice ===
-                                                            maxPrice
-                                                        ) {
+                                                        if (hasAnyVarDiscount && originalPrices.length > 0) {
+                                                            const minO = Math.min(...originalPrices);
+                                                            const maxO = Math.max(...originalPrices);
+                                                            const originalStr =
+                                                                minO === maxO ? `৳${minO}` : `৳${minO} – ৳${maxO}`;
                                                             return (
-                                                                <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
-                                                                    ৳{minPrice}
-                                                                </span>
+                                                                <div className="flex flex-wrap items-center gap-3">
+                                                                    <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                        {effectiveStr}
+                                                                    </span>
+                                                                    <span className="text-xl text-slate-400 line-through decoration-slate-300 font-medium">
+                                                                        {originalStr}
+                                                                    </span>
+                                                                    <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                                        Sale
+                                                                    </span>
+                                                                </div>
                                                             );
                                                         }
 
                                                         return (
-                                                            <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
-                                                                ৳{minPrice} - ৳
-                                                                {maxPrice}
+                                                            <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                {effectiveStr}
                                                             </span>
                                                         );
                                                     }
                                                 }
 
-                                                // Standard logic
+                                                // ── Single product ──────────────────────────────
                                                 if (
-                                                    product.discounted_sale_price !=
-                                                        null &&
-                                                    Number(
-                                                        product.discounted_sale_price,
-                                                    ) <
-                                                        Number(
-                                                            product.sale_price,
-                                                        )
+                                                    product.discounted_sale_price != null &&
+                                                    Number(product.discounted_sale_price) < Number(product.sale_price)
                                                 ) {
                                                     return (
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-4xl font-extrabold text-emerald-600 drop-shadow-sm">
-                                                                ৳
-                                                                {
-                                                                    product.discounted_sale_price
-                                                                }
+                                                        <div className="flex flex-wrap items-center gap-3">
+                                                            <span className="text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                ৳{product.discounted_sale_price}
                                                             </span>
                                                             <span className="text-2xl text-slate-400 line-through decoration-slate-300 font-medium">
-                                                                ৳
-                                                                {
-                                                                    product.sale_price
-                                                                }
+                                                                ৳{product.sale_price}
                                                             </span>
-                                                            <span className="text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                            <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                                                                 Sale
                                                             </span>
                                                         </div>
@@ -364,17 +414,11 @@ export default function ProductShow({
                                                 }
 
                                                 return (
-                                                    <span className="text-3xl md:text-4xl font-extrabold text-indigo-600 drop-shadow-sm">
-                                                        ৳
-                                                        {product.sale_price ||
-                                                            0}
+                                                    <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                        ৳{product.sale_price || 0}
                                                     </span>
                                                 );
-                                            }, [
-                                                product,
-                                                selectedVariationPrice,
-                                                hasVariations,
-                                            ])}
+                                            }, [product, selectedVariationPrice, selectedVariationDiscountedPrice, hasVariations])}
                                         </div>
                                     </div>
 
@@ -386,7 +430,7 @@ export default function ProductShow({
                                                     <h3 className="text-lg font-bold text-slate-900">
                                                         Select Options
                                                     </h3>
-                                                    <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
+                                                    <span className="text-xs font-semibold text-brand-primary bg-brand-bg px-2 py-1 rounded-md">
                                                         Required
                                                     </span>
                                                 </div>
@@ -395,110 +439,113 @@ export default function ProductShow({
                                                     onAddToCart={
                                                         handleVariationAddToCart
                                                     }
+                                                    onBuyNow={handleVariationBuyNow}
+                                                    onRequestVariation={handleRequestVariation}
                                                     onVariationSelect={(
-                                                        variation,
+                                                        _variation,
                                                         allSelected,
                                                     ) => {
                                                         const imageVariation =
-                                                            Object.values(
-                                                                allSelected,
-                                                            ).find(
-                                                                (v) => v.image,
-                                                            );
+                                                            Object.values(allSelected).find((v) => v.image);
                                                         setSelectedImage(
                                                             imageVariation?.image ||
-                                                                product
-                                                                    .images?.[0] ||
+                                                                product.images?.[0] ||
                                                                 null,
                                                         );
 
-                                                        // Find if they selected a price-overriding variation
                                                         const priceVariation =
-                                                            Object.values(
-                                                                allSelected,
-                                                            ).find(
+                                                            Object.values(allSelected).find(
                                                                 (v) =>
-                                                                    v.price !==
-                                                                        null &&
-                                                                    v.price !==
-                                                                        undefined &&
-                                                                    parseFloat(
-                                                                        String(
-                                                                            v.price,
-                                                                        ),
-                                                                    ) > 0,
+                                                                    v.price !== null &&
+                                                                    v.price !== undefined &&
+                                                                    parseFloat(String(v.price)) > 0,
                                                             );
 
-                                                        if (
-                                                            priceVariation &&
-                                                            priceVariation.price
-                                                        ) {
+                                                        if (priceVariation && priceVariation.price) {
                                                             setSelectedVariationPrice(
-                                                                parseFloat(
-                                                                    String(
-                                                                        priceVariation.price,
-                                                                    ),
-                                                                ),
+                                                                parseFloat(String(priceVariation.price)),
+                                                            );
+                                                            setSelectedVariationDiscountedPrice(
+                                                                priceVariation.discounted_price != null
+                                                                    ? Number(priceVariation.discounted_price)
+                                                                    : null,
                                                             );
                                                         } else {
-                                                            setSelectedVariationPrice(
-                                                                null,
-                                                            );
+                                                            setSelectedVariationPrice(null);
+                                                            setSelectedVariationDiscountedPrice(null);
                                                         }
                                                     }}
                                                 />
                                             </div>
-                                        ) : (
-                                            <div className="flex flex-col sm:flex-row gap-5 items-center">
-                                                <QuantitySelector
-                                                    quantity={quantity}
-                                                    onDecrease={() =>
-                                                        handleQuantityChange(
-                                                            "decrement",
-                                                        )
-                                                    }
-                                                    onIncrease={() =>
-                                                        handleQuantityChange(
-                                                            "increment",
-                                                        )
-                                                    }
-                                                    max={
-                                                        product.is_preorder
-                                                            ? undefined
-                                                            : product.stock
-                                                    }
-                                                    size="lg"
-                                                />
+                                        ) : isOutOfStock ? (
+                                            /* Simple product, out of stock → Request */
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                                                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                                                        <Bell size={18} className="text-amber-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-amber-800">Currently out of stock</p>
+                                                        <p className="text-xs text-amber-700 mt-0.5">Submit a request and we'll contact you when it's back.</p>
+                                                    </div>
+                                                </div>
                                                 <button
-                                                    className={`w-full sm:flex-1 px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-xl active:translate-y-0 active:shadow-md ${
+                                                    onClick={() => setShowRequestModal(true)}
+                                                    className="w-full px-8 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 text-white shadow-amber-200 shadow-lg hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                                                >
+                                                    <Bell size={22} strokeWidth={2.5} />
+                                                    Request This Product
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-3">
+                                                {/* Row 1: Quantity + Buy Now */}
+                                                <div className="flex gap-3 items-stretch">
+                                                    <QuantitySelector
+                                                        quantity={quantity}
+                                                        onDecrease={() =>
+                                                            handleQuantityChange(
+                                                                "decrement",
+                                                            )
+                                                        }
+                                                        onIncrease={() =>
+                                                            handleQuantityChange(
+                                                                "increment",
+                                                            )
+                                                        }
+                                                        max={
+                                                            product.is_preorder
+                                                                ? undefined
+                                                                : product.stock
+                                                        }
+                                                        size="lg"
+                                                    />
+                                                    <button
+                                                        className="flex-1 px-6 py-4 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-2.5 bg-brand-primary hover:bg-brand-primary/90 text-white shadow-lg shadow-brand-primary/30 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                                                        onClick={handleBuyNow}
+                                                    >
+                                                        <Zap size={20} strokeWidth={2.5} />
+                                                        Buy Now
+                                                    </button>
+                                                </div>
+                                                {/* Row 2: Add to Cart */}
+                                                <button
+                                                    className={`w-full px-8 py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${
                                                         isInCart
-                                                            ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30"
-                                                            : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/20"
+                                                            ? "bg-brand-success hover:bg-brand-success/90 text-white shadow-brand-success/20"
+                                                            : "bg-white border-2 border-slate-200 hover:border-brand-dark/40 text-brand-dark hover:bg-slate-50"
                                                     }`}
-                                                    disabled={
-                                                        !product.is_preorder &&
-                                                        product.stock <= 0
-                                                    }
                                                     onClick={handleAddToCart}
                                                 >
                                                     {isInCart ? (
                                                         <>
-                                                            <Check
-                                                                size={22}
-                                                                strokeWidth={3}
-                                                            />
+                                                            <Check size={20} strokeWidth={3} />
                                                             Added to Cart
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ShoppingCart
-                                                                size={22}
-                                                                strokeWidth={
-                                                                    2.5
-                                                                }
-                                                            />
-                                                            {product.is_preorder &&
-                                                            product.stock <= 0
+                                                            <ShoppingCart size={20} strokeWidth={2.5} />
+                                                            {product.is_preorder && product.stock <= 0
                                                                 ? "Pre Order"
                                                                 : "Add to Cart"}
                                                         </>
@@ -510,7 +557,7 @@ export default function ProductShow({
                                         {/* Trust Badges section beneath Add to Cart */}
                                         <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-slate-200/60">
                                             <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
-                                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                                <div className="w-10 h-10 rounded-full bg-brand-success/10 flex items-center justify-center text-brand-success">
                                                     <ShieldCheck
                                                         size={20}
                                                         strokeWidth={2.5}
@@ -523,7 +570,7 @@ export default function ProductShow({
                                                 </span>
                                             </div>
                                             <div className="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-center space-y-2 hover:shadow-md transition-shadow">
-                                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                                <div className="w-10 h-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-primary">
                                                     <Truck
                                                         size={20}
                                                         strokeWidth={2.5}
@@ -564,8 +611,8 @@ export default function ProductShow({
                                             </div>
                                         )}
                                         {product.category && (
-                                            <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2.5 rounded-xl border border-indigo-100 shadow-sm">
-                                                <span className="text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                                            <div className="flex items-center gap-2 bg-brand-bg px-4 py-2.5 rounded-xl border border-brand-bg shadow-sm">
+                                                <span className="text-brand-primary/60 text-xs font-bold uppercase tracking-wider">
                                                     Category
                                                 </span>
                                                 <Link
@@ -573,7 +620,7 @@ export default function ProductShow({
                                                         "products.category",
                                                         product.category.slug,
                                                     )}
-                                                    className="text-indigo-700 hover:text-indigo-800 transition-colors text-sm font-bold"
+                                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors text-sm font-bold"
                                                 >
                                                     {product.category.title}
                                                 </Link>
@@ -583,6 +630,14 @@ export default function ProductShow({
                                 </div>
                             </div>
                         </div>
+                    </ScrollReveal>
+
+                    {/* Mobile: description at the bottom */}
+                    <ScrollReveal animation="fade-up" delay="delay-75">
+                        <ProductDescriptionSection
+                            html={product.description}
+                            className="lg:hidden"
+                        />
                     </ScrollReveal>
 
                     {/* Related/Random Products Slider Section */}
@@ -608,6 +663,13 @@ export default function ProductShow({
                     </ScrollReveal>
                 </div>
             </div>
+
+            <ProductRequestModal
+                isOpen={showRequestModal}
+                onClose={() => { setShowRequestModal(false); setRequestVariationLabel(undefined); }}
+                product={product}
+                variationLabel={requestVariationLabel}
+            />
         </CustomerLayout>
     );
 }

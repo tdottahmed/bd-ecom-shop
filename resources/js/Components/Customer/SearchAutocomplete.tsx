@@ -276,15 +276,15 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                                                         <span
                                                             className={`inline-flex items-center gap-1 text-[11px] font-medium ${
                                                                 product.in_stock
-                                                                    ? "text-emerald-600"
-                                                                    : "text-red-500"
+                                                                    ? "text-brand-success"
+                                                                    : "text-brand-primary"
                                                             }`}
                                                         >
                                                             <span
                                                                 className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
                                                                     product.in_stock
-                                                                        ? "bg-emerald-500"
-                                                                        : "bg-red-400"
+                                                                        ? "bg-brand-success"
+                                                                        : "bg-brand-primary"
                                                                 }`}
                                                             />
                                                             {product.in_stock
@@ -293,7 +293,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <ArrowRight className="w-4 h-4 text-gray-300 group-hover/item:text-gray-500 flex-shrink-0 transition-colors" />
+                                                <ArrowRight className="w-4 h-4 text-gray-300 group-hover/item:text-brand-primary flex-shrink-0 transition-colors" />
                                             </Link>
                                         </li>
                                     ))}

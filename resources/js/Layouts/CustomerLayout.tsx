@@ -1,16 +1,37 @@
 import React, { useState, ReactNode, useEffect, useRef } from "react";
 import { Head, usePage, router } from "@inertiajs/react";
 import Lenis from "lenis";
-import { ArrowUp, MessageCircle, HeadphonesIcon, Phone, ShoppingBag } from "lucide-react";
+import { ArrowUp, Phone, ShoppingBag } from "lucide-react";
 import Header from "@/Components/Customer/Header";
 import CartSidebar from "@/Components/Customer/CartSidebar";
 import NavigationSidebar from "@/Components/Customer/NavigationSidebar";
 import Footer from "@/Components/Customer/Footer";
 import { useCartStore } from "@/Stores/useCartStore";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 
 interface CustomerLayoutProps {
     children: ReactNode;
+}
+
+function hasMeaningfulErrors(errors: unknown): boolean {
+    if (!errors || typeof errors !== "object") return false;
+
+    // Inertia/Laravel can return either:
+    // - { field: "message" }
+    // - { default: { field: "message" }, someBag: { ... } }
+    const values = Object.values(errors as Record<string, unknown>);
+
+    // Plain field errors
+    const hasDirect = values.some((v) => typeof v === "string" && v.trim().length > 0);
+    if (hasDirect) return true;
+
+    // Bagged errors
+    return values.some((bag) => {
+        if (!bag || typeof bag !== "object") return false;
+        return Object.values(bag as Record<string, unknown>).some(
+            (v) => typeof v === "string" && v.trim().length > 0
+        );
+    });
 }
 
 // Circumference for r=15.9 circle (≈ 99.9)
@@ -55,7 +76,7 @@ function ScrollToTopButton({
                     cy="18"
                     r={RING_R}
                     fill="none"
-                    stroke="#6366f1"
+                    stroke="#E11D6D"
                     strokeWidth="2"
                     strokeDasharray={`${RING_CIRCUM}`}
                     strokeDashoffset={`${RING_CIRCUM}`}
@@ -90,6 +111,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const { messengerLink, whatsappLink } = (props as any) || {};
     const hasMessenger = Boolean(messengerLink);
     const hasWhatsApp = Boolean(whatsappLink);
+    const { flash, errors } = props as any;
 
     const baseUrl =
         typeof window !== "undefined"
@@ -103,6 +125,19 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         window.addEventListener("open-cart", handleOpenCart);
         return () => window.removeEventListener("open-cart", handleOpenCart);
     }, [setIsOpen]);
+
+    // Inertia flash + validation errors → toasts (customer-facing)
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+        if (hasMeaningfulErrors(errors)) {
+            toast.error("There are errors in the form. Please check the fields.");
+        }
+    }, [flash, errors]);
 
     useEffect(() => {
         if (!customerAuthEnabled || !authUserId || typeof window === "undefined") return;
@@ -212,7 +247,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-inter antialiased flex flex-col justify-between relative">
+        <div className="min-h-screen bg-brand-ivory font-inter antialiased flex flex-col justify-between relative">
             <Head>
                 <title>{seo?.defaultTitle || "Home"}</title>
                 {seo?.defaultDescription && <meta name="description" content={seo.defaultDescription} />}
@@ -248,7 +283,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
             */}
             <div
                 ref={progressBarRef}
-                className="fixed top-0 left-0 z-[60] h-[2.5px] w-full origin-left pointer-events-none bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+                className="fixed top-0 left-0 z-[60] h-[2.5px] w-full origin-left pointer-events-none bg-gradient-to-r from-brand-primary via-brand-tint to-brand-accent"
                 style={{ transform: "scaleX(0)" }}
                 aria-hidden="true"
             />
@@ -285,10 +320,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                                         Support
                                         <span className="absolute top-1/2 -right-1.5 -translate-y-1/2 border-y-4 border-l-4 border-r-0 border-solid border-y-transparent border-l-zinc-900" />
                                     </span>
-                                    <HeadphonesIcon size={24} strokeWidth={1.7} className="text-zinc-700 group-hover:text-black transition-colors" />
+                                    <Phone size={24} strokeWidth={1.7} className="text-zinc-700 group-hover:text-black transition-colors" />
                                     <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-[2.5px] border-white drop-shadow-sm" />
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-success opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-brand-success border-[2.5px] border-white drop-shadow-sm" />
                                     </span>
                                 </button>
 
@@ -322,7 +357,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                                                     className="flex flex-col items-center justify-center gap-1 rounded-xl border border-blue-100 bg-blue-50/40 px-3 py-3 transition hover:bg-blue-50"
                                                     aria-label="Chat on Messenger"
                                                 >
-                                                    <MessageCircle size={20} strokeWidth={1.7} className="text-blue-700" />
+                                                    <MessengerIcon className="h-5 w-5" />
                                                     <span className="text-[11px] font-bold text-blue-800">Messenger</span>
                                                 </a>
                                             )}
@@ -345,7 +380,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                                 {hasWhatsApp ? (
                                     <WhatsAppIcon className="h-[26px] w-[26px] text-emerald-700 group-hover:text-emerald-800 transition-colors" />
                                 ) : (
-                                    <MessageCircle size={26} strokeWidth={1.5} className="text-zinc-700 group-hover:text-black transition-colors" />
+                                    <MessengerIcon className="h-[26px] w-[26px]" />
                                 )}
                                 <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -360,7 +395,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                 {cartItemCount > 0 && !isCheckoutPage && (
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="md:hidden pointer-events-auto bg-zinc-900 text-white px-6 py-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex items-center gap-3 hover:bg-black transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
+                        className="md:hidden pointer-events-auto bg-brand-primary text-white px-6 py-4 rounded-full shadow-[0_8px_30px_rgba(225,29,109,0.35)] flex items-center gap-3 hover:bg-brand-primary/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95"
                     >
                         <div className="relative">
                             <ShoppingBag size={22} strokeWidth={1.5} />
@@ -382,5 +417,23 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 export default CustomerLayout;
 
 function WhatsAppIcon({ className = "" }: { className?: string }) {
-    return <Phone className={className} aria-hidden="true" />;
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+    );
+}
+
+function MessengerIcon({ className = "" }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="url(#messenger-gradient)" aria-hidden="true">
+            <defs>
+                <linearGradient id="messenger-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#0099ff" />
+                    <stop offset="100%" stopColor="#a033ff" />
+                </linearGradient>
+            </defs>
+            <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z" />
+        </svg>
+    );
 }

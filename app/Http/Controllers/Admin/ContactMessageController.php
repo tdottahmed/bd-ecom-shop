@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendContactMessageReplyEmail;
 use App\Models\ContactMessage;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ContactMessageController extends Controller
@@ -28,5 +30,23 @@ class ContactMessageController extends Controller
         $contactMessage->delete();
 
         return redirect()->route('admin.contact-messages.index')->with('success', 'Message deleted successfully!');
+    }
+
+    public function reply(Request $request, ContactMessage $contactMessage)
+    {
+        $validated = $request->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+        ]);
+
+        SendContactMessageReplyEmail::dispatch(
+            contactMessageId: $contactMessage->id,
+            subject: $validated['subject'],
+            replyMessage: $validated['message'],
+        )->afterCommit();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Reply email queued successfully.');
     }
 }

@@ -13,8 +13,8 @@ class PageController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Pages/Index', [
-            'pages' => Page::query()
-                ->select(['id', 'title', 'slug', 'is_published', 'updated_at'])
+            'pages' => Page::where('type', 'custom')
+                ->select(['id', 'title', 'slug', 'is_published', 'show_in_header', 'show_in_footer', 'updated_at'])
                 ->orderBy('title')
                 ->get(),
         ]);
@@ -34,11 +34,18 @@ class PageController extends Controller
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:pages,slug'],
             'content' => ['nullable', 'string'],
             'is_published' => ['sometimes', 'boolean'],
+            'show_in_header' => ['sometimes', 'boolean'],
+            'show_in_footer' => ['sometimes', 'boolean'],
         ]);
 
         $data['is_published'] = (bool) ($data['is_published'] ?? true);
+        $data['show_in_header'] = (bool) ($data['show_in_header'] ?? false);
+        $data['show_in_footer'] = (bool) ($data['show_in_footer'] ?? false);
+        $data['type'] = 'custom';
 
         Page::create($data);
+
+        $this->forgetPageNavCaches();
 
         return redirect()->route('admin.pages.index')->with('success', 'Page created.');
     }
@@ -46,7 +53,7 @@ class PageController extends Controller
     public function edit(Page $page)
     {
         return Inertia::render('Admin/Pages/Form', [
-            'page' => $page->only(['id', 'title', 'slug', 'content', 'is_published']),
+            'page' => $page->only(['id', 'title', 'slug', 'content', 'is_published', 'show_in_header', 'show_in_footer']),
         ]);
     }
 
@@ -63,13 +70,23 @@ class PageController extends Controller
             ],
             'content' => ['nullable', 'string'],
             'is_published' => ['sometimes', 'boolean'],
+            'show_in_header' => ['sometimes', 'boolean'],
+            'show_in_footer' => ['sometimes', 'boolean'],
         ]);
 
         if (array_key_exists('is_published', $data)) {
             $data['is_published'] = (bool) $data['is_published'];
         }
+        if (array_key_exists('show_in_header', $data)) {
+            $data['show_in_header'] = (bool) $data['show_in_header'];
+        }
+        if (array_key_exists('show_in_footer', $data)) {
+            $data['show_in_footer'] = (bool) $data['show_in_footer'];
+        }
 
         $page->update($data);
+
+        $this->forgetPageNavCaches();
 
         return redirect()->route('admin.pages.index')->with('success', 'Page updated.');
     }
@@ -78,7 +95,14 @@ class PageController extends Controller
     {
         $page->delete();
 
+        $this->forgetPageNavCaches();
+
         return back()->with('success', 'Page deleted.');
     }
-}
 
+    private function forgetPageNavCaches(): void
+    {
+        cache()->forget('header_pages');
+        cache()->forget('footer_pages');
+    }
+}

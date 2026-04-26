@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Head, Link, usePage } from "@inertiajs/react";
 import CustomerLayout from "@/Layouts/CustomerLayout";
 import {
@@ -9,6 +9,7 @@ import {
     MapPin,
     LogOut,
     ChevronRight,
+    ClipboardList,
 } from "lucide-react";
 import CtaSection from "@/Components/Customer/CtaSection";
 
@@ -20,6 +21,7 @@ interface Props {
 const links = [
     { label: "Dashboard", href: "account.dashboard", icon: LayoutDashboard },
     { label: "Orders", href: "account.orders", icon: Package },
+    { label: "Product Requests", href: "account.product-requests", icon: ClipboardList },
     { label: "Saved Cart", href: "account.cart", icon: ShoppingCart },
     { label: "Profile", href: "account.profile", icon: User },
     { label: "Addresses", href: "account.addresses", icon: MapPin },

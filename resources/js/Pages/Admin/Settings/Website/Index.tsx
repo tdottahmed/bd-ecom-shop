@@ -8,13 +8,11 @@ import BrandingForm from "./Partials/BrandingForm";
 import FooterSettingsForm from "./Partials/FooterSettingsForm";
 import ChatLinksForm from "./Partials/ChatLinksForm";
 import DeliveryChargeForm from "./Partials/DeliveryChargeForm";
-import FaqForm from "./Partials/FaqForm";
-import ContactInfoForm from "./Partials/ContactInfoForm";
-import AboutSettingsForm from "./Partials/AboutSettingsForm";
-import CtaSettingsForm from "./Partials/CtaSettingsForm";
 import CustomerAuthSettingsForm from "./Partials/CustomerAuthSettingsForm";
-import BlogSettingsForm from "./Partials/BlogSettingsForm";
 import SmtpSettingsForm from "./Partials/SmtpSettingsForm";
+import SchedulerSettingsForm from "./Partials/SchedulerSettingsForm";
+import AdminNotificationSettingsForm from "./Partials/AdminNotificationSettingsForm";
+import ThemeColorsForm from "./Partials/ThemeColorsForm";
 
 import { DeliveryCharge, WebsiteSetting } from "./types";
 
@@ -29,7 +27,6 @@ const TABS = [
     { id: "branding",  label: "Branding" },
     { id: "social",    label: "Social & Footer" },
     { id: "delivery",  label: "Delivery" },
-    { id: "content",   label: "Content" },
     { id: "system",    label: "System" },
 ] as const;
 
@@ -69,6 +66,7 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                         <>
                             <BannerForm settings={settings} />
                             <BrandingForm settings={settings} />
+                            <ThemeColorsForm settings={settings} />
                         </>
                     )}
 
@@ -86,20 +84,12 @@ export default function Index({ settings, deliveryCharges, messengerLink, whatsa
                         <DeliveryChargeForm charges={deliveryCharges} />
                     )}
 
-                    {activeTab === "content" && (
-                        <>
-                            <BlogSettingsForm settings={settings} />
-                            <FaqForm faqs={settings.faqs || []} />
-                            <ContactInfoForm settings={settings} />
-                            <AboutSettingsForm settings={settings} />
-                            <CtaSettingsForm settings={settings} />
-                        </>
-                    )}
-
                     {activeTab === "system" && (
                         <>
                             <CustomerAuthSettingsForm settings={settings} />
+                            <AdminNotificationSettingsForm settings={settings} />
                             <SmtpSettingsForm settings={settings} />
+                            <SchedulerSettingsForm settings={settings} />
                         </>
                     )}
                 </div>

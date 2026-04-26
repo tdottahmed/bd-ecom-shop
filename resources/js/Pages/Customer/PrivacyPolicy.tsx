@@ -181,16 +181,16 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
         <CustomerLayout>
             <Head title={pageTitle} />
 
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <div className="relative min-h-screen bg-gradient-to-b from-brand-ivory via-white to-slate-50">
                 {/* Background blob */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-20 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-success opacity-15 blur-3xl" />
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Page Header */}
                     <div className="mb-10">
-                        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
+                        <div className="inline-flex items-center gap-2 bg-brand-bg border border-brand-bg text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
                             <Shield size={12} /> Legal
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
@@ -220,7 +220,7 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                                                 }
                                                 className={`block text-sm px-3 py-2 rounded-lg transition-colors ${
                                                     activeSection === section.id
-                                                        ? "bg-indigo-50 text-indigo-600 font-medium"
+                                                        ? "bg-brand-bg text-brand-primary font-medium"
                                                         : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                                                 }`}
                                             >
@@ -252,7 +252,7 @@ export default function PrivacyPolicy({ page }: { page?: Page | null }) {
                                 If you have questions about this policy, please{" "}
                                 <Link
                                     href="/contact-us"
-                                    className="text-indigo-500 hover:underline"
+                                    className="text-brand-primary hover:underline"
                                 >
                                     contact us
                                 </Link>

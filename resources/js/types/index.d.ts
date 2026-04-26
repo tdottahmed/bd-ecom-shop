@@ -9,12 +9,23 @@ export interface User {
     email_verified_at?: string;
 }
 
+export interface CourierConfig {
+    enabled: boolean;
+    label: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
         user: User;
     };
+    couriers: {
+        steadfast: CourierConfig;
+        pathao: CourierConfig;
+        carrybee: CourierConfig;
+    };
+    fraudCheckEnabled: boolean;
 };
 
 // Category type
@@ -36,6 +47,38 @@ export interface Brand {
     slug: string;
     image?: string | null;
     is_featured?: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
+// ProductAttribute type
+export interface ProductAttribute {
+    id: number;
+    name: string;
+}
+
+// QtyPrice type
+export interface QtyPrice {
+    qty: number;
+    price: number;
+}
+
+// ProductVariation type
+export interface ProductVariation {
+    id: number;
+    product_id: number;
+    product_attribute_id?: number;
+    attribute_id?: number;
+    name?: string | null;
+    value: string;
+    price?: number | null;
+    stock?: number | null;
+    image?: string | null;
+    discount_type?: "flat" | "percentage" | null;
+    discount_value?: number | null;
+    discounted_price?: number | null;
+    product_attribute?: ProductAttribute;
+    attribute?: ProductAttribute;
     created_at?: string;
     updated_at?: string;
 }
@@ -117,6 +160,19 @@ export interface Order {
         success_ratio: number;
         successful_orders: number;
     };
+}
+
+export interface NewProductRequest {
+    id: number;
+    product_name: string;
+    category?: string | null;
+    description: string;
+    reference_url?: string | null;
+    quantity: number;
+    budget?: number | null;
+    admin_notes?: string | null;
+    status: 'pending' | 'reviewing' | 'approved' | 'rejected';
+    created_at: string;
 }
 
 export interface BlogPost {

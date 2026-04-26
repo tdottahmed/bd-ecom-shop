@@ -22,6 +22,16 @@ export default {
                 luxury: {
                     accent: '#6366f1',
                 },
+                // Driven by CSS variables (see resources/css/app.css + theme_colors_style_tag in Blade).
+                brand: {
+                    primary: 'rgb(var(--color-brand-primary) / <alpha-value>)',
+                    tint: 'rgb(var(--color-brand-tint) / <alpha-value>)',
+                    dark: 'rgb(var(--color-brand-dark) / <alpha-value>)',
+                    accent: 'rgb(var(--color-brand-accent) / <alpha-value>)',
+                    success: 'rgb(var(--color-brand-success) / <alpha-value>)',
+                    bg: 'rgb(var(--color-brand-bg) / <alpha-value>)',
+                    ivory: 'rgb(var(--color-brand-ivory) / <alpha-value>)',
+                },
             },
             boxShadow: {
                 luxury: '0 20px 50px rgba(0,0,0,0.05)',

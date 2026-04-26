@@ -16,16 +16,16 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
     return (
         <CustomerLayout>
             <Head title="FAQ" />
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <div className="relative min-h-screen bg-gradient-to-b from-brand-ivory via-white to-slate-50">
                 {/* Blobs */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-30 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-success opacity-20 blur-3xl" />
                 </div>
 
                 <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Hero */}
                     <div className="text-center">
-                        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
+                        <div className="inline-flex items-center gap-2 bg-brand-bg border border-brand-bg text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
                             <HelpCircle size={12} /> Help Center
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
@@ -47,7 +47,7 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                                         key={i}
                                         className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden shadow-sm ${
                                             isOpen
-                                                ? "border-indigo-200 shadow-indigo-50"
+                                                ? "border-brand-primary/30 shadow-brand-bg"
                                                 : "border-slate-100 hover:border-slate-200"
                                         }`}
                                     >
@@ -58,7 +58,7 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                                             <span
                                                 className={`text-sm font-semibold pr-4 transition-colors ${
                                                     isOpen
-                                                        ? "text-indigo-600"
+                                                        ? "text-brand-primary"
                                                         : "text-slate-700"
                                                 }`}
                                             >
@@ -67,7 +67,7 @@ export default function Faq({ faqs = [] }: { faqs?: FAQ[] }) {
                                             <span
                                                 className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                                                     isOpen
-                                                        ? "bg-indigo-100 text-indigo-600"
+                                                        ? "bg-brand-bg text-brand-primary"
                                                         : "bg-slate-100 text-slate-400"
                                                 }`}
                                             >

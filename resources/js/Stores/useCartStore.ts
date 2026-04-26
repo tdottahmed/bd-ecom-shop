@@ -143,30 +143,44 @@ export const useCartStore = create<CartState>()(
                                     !isNaN(s)
                             );
                         if (variationStocks.length > 0) {
-                            stock = Math.min(Number(product.stock), ...variationStocks);
+                            stock = Math.min(...variationStocks);
                         }
                     }
 
-                    // Calculate price logic: use discounted sale price when available
-                    const basePrice = Number(
-                        product.discounted_sale_price ?? product.sale_price
-                    );
-                    let price = basePrice;
+                    // Calculate effective price and original price for cart
+                    let price: number;
+                    let cartOriginalPrice: number | undefined;
+
                     if (variations && variations.length > 0) {
-                        const varPrices = variations
+                        // Prefer discounted_price when set on each variation
+                        const varEffective = variations
                             .map((v) =>
-                                v.price ? parseFloat(String(v.price)) : null
+                                v.discounted_price != null
+                                    ? Number(v.discounted_price)
+                                    : v.price ? parseFloat(String(v.price)) : null,
                             )
                             .filter((p) => p !== null) as number[];
+                        const varOriginal = variations
+                            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+                            .filter((p) => p !== null) as number[];
 
-                        if (varPrices.length > 0) {
-                            price = Math.max(...varPrices);
+                        if (varEffective.length > 0) {
+                            price = Math.max(...varEffective);
+                            const maxOriginal = varOriginal.length > 0 ? Math.max(...varOriginal) : null;
+                            if (maxOriginal !== null && maxOriginal > price) {
+                                cartOriginalPrice = maxOriginal;
+                            }
                         } else {
-                            price = basePrice;
+                            price = Number(product.discounted_sale_price ?? product.sale_price);
+                            const salePrice = Number(product.sale_price);
+                            if (salePrice > price) cartOriginalPrice = salePrice;
                         }
+                    } else {
+                        price = Number(product.discounted_sale_price ?? product.sale_price);
+                        const salePrice = Number(product.sale_price);
+                        if (salePrice > price) cartOriginalPrice = salePrice;
                     }
 
-                    const originalPrice = Number(product.sale_price);
                     return {
                         cart: {
                             ...state.cart,
@@ -175,7 +189,7 @@ export const useCartStore = create<CartState>()(
                                 product_id: product.id,
                                 name: product.name,
                                 price: price,
-                                original_price: originalPrice > 0 ? originalPrice : undefined,
+                                original_price: cartOriginalPrice,
                                 stock: stock,
                                 quantity: newQuantity,
                                 image: product.images?.[0] || null,

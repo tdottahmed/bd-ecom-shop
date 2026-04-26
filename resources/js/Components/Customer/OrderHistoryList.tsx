@@ -136,9 +136,9 @@ const OrderHistoryList = () => {
                                 className={`px-2 py-1 rounded-full text-xs font-medium capitalize
                                 ${
                                     order.status === "pending"
-                                        ? "bg-yellow-100 text-yellow-700"
+                                        ? "bg-brand-accent/20 text-brand-dark"
                                         : order.status === "completed"
-                                        ? "bg-green-100 text-green-700"
+                                        ? "bg-brand-success/15 text-brand-success"
                                         : "bg-gray-100 text-gray-700"
                                 }`}
                             >
@@ -151,7 +151,7 @@ const OrderHistoryList = () => {
                                 {" "}
                                 {formatPrice(order.total)}{" "}
                             </span>
-                            <div className="flex items-center text-indigo-600 text-sm font-medium group-hover:translate-x-1 transition-transform">
+                            <div className="flex items-center text-brand-primary text-sm font-medium group-hover:translate-x-1 transition-transform">
                                 Details <ChevronRight size={16} />
                             </div>
                         </div>
@@ -169,7 +169,7 @@ const OrderHistoryList = () => {
                                         handleDeleteOrder(order.id);
                                     }
                                 }}
-                                className="absolute top-4 right-12 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                className="absolute top-4 right-12 p-1 text-gray-400 hover:text-brand-primary hover:bg-brand-bg rounded-full transition-colors opacity-0 group-hover:opacity-100"
                                 title="Delete Order"
                             >
                                 <Trash2 size={16} />

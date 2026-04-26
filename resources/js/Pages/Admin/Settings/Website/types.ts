@@ -10,6 +10,8 @@ export interface FAQ {
     answer: string;
 }
 
+import type { ThemeColors } from "@/Utils/themeColors";
+
 export interface WebsiteSetting {
     smtp_host?: string | null;
     smtp_port?: string | null;
@@ -22,6 +24,7 @@ export interface WebsiteSetting {
     banner_images: string[];
     site_logo: string | null;
     site_favicon: string | null;
+    theme_colors: ThemeColors;
     auth_page_image: string | null;
     footer_description: string | null;
     social_facebook: string | null;
@@ -46,5 +49,10 @@ export interface WebsiteSetting {
     cta_browse_link?: string | null;
     cta_contact_text?: string | null;
     cta_contact_link?: string | null;
+    additional_cost?: string | number | null;
+    scheduled_product_update_enabled?: boolean;
+    scheduled_product_update_cron?: string | null;
+    admin_notification_emails?: string | null;
+    admin_notification_enabled?: boolean;
 }
 

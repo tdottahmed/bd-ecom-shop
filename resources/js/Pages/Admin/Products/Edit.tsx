@@ -27,6 +27,10 @@ interface Variation {
     price?: string;
     image?: string | File | null;
     deleted_image?: boolean;
+    has_discount?: boolean;
+    discount_type?: "" | "flat" | "percentage";
+    discount_value?: string;
+    discounted_price?: string | null;
 }
 
 interface priceSettings {
@@ -110,6 +114,10 @@ export default function Edit({
             price: v.price?.toString(),
             image: v.image ?? null,
             deleted_image: false,
+            has_discount: !!(v.discount_type || v.discounted_price != null),
+            discount_type: (v.discount_type as "" | "flat" | "percentage") ?? "",
+            discount_value: v.discount_value != null ? String(v.discount_value) : "",
+            discounted_price: v.discounted_price != null ? String(v.discounted_price) : null,
         })) as Variation[],
 
         images: [] as File[],

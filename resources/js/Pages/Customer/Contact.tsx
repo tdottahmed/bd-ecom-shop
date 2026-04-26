@@ -60,7 +60,7 @@ export default function Contact({
                 contactInfo?.address || "Kuala Lumpur City Centre,",
                 "50088 Kuala Lumpur, Malaysia",
             ],
-            color: "bg-indigo-50 text-indigo-600",
+            color: "bg-brand-bg text-brand-primary",
         },
         {
             icon: Phone,
@@ -69,16 +69,16 @@ export default function Contact({
                 contactInfo?.phone || "+60 3 1234 5678",
                 contactInfo?.hours || "Mon–Sat, 9am–6pm",
             ],
-            color: "bg-emerald-50 text-emerald-600",
+            color: "bg-brand-success/10 text-brand-success",
         },
         {
             icon: Mail,
             label: "Email",
             lines: [
-                contactInfo?.email || "support@truebymalaysia.com",
+                contactInfo?.email || "support@directmalaysia.com",
                 "We reply within 24 hours",
             ],
-            color: "bg-sky-50 text-sky-600",
+            color: "bg-brand-tint/15 text-brand-primary",
         },
         {
             icon: Clock,
@@ -87,7 +87,7 @@ export default function Contact({
                 contactInfo?.hours || "Mon–Fri: 9:00am – 6:00pm",
                 "Sat: 10:00am – 2:00pm",
             ],
-            color: "bg-violet-50 text-violet-600",
+            color: "bg-brand-accent/10 text-brand-accent",
         },
     ];
 
@@ -105,18 +105,18 @@ export default function Contact({
                 />
             </Head>
 
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="relative min-h-screen bg-gradient-to-b from-brand-ivory via-white to-slate-50 text-slate-900">
                 {/* Background blobs */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-30 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-success opacity-20 blur-3xl" />
                 </div>
-                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
+                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-brand-success/15 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-brand-primary/15 blur-3xl" />
 
                 <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Hero heading */}
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
+                        <div className="inline-flex items-center gap-2 bg-brand-bg border border-brand-bg text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
                             <MessageCircle size={12} />
                             Get in Touch
                         </div>
@@ -214,7 +214,7 @@ export default function Contact({
                                                 value={data.first_name}
                                                 onChange={(e) => setData('first_name', e.target.value)}
                                                 placeholder="John"
-                                                className={`w-full bg-slate-50 border ${errors.first_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                                className={`w-full bg-slate-50 border ${errors.first_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all`}
                                             />
                                             {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
                                         </div>
@@ -231,7 +231,7 @@ export default function Contact({
                                                 value={data.last_name}
                                                 onChange={(e) => setData('last_name', e.target.value)}
                                                 placeholder="Doe"
-                                                className={`w-full bg-slate-50 border ${errors.last_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                                className={`w-full bg-slate-50 border ${errors.last_name ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all`}
                                             />
                                             {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
                                         </div>
@@ -250,7 +250,7 @@ export default function Contact({
                                             value={data.email}
                                             onChange={(e) => setData('email', e.target.value)}
                                             placeholder="john@example.com"
-                                            className={`w-full bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                            className={`w-full bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all`}
                                         />
                                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                                     </div>
@@ -268,7 +268,7 @@ export default function Contact({
                                             value={data.subject}
                                             onChange={(e) => setData('subject', e.target.value)}
                                             placeholder="How can we help?"
-                                            className={`w-full bg-slate-50 border ${errors.subject ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all`}
+                                            className={`w-full bg-slate-50 border ${errors.subject ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all`}
                                         />
                                         {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
                                     </div>
@@ -286,7 +286,7 @@ export default function Contact({
                                             value={data.message}
                                             onChange={(e) => setData('message', e.target.value)}
                                             placeholder="Tell us everything..."
-                                            className={`w-full bg-slate-50 border ${errors.message ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y`}
+                                            className={`w-full bg-slate-50 border ${errors.message ? 'border-red-500' : 'border-slate-200'} text-slate-800 placeholder-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all resize-y`}
                                         />
                                         {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                                     </div>
@@ -294,7 +294,7 @@ export default function Contact({
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-semibold px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
+                                        className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold px-7 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-brand-primary/30 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
                                     >
                                         <Send size={15} />
                                         {processing ? 'Sending...' : 'Send Message'}
@@ -338,7 +338,7 @@ export default function Contact({
                                         key={index}
                                         className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden shadow-sm ${
                                             isOpen
-                                                ? "border-indigo-200 shadow-indigo-50"
+                                                ? "border-brand-primary/30 shadow-brand-bg"
                                                 : "border-slate-100 hover:border-slate-200"
                                         }`}
                                     >
@@ -347,12 +347,12 @@ export default function Contact({
                                             className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none"
                                         >
                                             <span
-                                                className={`text-sm font-semibold pr-4 transition-colors ${isOpen ? "text-indigo-600" : "text-slate-700"}`}
+                                                className={`text-sm font-semibold pr-4 transition-colors ${isOpen ? "text-brand-primary" : "text-slate-700"}`}
                                             >
                                                 {faq.question}
                                             </span>
                                             <span
-                                                className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${isOpen ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"}`}
+                                                className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${isOpen ? "bg-brand-bg text-brand-primary" : "bg-slate-100 text-slate-400"}`}
                                             >
                                                 {isOpen ? (
                                                     <Minus size={14} />

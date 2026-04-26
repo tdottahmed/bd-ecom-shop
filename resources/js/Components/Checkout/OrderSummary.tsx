@@ -75,15 +75,23 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span className="font-semibold text-gray-900">{formatPrice(deliveryCost)}</span>
                 </div>
                 {productSavings > 0 && (
-                    <div className="flex justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
-                        <span>Product discount</span>
-                        <span>-{formatPrice(productSavings)}</span>
+                    <div className="flex justify-between text-sm text-amber-700 font-medium bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <span className="flex items-center gap-1.5">
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
+                            Discount savings
+                        </span>
+                        <span className="font-bold">-{formatPrice(productSavings)}</span>
                     </div>
                 )}
                 {discountAmount > 0 && (
                     <div className="flex justify-between text-sm text-emerald-600 font-medium bg-emerald-50/80 rounded-lg px-3 py-2">
                         <span>Quantity discount</span>
                         <span>-{formatPrice(discountAmount)}</span>
+                    </div>
+                )}
+                {(productSavings > 0 || discountAmount > 0) && (
+                    <div className="text-xs text-center text-amber-700 font-semibold bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+                        You save {formatPrice(productSavings + discountAmount)} on this order!
                     </div>
                 )}
 

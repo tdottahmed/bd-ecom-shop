@@ -23,7 +23,7 @@ const processSteps = [
             "We select practical, high-demand products from trusted suppliers so every launch solves a real customer need.",
         icon: Sparkles,
         step: "01",
-        color: "bg-indigo-50 text-indigo-600",
+        color: "bg-brand-bg text-brand-primary",
     },
     {
         title: "Quality & Authenticity",
@@ -31,7 +31,7 @@ const processSteps = [
             "Each listing is reviewed for quality, images, and product accuracy before it appears in our store.",
         icon: ShieldCheck,
         step: "02",
-        color: "bg-emerald-50 text-emerald-600",
+        color: "bg-brand-success/10 text-brand-success",
     },
     {
         title: "Fast Fulfillment",
@@ -39,7 +39,7 @@ const processSteps = [
             "Orders are packed with care and shipped quickly through reliable courier partners across Malaysia.",
         icon: Truck,
         step: "03",
-        color: "bg-sky-50 text-sky-600",
+        color: "bg-brand-accent/10 text-brand-accent",
     },
 ];
 
@@ -73,7 +73,7 @@ const defaultTestimonials = [
     {
         name: "Sadia Rahman",
         role: "Repeat Customer",
-        quote: "TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.",
+        quote: "Direct Malaysia has become my go-to store. Prices are fair, service is responsive, and products are always genuine.",
         rating: 5,
     },
 ];
@@ -100,23 +100,23 @@ export default function About({
         <CustomerLayout>
             <Head title="About Us" />
 
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="relative min-h-screen bg-gradient-to-b from-brand-ivory via-white to-slate-50 text-slate-900">
                 {/* Background blobs */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-30 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-success opacity-20 blur-3xl" />
                 </div>
-                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-emerald-200/30 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
+                <div className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 rounded-full bg-brand-success/15 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-10 right-0 h-72 w-72 rounded-full bg-brand-primary/15 blur-3xl" />
 
                 <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Hero heading */}
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
+                        <div className="inline-flex items-center gap-2 bg-brand-success/10 border border-brand-success/20 text-brand-success text-xs font-semibold px-3 py-1.5 rounded-full mb-4 tracking-wide uppercase">
                             <Users size={12} />
                             Our Story
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
-                            About True Buy Malaysia
+                            About Direct Malaysia
                         </h1>
                         <p className="max-w-xl mx-auto text-lg text-slate-500">
                             We started with a simple mission — make online
@@ -129,15 +129,15 @@ export default function About({
                     <div className="text-center rounded-3xl max-w-7xl mx-auto border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.10)] overflow-hidden mb-10">
                         <div className="grid lg:grid-cols-2 items-center">
                             <div className="p-10 sm:p-14">
-                                <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
+                                <div className="inline-flex items-center gap-2 bg-brand-success/10 border border-brand-success/20 text-brand-success text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
                                     <CheckCircle2 size={12} />
-                                    TrueBuy Malaysia
+                                    Direct Malaysia
                                 </div>
                                 <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight mb-5">
                                     Building a trusted shopping experience
                                 </h1>
                                 <p className="text-slate-500 text-base leading-relaxed mb-8">
-                                    TrueBuy Malaysia started with one simple
+                                    Direct Malaysia started with one simple
                                     mission: make online shopping dependable. We
                                     focus on products people actually use,
                                     present them clearly, and deliver every
@@ -146,7 +146,7 @@ export default function About({
                                 </p>
                                 <Link
                                     href="/products"
-                                    className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg"
+                                    className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all duration-200 hover:-translate-y-0.5 shadow-lg shadow-brand-primary/30"
                                 >
                                     Browse Products
                                     <ArrowRight size={15} />
@@ -154,8 +154,8 @@ export default function About({
                             </div>
 
                             {/* Stats panel */}
-                            <div className="bg-slate-900 p-10 sm:p-14 h-full">
-                                <p className="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-8">
+                            <div className="bg-brand-dark p-10 sm:p-14 h-full">
+                                <p className="text-xs font-semibold text-brand-success uppercase tracking-widest mb-8">
                                     By the numbers
                                 </p>
                                 <div className="grid grid-cols-2 gap-8">
@@ -177,7 +177,7 @@ export default function About({
                     {/* Story + Values */}
                     <div className="grid max-w-7xl mx-auto lg:grid-cols-2 gap-6 mb-10">
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 sm:p-10">
-                            <p className="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-3">
+                            <p className="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-3">
                                 Our Story
                             </p>
                             <h2 className="text-2xl font-bold text-slate-900 mb-5">
@@ -186,7 +186,7 @@ export default function About({
                             <p className="text-slate-500 leading-relaxed text-sm mb-4">
                                 We saw too many buyers disappointed by unclear
                                 product details, slow communication, and
-                                uncertain delivery timelines. TrueBuy Malaysia
+                                uncertain delivery timelines. Direct Malaysia
                                 was created to set a higher standard: better
                                 product curation, clear information, and
                                 dependable post-order support.
@@ -199,7 +199,7 @@ export default function About({
                         </div>
 
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 sm:p-10">
-                            <p className="text-xs font-semibold text-emerald-500 uppercase tracking-widest mb-3">
+                            <p className="text-xs font-semibold text-brand-success uppercase tracking-widest mb-3">
                                 What Defines Us
                             </p>
                             <h2 className="text-2xl font-bold text-slate-900 mb-6">
@@ -211,10 +211,10 @@ export default function About({
                                         key={item}
                                         className="flex items-start gap-3"
                                     >
-                                        <div className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                        <div className="w-5 h-5 bg-brand-success/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                                             <CheckCircle2
                                                 size={13}
-                                                className="text-emerald-500"
+                                                className="text-brand-success"
                                             />
                                         </div>
                                         <span className="text-slate-600 text-sm leading-relaxed">
@@ -273,7 +273,7 @@ export default function About({
                                 Customer Testimonials
                             </h2>
                             <p className="text-slate-500 text-sm">
-                                Real feedback from buyers who shop with TrueBuy
+                                Real feedback from buyers who shop with Direct
                                 Malaysia.
                             </p>
                         </div>

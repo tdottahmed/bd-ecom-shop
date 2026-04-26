@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\LandingPage;
 use App\Models\Product;
 use App\Utility\FileUpload;
@@ -13,34 +14,41 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        $pages = LandingPage::with('product:id,name')
+        $pages = LandingPage::with(['product:id,name', 'category:id,title'])
             ->latest()
-            ->get(['id', 'product_id', 'slug', 'page_title', 'is_published', 'created_at']);
+            ->get(['id', 'product_id', 'category_id', 'slug', 'page_title', 'is_published', 'created_at']);
 
         return inertia('Admin/LandingPages/Index', ['pages' => $pages]);
     }
 
     public function create()
     {
-        $products = Product::select('id', 'name')->orderBy('name')->get();
-        return inertia('Admin/LandingPages/Builder', ['products' => $products, 'page' => null]);
+        $products   = Product::select('id', 'name')->orderBy('name')->get();
+        $categories = Category::select('id', 'title')->orderBy('title')->get();
+        return inertia('Admin/LandingPages/Builder', ['products' => $products, 'categories' => $categories, 'page' => null]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'page_title'       => 'required|string|max:255',
-            'slug'             => 'required|string|max:255|unique:landing_pages,slug|regex:/^[a-z0-9\-]+$/',
-            'meta_description' => 'nullable|string|max:500',
-            'product_id'       => 'nullable|exists:products,id',
-            'hero_headline'    => 'required|string|max:255',
-            'hero_subheadline' => 'nullable|string|max:500',
-            'hero_badge'       => 'nullable|string|max:100',
-            'hero_image'       => 'nullable|image|max:4096',
-            'hero_cta_text'    => 'nullable|string|max:100',
-            'hero_cta_url'     => 'nullable|string|max:500',
-            'accent_color'     => 'nullable|string|max:20',
-            'sections'         => 'nullable|string',
+            'page_title'         => 'required|string|max:255',
+            'slug'               => 'required|string|max:255|unique:landing_pages,slug|regex:/^[a-z0-9\-]+$/',
+            'meta_description'   => 'nullable|string|max:500',
+            'product_id'         => 'nullable|exists:products,id',
+            'category_id'        => 'nullable|exists:categories,id',
+            'hero_headline'      => 'required|string|max:255',
+            'hero_subheadline'   => 'nullable|string|max:500',
+            'hero_badge'         => 'nullable|string|max:100',
+            'hero_image'         => 'nullable|image|max:4096',
+            'hero_cta_text'      => 'nullable|string|max:100',
+            'hero_cta_url'       => 'nullable|string|max:500',
+            'hero_layout'        => 'nullable|string|in:split-right,split-left,centered,full-overlay',
+            'hero_bg_color'      => 'nullable|string|max:20',
+            'hero_text_color'    => 'nullable|string|max:20',
+            'accent_color'       => 'nullable|string|max:20',
+            'global_bg_color'    => 'nullable|string|max:20',
+            'global_font_family' => 'nullable|string|max:80',
+            'sections'           => 'nullable|string',
         ]);
 
         if ($request->hasFile('hero_image')) {
@@ -59,28 +67,36 @@ class LandingPageController extends Controller
 
     public function edit(LandingPage $landingPage)
     {
-        $products = Product::select('id', 'name')->orderBy('name')->get();
+        $products   = Product::select('id', 'name')->orderBy('name')->get();
+        $categories = Category::select('id', 'title')->orderBy('title')->get();
         return inertia('Admin/LandingPages/Builder', [
-            'products' => $products,
-            'page'     => $landingPage,
+            'products'   => $products,
+            'categories' => $categories,
+            'page'       => $landingPage,
         ]);
     }
 
     public function update(Request $request, LandingPage $landingPage)
     {
         $validated = $request->validate([
-            'page_title'       => 'required|string|max:255',
-            'slug'             => 'required|string|max:255|unique:landing_pages,slug,' . $landingPage->id . '|regex:/^[a-z0-9\-]+$/',
-            'meta_description' => 'nullable|string|max:500',
-            'product_id'       => 'nullable|exists:products,id',
-            'hero_headline'    => 'required|string|max:255',
-            'hero_subheadline' => 'nullable|string|max:500',
-            'hero_badge'       => 'nullable|string|max:100',
-            'hero_image'       => 'nullable|image|max:4096',
-            'hero_cta_text'    => 'nullable|string|max:100',
-            'hero_cta_url'     => 'nullable|string|max:500',
-            'accent_color'     => 'nullable|string|max:20',
-            'sections'         => 'nullable|string',
+            'page_title'         => 'required|string|max:255',
+            'slug'               => 'required|string|max:255|unique:landing_pages,slug,' . $landingPage->id . '|regex:/^[a-z0-9\-]+$/',
+            'meta_description'   => 'nullable|string|max:500',
+            'product_id'         => 'nullable|exists:products,id',
+            'category_id'        => 'nullable|exists:categories,id',
+            'hero_headline'      => 'required|string|max:255',
+            'hero_subheadline'   => 'nullable|string|max:500',
+            'hero_badge'         => 'nullable|string|max:100',
+            'hero_image'         => 'nullable|image|max:4096',
+            'hero_cta_text'      => 'nullable|string|max:100',
+            'hero_cta_url'       => 'nullable|string|max:500',
+            'hero_layout'        => 'nullable|string|in:split-right,split-left,centered,full-overlay',
+            'hero_bg_color'      => 'nullable|string|max:20',
+            'hero_text_color'    => 'nullable|string|max:20',
+            'accent_color'       => 'nullable|string|max:20',
+            'global_bg_color'    => 'nullable|string|max:20',
+            'global_font_family' => 'nullable|string|max:80',
+            'sections'           => 'nullable|string',
         ]);
 
         if ($request->hasFile('hero_image')) {

@@ -3,19 +3,27 @@
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CourierController;
+use App\Http\Controllers\Admin\SteadfastController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\HomeSettingsController;
 use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\Admin\LegalPageController;
 use App\Http\Controllers\Admin\MarketingController;
 use App\Http\Controllers\Admin\NewsletterSubscriptionController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\NewProductRequestController;
+use App\Http\Controllers\Admin\ProductRequestController as AdminProductRequestController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PathaoController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImportController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\UserController;
@@ -30,6 +38,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('sales', [ReportController::class, 'sales'])->name('sales');
+        Route::get('orders', [ReportController::class, 'orders'])->name('orders');
+        Route::get('products', [ReportController::class, 'products'])->name('products');
+        Route::get('inventory', [ReportController::class, 'inventory'])->name('inventory');
+        Route::get('customers', [ReportController::class, 'customers'])->name('customers');
+        Route::get('discounts', [ReportController::class, 'discounts'])->name('discounts');
+        Route::get('payments', [ReportController::class, 'payments'])->name('payments');
+        Route::get('shipping', [ReportController::class, 'shipping'])->name('shipping');
+        Route::get('refunds', [ReportController::class, 'refunds'])->name('refunds');
+        Route::get('tax', [ReportController::class, 'tax'])->name('tax');
+        Route::get('abandoned-checkouts', [ReportController::class, 'abandonedCheckouts'])->name('abandoned-checkouts');
+        Route::get('geography', [ReportController::class, 'geography'])->name('geography');
+    });
 
     // Landing Pages
     Route::post('landing-pages/upload-image', [LandingPageController::class, 'uploadImage'])->name('landing-pages.upload-image');
@@ -59,7 +83,10 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('discounts/update', [DiscountController::class, 'update'])->name('discounts.update');
     Route::get('website', [WebsiteController::class, 'index'])->name('website.index');
     Route::post('website/update', [WebsiteController::class, 'update'])->name('website.update');
+    Route::get('content-settings', [WebsiteController::class, 'content'])->name('content-settings.index');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('payment-gateways', [PaymentGatewayController::class, 'index'])->name('payment-gateways.index');
     Route::post('payment-gateways/update', [PaymentGatewayController::class, 'update'])->name('payment-gateways.update');
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
@@ -82,10 +109,18 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     Route::post('home-settings/update', [HomeSettingsController::class, 'update'])->name('home-settings.update');
 
     Route::resource('pages', PageController::class)->except(['show']);
-    
-    Route::get('contact-messages', [\App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages.index');
-    Route::get('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
-    Route::delete('contact-messages/{contactMessage}', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
+    Route::get('faq', [FaqController::class, 'index'])->name('faq.index');
+    Route::post('faq', [FaqController::class, 'update'])->name('faq.update');
+
+    // Legal Pages (fixed: Privacy Policy, Terms & Conditions, Refund Policy)
+    Route::get('legal-pages', [LegalPageController::class, 'index'])->name('legal-pages.index');
+    Route::get('legal-pages/{page}/edit', [LegalPageController::class, 'edit'])->name('legal-pages.edit');
+    Route::put('legal-pages/{page}', [LegalPageController::class, 'update'])->name('legal-pages.update');
+
+    Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::get('contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::post('contact-messages/{contactMessage}/reply', [ContactMessageController::class, 'reply'])->name('contact-messages.reply');
+    Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
     Route::get('newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index'])->name('newsletter-subscriptions.index');
     Route::post('newsletter-subscriptions/{newsletterSubscription}/toggle-status', [NewsletterSubscriptionController::class, 'toggleStatus'])->name('newsletter-subscriptions.toggle-status');
@@ -94,9 +129,34 @@ Route::middleware(['auth', 'admin.session'])->prefix('admin')->name('admin.')->g
     // Order Management
     Route::get('orders/bulk-details', [OrderController::class, 'bulkDetails'])->name('orders.bulk-details');
     Route::get('orders/bulk-invoice', [OrderController::class, 'bulkInvoice'])->name('orders.bulk-invoice');
+    Route::post('orders/bulk-consignment', [OrderController::class, 'bulkConsignment'])->name('orders.bulk-consignment');
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::post('orders/{order}/sync-status', [SteadfastController::class, 'syncStatus'])->name('orders.sync-status');
     Route::get('orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('orders/{order}/check-fraud', [OrderController::class, 'checkFraud'])->name('orders.check-fraud');
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Steadfast operations
+    Route::get('steadfast', [SteadfastController::class, 'index'])->name('steadfast.index');
+    Route::get('steadfast/balance', [SteadfastController::class, 'balance'])->name('steadfast.balance');
+    Route::post('steadfast/bulk-consignment', [SteadfastController::class, 'bulkConsignment'])->name('steadfast.bulk-consignment');
+    Route::post('steadfast/return-requests', [SteadfastController::class, 'createReturnRequest'])->name('steadfast.return-requests.create');
+    Route::get('steadfast/payments/{id}', [SteadfastController::class, 'payment'])->name('steadfast.payments.show');
+
+    // Product Requests (existing: out-of-stock requests for existing products)
+    Route::get('product-requests', [AdminProductRequestController::class, 'index'])->name('product-requests.index');
+
+    // New Product Requests (customers requesting products not yet in the store)
+    Route::get('new-product-requests', [NewProductRequestController::class, 'index'])->name('new-product-requests.index');
+    Route::patch('new-product-requests/{newProductRequest}/status', [NewProductRequestController::class, 'updateStatus'])->name('new-product-requests.update-status');
+    Route::delete('new-product-requests/{newProductRequest}', [NewProductRequestController::class, 'destroy'])->name('new-product-requests.destroy');
+    Route::post('product-requests/{productRequest}/status', [AdminProductRequestController::class, 'updateStatus'])->name('product-requests.update-status');
+    Route::post('product-requests/{productRequest}/create-order', [AdminProductRequestController::class, 'createOrder'])->name('product-requests.create-order');
+    Route::delete('product-requests/{productRequest}', [AdminProductRequestController::class, 'destroy'])->name('product-requests.destroy');
+
+    // Admin Notifications (JSON endpoints for header bell)
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });

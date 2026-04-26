@@ -4,6 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Customer brand tokens ─────────────────────────────────────────────────
+   Single source of truth for the storefront palette.
+   Tailwind config mirrors these as `brand-*` utility classes.
+   ──────────────────────────────────────────────────────────────────────── */
+:root {
+    /* RGB triplets for Tailwind `brand-*` utilities with opacity modifiers */
+    --color-brand-primary: 225 29 109;
+    --color-brand-tint: 248 123 180;
+    --color-brand-dark: 26 17 26;
+    --color-brand-accent: 255 149 69;
+    --color-brand-success: 22 181 125;
+    --color-brand-bg: 255 235 242;
+    --color-brand-ivory: 253 249 244;
+    /* Hex mirrors for raw `var(--brand-*)` in CSS / inline styles */
+    --brand-primary: #e11d6d;
+    --brand-tint: #f87bb4;
+    --brand-dark: #1a111a;
+    --brand-accent: #ff9545;
+    --brand-success: #16b57d;
+    --brand-bg: #ffebf2;
+    --brand-ivory: #fdf9f4;
+}
+
 /* Honeypot spam trap — positioned off-screen so humans never see it.
    Must NOT use display:none or visibility:hidden; bots skip those. */
 .spam-trap {
@@ -65,7 +88,7 @@
 }
 
 #nprogress .bar {
-    background: #2de3a7;
+    background: var(--brand-primary);
     position: fixed;
     z-index: 1031;
     top: 0;
@@ -73,8 +96,8 @@
     width: 100%;
     height: 3px;
     box-shadow:
-        0 0 10px #2de3a7,
-        0 0 5px #2de3a7;
+        0 0 10px var(--brand-primary),
+        0 0 5px var(--brand-tint);
 }
 
 #nprogress .peg {
@@ -84,8 +107,8 @@
     width: 100px;
     height: 100%;
     box-shadow:
-        0 0 10px #2de3a7,
-        0 0 5px #2de3a7;
+        0 0 10px var(--brand-primary),
+        0 0 5px var(--brand-tint);
     opacity: 1;
     transform: rotate(3deg) translate(0px, -4px);
 }
@@ -108,8 +131,8 @@
     height: 18px;
     box-sizing: border-box;
     border: solid 2px transparent;
-    border-top-color: #2de3a7;
-    border-left-color: #2de3a7;
+    border-top-color: var(--brand-primary);
+    border-left-color: var(--brand-primary);
     border-radius: 50%;
     animation: nprogress-spinner 400ms linear infinite;
 }

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendAdminContactMessageEmail;
 use App\Models\Page;
+use App\Support\AdminRecipients;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class PageController extends Controller
@@ -61,13 +64,20 @@ class PageController extends Controller
             return redirect()->back(); // Fail silently for bots
         }
 
-        \App\Models\ContactMessage::create([
+        $message = \App\Models\ContactMessage::create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'subject' => $validated['subject'],
             'message' => $validated['message'],
         ]);
+
+        Notification::send(
+            AdminRecipients::users(),
+            new \App\Notifications\Admin\ContactMessageReceived($message)
+        );
+
+        SendAdminContactMessageEmail::dispatch($message->id)->afterCommit();
 
         return redirect()->back()->with('success', 'Thank you! Your message has been sent successfully. We will get back to you shortly.');
     }

@@ -24,6 +24,10 @@ interface Variation {
     price?: string;
     image?: string | File | null;
     deleted_image?: boolean;
+    has_discount?: boolean;
+    discount_type?: "" | "flat" | "percentage";
+    discount_value?: string;
+    discounted_price?: string | null;
 }
 
 interface priceSettings {

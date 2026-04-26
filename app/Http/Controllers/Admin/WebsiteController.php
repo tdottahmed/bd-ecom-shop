@@ -7,7 +7,9 @@ use App\Models\DeliveryCharge;
 use App\Models\Setting;
 use App\Utility\FileUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 
 class WebsiteController extends Controller
@@ -15,45 +17,17 @@ class WebsiteController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Settings/Website/Index', [
-            'settings' => [
-                'smtp_host' => get_setting('smtp_host', ''),
-                'smtp_port' => get_setting('smtp_port', '587'),
-                'smtp_username' => get_setting('smtp_username', ''),
-                'smtp_password' => get_setting('smtp_password', ''),
-                'smtp_encryption' => get_setting('smtp_encryption', 'tls'),
-                'smtp_from_address' => get_setting('smtp_from_address', ''),
-                'smtp_from_name' => get_setting('smtp_from_name', ''),
-                'banner_active' => get_setting('banner_active', '1') === '1',
-                'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
-                'faqs' => json_decode(get_setting('faqs', '[]'), true),
-                'site_logo' => get_setting('site_logo'),
-                'site_favicon' => get_setting('site_favicon'),
-                'auth_page_image' => get_setting('auth_page_image'),
-                'footer_description' => get_setting('footer_description'),
-                'social_facebook' => get_setting('social_facebook'),
-                'social_instagram' => get_setting('social_instagram'),
-                'social_youtube' => get_setting('social_youtube'),
-                'social_tiktok' => get_setting('social_tiktok'),
-                'contact_address' => get_setting('contact_address', 'Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia'),
-                'contact_phone' => get_setting('contact_phone', '+60 3 1234 5678'),
-                'contact_email' => get_setting('contact_email', 'support@truebymalaysia.com'),
-                'contact_hours' => get_setting('contact_hours', 'Mon–Fri: 9am–6pm, Sat: 10am–2pm'),
-                'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
-                'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
-                'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
-                'cta_enabled' => get_setting('cta_enabled', '1') === '1',
-                'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
-                'blog_enabled' => get_setting('blog_enabled', '1') === '1',
-                'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
-                'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
-                'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
-                'cta_browse_link' => get_setting('cta_browse_link', '/products'),
-                'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
-                'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
-            ],
+            'settings' => $this->websiteSettingsPayload(),
             'deliveryCharges' => DeliveryCharge::all(),
             'messengerLink' => get_setting('messenger_link'),
             'whatsappLink' => get_setting('whatsapp_link'),
+        ]);
+    }
+
+    public function content()
+    {
+        return Inertia::render('Admin/Content/Index', [
+            'settings' => $this->websiteSettingsPayload(),
         ]);
     }
 
@@ -249,24 +223,6 @@ class WebsiteController extends Controller
             return back()->with('success', 'Footer settings updated successfully.');
         }
 
-        if ($type === 'faq') {
-            $request->validate([
-                'faqs' => 'nullable|array',
-                'faqs.*.question' => 'required|string|max:500',
-                'faqs.*.answer' => 'required|string|max:2000',
-            ]);
-
-            // Only keep non-empty faq entries just in case
-            $faqs = collect($request->faqs ?? [])->filter(function ($faq) {
-                return ! empty($faq['question']) && ! empty($faq['answer']);
-            })->values()->toArray();
-
-            Setting::updateOrCreate(['key' => 'faqs'], ['value' => json_encode($faqs)]);
-            Cache::forget('setting_faqs');
-
-            return back()->with('success', 'FAQs updated successfully.');
-        }
-
         if ($type === 'contact') {
             $request->validate([
                 'contact_address' => 'nullable|string|max:500',
@@ -350,7 +306,44 @@ class WebsiteController extends Controller
                 Cache::forget('setting_'.$key);
             }
 
+            // Persist to .env as source-of-truth for workers/CLI
+            $encryption = (string) $request->input('smtp_encryption', '');
+            $scheme = $encryption === 'ssl' ? 'smtps' : 'smtp';
+            $this->updateEnvValues([
+                'MAIL_MAILER' => $request->filled('smtp_host') ? 'smtp' : 'log',
+                'MAIL_HOST' => (string) $request->input('smtp_host', ''),
+                'MAIL_PORT' => (string) $request->input('smtp_port', ''),
+                'MAIL_USERNAME' => (string) $request->input('smtp_username', ''),
+                'MAIL_PASSWORD' => (string) $request->input('smtp_password', ''),
+                // Keep both keys for broad compatibility with custom/legacy configs
+                'MAIL_ENCRYPTION' => $encryption,
+                'MAIL_SCHEME' => $request->filled('smtp_host') ? $scheme : 'null',
+                'MAIL_FROM_ADDRESS' => (string) $request->input('smtp_from_address', ''),
+                'MAIL_FROM_NAME' => (string) $request->input('smtp_from_name', ''),
+            ]);
+
+            // Ensure new env values are reflected in app config immediately
+            Artisan::call('config:clear');
+
             return back()->with('success', 'SMTP settings updated successfully.');
+        }
+
+        if ($type === 'scheduler') {
+            $request->validate([
+                'additional_cost' => 'nullable|numeric|min:0',
+                'scheduled_product_update_enabled' => 'required|boolean',
+                'scheduled_product_update_cron' => 'nullable|string|max:100',
+            ]);
+
+            Setting::updateOrCreate(['key' => 'additional_cost'], ['value' => (string) ($request->input('additional_cost', 0))]);
+            Setting::updateOrCreate(['key' => 'scheduled_product_update_enabled'], ['value' => $request->boolean('scheduled_product_update_enabled') ? '1' : '0']);
+            Setting::updateOrCreate(['key' => 'scheduled_product_update_cron'], ['value' => $request->input('scheduled_product_update_cron', '0 0 * * *')]);
+
+            Cache::forget('setting_additional_cost');
+            Cache::forget('setting_scheduled_product_update_enabled');
+            Cache::forget('setting_scheduled_product_update_cron');
+
+            return back()->with('success', 'Scheduler settings updated successfully.');
         }
 
         if ($type === 'customer_auth') {
@@ -365,6 +358,49 @@ class WebsiteController extends Controller
             Cache::forget('setting_customer_auth_enabled');
 
             return back()->with('success', 'Customer authentication setting updated successfully.');
+        }
+
+        if ($type === 'admin_notifications') {
+            $request->validate([
+                'admin_notification_emails' => 'nullable|string|max:2000',
+                'admin_notification_enabled' => 'required|boolean',
+            ]);
+
+            $this->updateEnvValues([
+                'ADMIN_NOTIFICATION_EMAILS' => (string) $request->input('admin_notification_emails', ''),
+                'ADMIN_NOTIFICATION_ENABLED' => $request->boolean('admin_notification_enabled') ? 'true' : 'false',
+            ]);
+
+            return back()->with('success', 'Admin notifications updated successfully.');
+        }
+
+        if ($type === 'theme_colors') {
+            $hexRule = ['required', 'regex:/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/'];
+            $request->validate([
+                'theme_colors' => 'required|array',
+                'theme_colors.primary' => $hexRule,
+                'theme_colors.tint' => $hexRule,
+                'theme_colors.dark' => $hexRule,
+                'theme_colors.accent' => $hexRule,
+                'theme_colors.success' => $hexRule,
+                'theme_colors.bg' => $hexRule,
+                'theme_colors.ivory' => $hexRule,
+            ]);
+
+            $normalized = [];
+            foreach (array_keys(default_theme_colors()) as $key) {
+                $normalized[$key] = sanitize_theme_hex(
+                    $request->input("theme_colors.$key"),
+                    default_theme_colors()[$key]
+                );
+            }
+
+            Setting::updateOrCreate(
+                ['key' => 'theme_colors'],
+                ['value' => json_encode($normalized)]
+            );
+
+            return back()->with('success', 'Theme colors updated successfully.');
         }
 
         return back()->with('error', 'Invalid update type.');
@@ -387,5 +423,99 @@ class WebsiteController extends Controller
         }
 
         return array_values($currentImages);
+    }
+
+    /**
+     * Update or append key-value pairs in .env safely.
+     *
+     * @param  array<string, string>  $values
+     */
+    private function updateEnvValues(array $values): void
+    {
+        $envPath = base_path('.env');
+
+        if (! File::exists($envPath)) {
+            return;
+        }
+
+        $content = File::get($envPath);
+
+        foreach ($values as $key => $value) {
+            $escapedValue = $this->formatEnvValue($value);
+            $pattern = "/^{$key}=.*$/m";
+            $line = "{$key}={$escapedValue}";
+
+            if (preg_match($pattern, $content)) {
+                $content = preg_replace($pattern, $line, $content) ?? $content;
+            } else {
+                $content .= PHP_EOL.$line;
+            }
+        }
+
+        File::put($envPath, $content);
+    }
+
+    private function formatEnvValue(string $value): string
+    {
+        if ($value === '' || strtolower($value) === 'null') {
+            return 'null';
+        }
+
+        // Quote values containing spaces, #, or quotes
+        if (preg_match('/\s|#|"|\'/', $value)) {
+            return '"'.str_replace('"', '\"', $value).'"';
+        }
+
+        return $value;
+    }
+
+    /**
+     * Shared settings payload for settings + content admins pages.
+     *
+     * @return array<string, mixed>
+     */
+    private function websiteSettingsPayload(): array
+    {
+        return [
+            'smtp_host' => get_setting('smtp_host', ''),
+            'smtp_port' => get_setting('smtp_port', '587'),
+            'smtp_username' => get_setting('smtp_username', ''),
+            'smtp_password' => get_setting('smtp_password', ''),
+            'smtp_encryption' => get_setting('smtp_encryption', 'tls'),
+            'smtp_from_address' => get_setting('smtp_from_address', ''),
+            'smtp_from_name' => get_setting('smtp_from_name', ''),
+            'banner_active' => get_setting('banner_active', '1') === '1',
+            'banner_images' => json_decode(get_setting('banner_images', '[]'), true),
+            'site_logo' => get_setting('site_logo'),
+            'site_favicon' => get_setting('site_favicon'),
+            'theme_colors' => theme_colors(),
+            'auth_page_image' => get_setting('auth_page_image'),
+            'footer_description' => get_setting('footer_description'),
+            'social_facebook' => get_setting('social_facebook'),
+            'social_instagram' => get_setting('social_instagram'),
+            'social_youtube' => get_setting('social_youtube'),
+            'social_tiktok' => get_setting('social_tiktok'),
+            'contact_address' => get_setting('contact_address', 'Kuala Lumpur City Centre, 50088 Kuala Lumpur, Malaysia'),
+            'contact_phone' => get_setting('contact_phone', '+60 3 1234 5678'),
+            'contact_email' => get_setting('contact_email', 'support@truebymalaysia.com'),
+            'contact_hours' => get_setting('contact_hours', 'Mon–Fri: 9am–6pm, Sat: 10am–2pm'),
+            'contact_map_embed' => get_setting('contact_map_embed', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3983.751352458897!2d101.7093247!3d3.159495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc37d12d669c1f%3A0x9e3afdd17c8a9056!2sPetronas%20Twin%20Towers!5e0!3m2!1sen!2smy!4v1711867123456!5m2!1sen!2smy'),
+            'about_stats' => json_decode(get_setting('about_stats', '[{"value":"10K+","label":"Happy Customers"},{"value":"500+","label":"Products Listed"},{"value":"99%","label":"Genuine Products"},{"value":"24h","label":"Support Response"}]'), true),
+            'about_testimonials' => json_decode(get_setting('about_testimonials', '[{"name":"Nusrat Jahan","role":"Regular Customer","quote":"Packaging was neat, delivery was fast, and the product quality matched exactly what I saw on the website.","rating":5},{"name":"Arif Hasan","role":"First-time Buyer","quote":"I placed my order at night and got updates quickly. The entire buying process felt smooth and professional.","rating":5},{"name":"Sadia Rahman","role":"Repeat Customer","quote":"TrueBuy has become my go-to store. Prices are fair, service is responsive, and products are always genuine.","rating":5}]'), true),
+            'cta_enabled' => get_setting('cta_enabled', '1') === '1',
+            'customer_auth_enabled' => get_setting('customer_auth_enabled', '0') === '1',
+            'blog_enabled' => get_setting('blog_enabled', '1') === '1',
+            'cta_title' => get_setting('cta_title', 'Ready to Discover Something Exceptional?'),
+            'cta_description' => get_setting('cta_description', 'Explore premium picks curated for modern living, or reach out and let us help you choose the right products.'),
+            'cta_browse_text' => get_setting('cta_browse_text', 'Browse Our Products'),
+            'cta_browse_link' => get_setting('cta_browse_link', '/products'),
+            'cta_contact_text' => get_setting('cta_contact_text', 'Contact Us'),
+            'cta_contact_link' => get_setting('cta_contact_link', '/contact-us'),
+            'additional_cost' => get_setting('additional_cost', '0'),
+            'scheduled_product_update_enabled' => get_setting('scheduled_product_update_enabled', '0') === '1',
+            'scheduled_product_update_cron' => get_setting('scheduled_product_update_cron', '0 0 * * *'),
+            'admin_notification_emails' => env('ADMIN_NOTIFICATION_EMAILS', ''),
+            'admin_notification_enabled' => env('ADMIN_NOTIFICATION_ENABLED', true),
+        ];
     }
 }

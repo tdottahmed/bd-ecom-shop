@@ -1,7 +1,7 @@
-import React, { Fragment, useState, useEffect, useMemo } from "react";
+import React, { Fragment, useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Product, ProductVariation } from "@/types";
-import { X, Check } from "lucide-react";
+import { X, Check, Bell, Zap, ShoppingCart } from "lucide-react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { toast } from "sonner";
 
@@ -10,6 +10,8 @@ interface ProductVariationModalProps {
     onClose: () => void;
     product: Product;
     onAddToCart: (variations: ProductVariation[], quantity: number) => void;
+    onBuyNow?: () => void;
+    onRequestVariation?: (label: string) => void;
 }
 
 const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
@@ -17,7 +19,10 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
     onClose,
     product,
     onAddToCart,
+    onBuyNow,
+    onRequestVariation,
 }) => {
+    const scrollContentRef = useRef<HTMLDivElement | null>(null);
     const [selectedVariations, setSelectedVariations] = useState<
         Record<number, ProductVariation>
     >({});
@@ -25,6 +30,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         { variations: ProductVariation[]; quantity: number }[]
     >([]);
     const [modalImage, setModalImage] = useState<string | null>(null);
+    const [isOutOfStockCombo, setIsOutOfStockCombo] = useState(false);
 
     // Group variations by attribute
     const variationsByAttribute = React.useMemo(() => {
@@ -62,8 +68,27 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
             setSelectedVariations({});
             setCartBatch([]);
             setModalImage(product.images?.[0] || null);
+            setIsOutOfStockCombo(false);
         }
     }, [isOpen, product.images]);
+
+    // Lock background page scroll while modal is open.
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const html = document.documentElement;
+        const body = document.body;
+        const prevHtmlOverflow = html.style.overflow;
+        const prevBodyOverflow = body.style.overflow;
+
+        html.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+
+        return () => {
+            html.style.overflow = prevHtmlOverflow;
+            body.style.overflow = prevBodyOverflow;
+        };
+    }, [isOpen]);
 
     const handleVariationSelect = (
         attributeId: number,
@@ -74,10 +99,19 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
             [attributeId]: variation,
         };
         setSelectedVariations(newSelected);
+        setIsOutOfStockCombo(false);
 
         const imageVariation = Object.values(newSelected).find((v) => v.image);
         setModalImage(imageVariation?.image || product.images?.[0] || null);
     };
+
+    const buildVariationLabel = (variations: Record<number, ProductVariation>) =>
+        Object.values(variations)
+            .map((v) => {
+                const attrName = v.product_attribute?.name || v.attribute?.name || "Option";
+                return `${attrName}: ${v.value}`;
+            })
+            .join(", ");
 
     const isAllSelected =
         Object.keys(variationsByAttribute).length > 0 &&
@@ -99,55 +133,45 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         return Math.min(...variationStocks);
     }, [selectedVariations, isAllSelected, product.stock]);
 
-    // Calculate current price based on selection (for pill hint)
+    // Calculate current effective price based on selection (for pill hint)
     const currentPriceForPill = useMemo(() => {
         if (!isAllSelected || Object.keys(selectedVariations).length === 0) {
             return product.sale_price;
         }
-
         const prices = Object.values(selectedVariations)
-            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+            .map((v) =>
+                v.discounted_price != null
+                    ? Number(v.discounted_price)
+                    : v.price ? parseFloat(String(v.price)) : null,
+            )
             .filter((p) => p !== null) as number[];
-
-        if (prices.length > 0) {
-            return Math.max(...prices);
-        }
-
-        return product.sale_price;
+        return prices.length > 0 ? Math.max(...prices) : product.sale_price;
     }, [selectedVariations, isAllSelected, product.sale_price]);
 
     // Detect completion and auto-add to batch
     useEffect(() => {
         if (isAllSelected) {
             const currentVariations = Object.values(selectedVariations);
-
-            // Generate a signature for comparison
-            const currentIds = currentVariations
-                .map((v) => v.id)
-                .sort()
-                .join("-");
-
-            // Check if already in batch
+            const currentIds = currentVariations.map((v) => v.id).sort().join("-");
             const existsIndex = cartBatch.findIndex(
                 (item) =>
-                    item.variations
-                        .map((v) => v.id)
-                        .sort()
-                        .join("-") === currentIds,
+                    item.variations.map((v) => v.id).sort().join("-") === currentIds,
             );
 
-            if (
-                existsIndex === -1 &&
-                (product.is_preorder || currentSelectionStock > 0)
-            ) {
-                // Add new item
-                const initialQty = 1;
-
-                setCartBatch((prev) => [
-                    ...prev,
-                    { variations: currentVariations, quantity: initialQty },
-                ]);
+            if (existsIndex === -1) {
+                if (product.is_preorder || currentSelectionStock > 0) {
+                    setIsOutOfStockCombo(false);
+                    setCartBatch((prev) => [
+                        ...prev,
+                        { variations: currentVariations, quantity: 1 },
+                    ]);
+                } else {
+                    // Keep selection — show request prompt instead of resetting
+                    setIsOutOfStockCombo(true);
+                }
             }
+        } else {
+            setIsOutOfStockCombo(false);
         }
     }, [
         selectedVariations,
@@ -156,14 +180,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         currentSelectionStock,
         cartBatch,
     ]);
-    // NOTE: Removed cartBatch dependency to avoid loop.
-    // We only want to trigger this when SELECTION changes.
-    // However, selectedVariations changes on click.
-    // If we add to batch, we don't change selection, so this shouldn't loop unless logic is wrong.
-    // BUT checking existsIndex depends on cartBatch.
-    // We can use a ref or careful dependency management.
-    // Actually, simply including cartBatch in deps is fine because we only add if existsIndex is -1.
-    // Once added, existsIndex will be found, so it won't add again.
+    
 
     const handleBatchQuantityUpdate = (index: number, newQty: number) => {
         const minQty = 1;
@@ -216,19 +233,42 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         onClose();
     };
 
+    const handleBuyNow = () => {
+        if (cartBatch.length === 0) return;
+
+        cartBatch.forEach((item) => {
+            onAddToCart(item.variations, item.quantity);
+        });
+        onClose();
+        onBuyNow?.();
+    };
+
     const batchTotalQuantity = cartBatch.reduce(
         (acc, item) => acc + item.quantity,
         0,
     );
     const batchTotalPrice = cartBatch.reduce((acc, item) => {
-        // Calculate price for this item
         const prices = item.variations
-            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+            .map((v) =>
+                v.discounted_price != null
+                    ? Number(v.discounted_price)
+                    : v.price ? parseFloat(String(v.price)) : null,
+            )
             .filter((p) => p !== null) as number[];
-        const price =
-            prices.length > 0 ? Math.max(...prices) : product.sale_price;
+        const price = prices.length > 0 ? Math.max(...prices) : product.sale_price;
         return acc + price * item.quantity;
     }, 0);
+
+    const handleWheelCapture: React.WheelEventHandler<HTMLDivElement> = (e) => {
+        const el = scrollContentRef.current;
+        if (!el) return;
+
+        if (el.scrollHeight > el.clientHeight) {
+            e.preventDefault();
+            e.stopPropagation();
+            el.scrollTop += e.deltaY;
+        }
+    };
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -245,8 +285,8 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                     <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm" />
                 </Transition.Child>
 
-                <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <div className="fixed inset-0 overflow-hidden">
+                    <div className="flex h-full items-center justify-center p-4 text-center">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -256,8 +296,9 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <div className="flex justify-between items-center mb-6">
+                            <Dialog.Panel className="w-full max-w-md transform rounded-2xl bg-white text-left align-middle shadow-xl transition-all flex flex-col max-h-[90vh]">
+                                {/* Sticky Header */}
+                                <div className="flex justify-between items-center px-6 pt-6 pb-4 flex-shrink-0 border-b border-gray-100">
                                     <Dialog.Title
                                         as="h3"
                                         className="text-xl font-bold text-gray-900"
@@ -272,7 +313,12 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     </button>
                                 </div>
 
-                                <div className="mt-2 text-sm">
+                                {/* Scrollable Content */}
+                                <div
+                                    ref={scrollContentRef}
+                                    onWheelCapture={handleWheelCapture}
+                                    className="flex-1 overflow-y-auto overscroll-contain px-6 py-4 text-sm custom-scrollbar touch-pan-y"
+                                >
                                     <div className="flex gap-4 mb-6">
                                         {/* Product Thumbnail */}
                                         <div className="relative w-20 h-20 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0 bg-gray-50">
@@ -301,7 +347,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                             {/* Out of Stock Overlay matching ProductShow */}
                                             {(!product.is_preorder && ((isAllSelected && currentSelectionStock <= 0) || (!isAllSelected && product.stock <= 0))) && (
                                                 <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-                                                    <span className="bg-rose-100 text-rose-800 px-1.5 py-1 rounded text-[9px] sm:text-[10px] font-bold shadow-sm border border-rose-200 text-center leading-tight uppercase tracking-wider">
+                                                    <span className="bg-brand-primary/12 text-brand-primary px-1.5 py-1 rounded text-[9px] sm:text-[10px] font-bold shadow-sm border border-brand-primary/25 text-center leading-tight uppercase tracking-wider">
                                                         Out of<br/>Stock
                                                     </span>
                                                 </div>
@@ -312,7 +358,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 {product.name}
                                             </h4>
                                             {/* Show base price or range here since dynamic price is per-item now */}
-                                            <div className="text-indigo-600 font-bold mt-1 text-lg">
+                                            <div className="text-brand-primary font-bold mt-1 text-lg">
                                                 {useMemo(() => {
                                                     const priceVariation = Object.values(selectedVariations)
                                                         .find(v => v.price !== null && v.price !== undefined && parseFloat(String(v.price)) > 0);
@@ -358,95 +404,140 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     </div>
 
                                     {/* Attributes */}
-                                    <div className="space-y-5 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
-                                        {Object.entries(
-                                            variationsByAttribute,
-                                        ).map(([attrId, group]) => (
+                                    <div className="space-y-5">
+                                        {Object.entries(variationsByAttribute).map(([attrId, group]) => (
                                             <div key={attrId}>
                                                 <h5 className="text-sm font-semibold text-gray-800 mb-3 block">
                                                     {group.name}
                                                 </h5>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {group.variations.map(
-                                                        (variation) => {
-                                                            const isSelected =
-                                                                selectedVariations[Number(attrId)]
-                                                                    ?.id === variation.id;
-                                                            // Show price hint in pill if it differs?
-                                                            const showPriceHint =
-                                                                variation.price &&
-                                                                parseFloat(String(variation.price)) !==
-                                                                    product.sale_price;
+                                                    {group.variations.map((variation) => {
+                                                        const isSelected =
+                                                            selectedVariations[Number(attrId)]?.id === variation.id;
+                                                        const vPrice = variation.price != null ? parseFloat(String(variation.price)) : null;
+                                                        const vDiscounted = variation.discounted_price != null ? Number(variation.discounted_price) : null;
+                                                        const hasVarDiscount = vDiscounted !== null && vPrice !== null && vDiscounted < vPrice;
+                                                        const showPriceHint = vPrice !== null && vPrice > 0 && vPrice !== product.sale_price;
+                                                        const isOutOfStock =
+                                                            !product.is_preorder &&
+                                                            variation.stock !== null &&
+                                                            variation.stock !== undefined &&
+                                                            variation.stock <= 0;
 
-                                                            const isOutOfStock =
-                                                                !product.is_preorder &&
-                                                                variation.stock !== null &&
-                                                                variation.stock !== undefined &&
-                                                                variation.stock <= 0;
-
+                                                        if (isOutOfStock) {
                                                             return (
                                                                 <button
                                                                     key={variation.id}
                                                                     onClick={() => {
-                                                                        if (isOutOfStock) {
-                                                                            toast.error("This specific option is out of stock.");
-                                                                            return;
+                                                                        if (onRequestVariation) {
+                                                                            onRequestVariation(`${group.name}: ${variation.value}`);
+                                                                        } else {
+                                                                            toast.error("This option is out of stock.");
                                                                         }
-                                                                        handleVariationSelect(
-                                                                            Number(attrId),
-                                                                            variation,
-                                                                        );
                                                                     }}
-                                                                    disabled={isOutOfStock}
                                                                     className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                                         variation.image ? "pl-2" : "pl-4"
-                                                                    } ${
-                                                                        isOutOfStock
-                                                                            ? "border-slate-200 bg-slate-50 opacity-80 cursor-not-allowed"
-                                                                            : isSelected
-                                                                                ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-600"
-                                                                                : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                                                                    } rounded-lg group`}
+                                                                    } border-brand-primary/25 bg-brand-bg text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/35 rounded-lg cursor-pointer`}
+                                                                    title="Out of stock – click to request"
                                                                 >
                                                                     {variation.image && (
                                                                         <img
                                                                             src={getAssetUrl(variation.image)}
                                                                             alt={variation.value}
-                                                                            className={`w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
+                                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10 grayscale opacity-70"
                                                                         />
                                                                     )}
-                                                                    <span className={`relative z-10 flex items-center gap-1.5 ${isOutOfStock ? 'text-slate-400' : ''}`}>
+                                                                    <span className="relative z-10 flex items-center gap-1.5">
                                                                         {variation.value}
-                                                                        {isOutOfStock && (
-                                                                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-sm border border-rose-100/50">
-                                                                                Out of Stock
-                                                                            </span>
-                                                                        )}
-                                                                    </span>
-                                                                    {showPriceHint && (
-                                                                        <span className={`text-xs font-normal ml-0.5 relative z-10 ${isOutOfStock ? '' : 'opacity-70'}`}>
-                                                                            (
-                                                                            {formatPrice(
-                                                                                variation.price!,
-                                                                            )}
-                                                                            )
+                                                                        <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded-sm border border-brand-primary/20">
+                                                                            <Bell size={8} />
+                                                                            Request
                                                                         </span>
-                                                                    )}
-                                                                    {isSelected && !isOutOfStock && (
-                                                                        <Check
-                                                                            size={14}
-                                                                            strokeWidth={3}
-                                                                            className="relative z-10"
-                                                                        />
+                                                                    </span>
+                                                                    {showPriceHint && vPrice && (
+                                                                        <span className="text-xs font-normal ml-0.5 relative z-10 opacity-60">
+                                                                            ({formatPrice(vPrice)})
+                                                                        </span>
                                                                     )}
                                                                 </button>
                                                             );
-                                                        },
-                                                    )}
+                                                        }
+
+                                                        return (
+                                                            <button
+                                                                key={variation.id}
+                                                                onClick={() => handleVariationSelect(Number(attrId), variation)}
+                                                                className={`relative py-2 pr-3 text-sm border transition-all flex flex-col items-start font-medium ${
+                                                                    variation.image ? "pl-2" : "pl-3"
+                                                                } ${
+                                                                    isSelected
+                                                                        ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
+                                                                        : hasVarDiscount
+                                                                          ? "border-amber-200 bg-amber-50/50 hover:border-amber-300 text-gray-700"
+                                                                          : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                                } rounded-lg`}
+                                                            >
+                                                                <span className="relative z-10 flex items-center gap-1.5">
+                                                                    {variation.image && (
+                                                                        <img
+                                                                            src={getAssetUrl(variation.image)}
+                                                                            alt={variation.value}
+                                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                                        />
+                                                                    )}
+                                                                    {variation.value}
+                                                                    {isSelected && (
+                                                                        <Check size={13} strokeWidth={3} className="text-brand-primary" />
+                                                                    )}
+                                                                </span>
+                                                                {showPriceHint && vPrice && (
+                                                                    <span className="relative z-10 flex items-center gap-1 mt-0.5">
+                                                                        {hasVarDiscount && vDiscounted !== null ? (
+                                                                            <>
+                                                                                <span className="text-amber-600 font-bold text-xs">{formatPrice(vDiscounted)}</span>
+                                                                                <span className="text-gray-400 line-through text-[10px]">{formatPrice(vPrice)}</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <span className="text-gray-500 text-xs">{formatPrice(vPrice)}</span>
+                                                                        )}
+                                                                    </span>
+                                                                )}
+                                                                {hasVarDiscount && variation.discount_type && (
+                                                                    <span className="absolute -top-2 -right-2 text-[9px] font-extrabold text-white bg-amber-500 px-1.5 py-0.5 rounded-full shadow-sm z-20">
+                                                                        {variation.discount_type === "percentage"
+                                                                            ? `-${variation.discount_value}%`
+                                                                            : `-৳${variation.discount_value}`}
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
+
+                                    {/* Out-of-stock combination prompt */}
+                                    {isOutOfStockCombo && (
+                                        <div className="mt-4 rounded-xl border border-brand-primary/20 bg-brand-bg p-4">
+                                            <p className="text-sm font-bold text-brand-dark mb-1">
+                                                This combination is out of stock
+                                            </p>
+                                            <p className="text-xs text-brand-primary/90 mb-3">
+                                                <span className="font-medium">{buildVariationLabel(selectedVariations)}</span>
+                                                {" "}— submit a request and we'll contact you.
+                                            </p>
+                                            {onRequestVariation && (
+                                                <button
+                                                    onClick={() => onRequestVariation(buildVariationLabel(selectedVariations))}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-bold rounded-lg transition-colors"
+                                                >
+                                                    <Bell size={14} />
+                                                    Request This Combination
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
 
                                     {/* Helper Text */}
                                     <div className="mt-4 text-xs text-gray-500 italic">
@@ -459,7 +550,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                         <h5 className="font-semibold text-gray-900 mb-3 text-sm flex items-center justify-between">
                                             <span>Your Selection </span>
                                             {cartBatch.length > 0 && (
-                                                <span className="text-indigo-600 text-xs font-normal">
+                                                <span className="text-brand-primary text-xs font-normal">
                                                     {cartBatch.length} items
                                                 </span>
                                             )}
@@ -470,32 +561,27 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                 No items selected yet.
                                             </div>
                                         ) : (
-                                            <div className="space-y-3 max-h-[180px] overflow-y-auto px-1 custom-scrollbar">
+                                            <div className="space-y-3 px-1">
                                                 {cartBatch.map(
                                                     (item, index) => {
-                                                        // Calculate price for this specific row
-                                                        const prices =
-                                                            item.variations
-                                                                .map((v) =>
-                                                                    v.price
-                                                                        ? parseFloat(
-                                                                              String(
-                                                                                  v.price,
-                                                                              ),
-                                                                          )
-                                                                        : null,
-                                                                )
-                                                                .filter(
-                                                                    (p) =>
-                                                                        p !==
-                                                                        null,
-                                                                ) as number[];
+                                                        const effectivePrices = item.variations
+                                                            .map((v) =>
+                                                                v.discounted_price != null
+                                                                    ? Number(v.discounted_price)
+                                                                    : v.price ? parseFloat(String(v.price)) : null,
+                                                            )
+                                                            .filter((p) => p !== null) as number[];
+                                                        const originalPrices = item.variations
+                                                            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+                                                            .filter((p) => p !== null) as number[];
                                                         const itemPrice =
-                                                            prices.length > 0
-                                                                ? Math.max(
-                                                                      ...prices,
-                                                                  )
+                                                            effectivePrices.length > 0
+                                                                ? Math.max(...effectivePrices)
                                                                 : product.sale_price;
+                                                        const itemOriginalPrice =
+                                                            originalPrices.length > 0 ? Math.max(...originalPrices) : null;
+                                                        const hasItemDiscount =
+                                                            itemOriginalPrice !== null && itemPrice < itemOriginalPrice;
 
                                                         // Highlight if matches current selection?
                                                         const isCurrent =
@@ -515,7 +601,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                 key={index}
                                                                 className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                                                                     isCurrent
-                                                                        ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-100"
+                                                                        ? "bg-brand-bg border-brand-bg ring-1 ring-brand-bg"
                                                                         : "bg-white border-gray-200 hover:border-gray-300"
                                                                 }`}
                                                             >
@@ -541,18 +627,16 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                                 ", ",
                                                                             )}
                                                                     </div>
-                                                                    <div className="text-xs text-gray-500 mt-0.5 font-medium">
-                                                                        {formatPrice(
-                                                                            itemPrice,
-                                                                        )}{" "}
-                                                                        ×{" "}
-                                                                        {
-                                                                            item.quantity
-                                                                        }{" "}
-                                                                        ={" "}
-                                                                        {formatPrice(
-                                                                            itemPrice *
-                                                                                item.quantity,
+                                                                    <div className="text-xs text-gray-500 mt-0.5 font-medium flex items-center gap-1 flex-wrap">
+                                                                        {hasItemDiscount ? (
+                                                                            <>
+                                                                                <span className="text-brand-primary font-bold">{formatPrice(itemPrice)}</span>
+                                                                                <span className="line-through opacity-60">{formatPrice(itemOriginalPrice!)}</span>
+                                                                                <span>× {item.quantity} =</span>
+                                                                                <span className="text-brand-primary font-bold">{formatPrice(itemPrice * item.quantity)}</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <span>{formatPrice(itemPrice)} × {item.quantity} = {formatPrice(itemPrice * item.quantity)}</span>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -605,7 +689,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                             index,
                                                                         )
                                                                     }
-                                                                    className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-md transition-colors"
+                                                                    className="text-gray-400 hover:text-brand-primary p-1.5 hover:bg-brand-bg rounded-md transition-colors"
                                                                     title="Remove"
                                                                 >
                                                                     <X
@@ -641,28 +725,65 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                     )}
                                 </div>
 
-                                <div className="mt-6 flex flex-col gap-3">
-                                    <button
-                                        type="button"
-                                        className={`w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
-                                            cartBatch.length > 0
-                                                ? "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
-                                                : "bg-gray-300 cursor-not-allowed"
-                                        }`}
-                                        onClick={handleAddToCart}
-                                        disabled={cartBatch.length === 0}
-                                    >
-                                        {cartBatch.length > 0
-                                            ? `Add ${batchTotalQuantity} Items to Cart`
-                                            : "Select Options to Start"}
-                                    </button>
-
-                                    <button
-                                        onClick={onClose}
-                                        className="w-full py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
+                                {/* Sticky Footer */}
+                                <div className="flex-shrink-0 px-6 pb-6 pt-4 border-t border-gray-100 flex flex-col gap-3">
+                                    {isOutOfStockCombo && cartBatch.length === 0 ? (
+                                        <>
+                                            {onRequestVariation && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onRequestVariation(buildVariationLabel(selectedVariations))}
+                                                    className="w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white bg-brand-primary hover:bg-brand-primary/90 shadow-md transition-all transform active:scale-[0.98]"
+                                                >
+                                                    <Bell size={16} />
+                                                    Request This Combination
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={onClose}
+                                                className="w-full py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className={`w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
+                                                    cartBatch.length > 0
+                                                        ? "bg-brand-primary hover:bg-brand-primary/90 hover:shadow-lg shadow-brand-primary/30"
+                                                        : "bg-gray-300 cursor-not-allowed"
+                                                }`}
+                                                onClick={handleBuyNow}
+                                                disabled={cartBatch.length === 0}
+                                            >
+                                                <Zap size={16} strokeWidth={2.5} />
+                                                {cartBatch.length > 0
+                                                    ? `Buy Now (${batchTotalQuantity} items)`
+                                                    : "Select Options to Start"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`w-full inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all transform active:scale-[0.98] ${
+                                                    cartBatch.length > 0
+                                                        ? "bg-white border-2 border-slate-200 hover:border-brand-dark/40 text-brand-dark hover:bg-slate-50"
+                                                        : "bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed"
+                                                }`}
+                                                onClick={handleAddToCart}
+                                                disabled={cartBatch.length === 0}
+                                            >
+                                                <ShoppingCart size={16} strokeWidth={2.5} />
+                                                Add to Cart
+                                            </button>
+                                            <button
+                                                onClick={onClose}
+                                                className="w-full py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

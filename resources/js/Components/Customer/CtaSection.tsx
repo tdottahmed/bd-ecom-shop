@@ -24,10 +24,10 @@ const CtaSection: React.FC<NewsletterSectionProps> = ({
     if (!enabled) return null;
 
     return (
-        <section className="group relative overflow-hidden rounded-[30px] border border-white/40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-6 py-12 text-white shadow-[0_25px_90px_rgba(15,23,42,0.45)] sm:px-10 sm:py-14">
-            <div className="pointer-events-none absolute left-1/2 top-0 h-[360px] w-[360px] -translate-x-1/2 rounded-full bg-indigo-500/30 blur-3xl transition-transform duration-700 group-hover:scale-110" />
-            <div className="pointer-events-none absolute -bottom-24 left-1/2 h-[280px] w-[280px] -translate-x-1/2 rounded-full bg-fuchsia-500/20 blur-3xl transition-transform duration-700 group-hover:scale-110" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.22),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(99,102,241,0.30),transparent_35%)]" />
+        <section className="group relative overflow-hidden rounded-[30px] border border-white/40 bg-gradient-to-br from-brand-dark via-[#2D0A1F] to-brand-dark px-6 py-12 text-white shadow-[0_25px_90px_rgba(26,17,26,0.5)] sm:px-10 sm:py-14">
+            <div className="pointer-events-none absolute left-1/2 top-0 h-[360px] w-[360px] -translate-x-1/2 rounded-full bg-brand-primary/30 blur-3xl transition-transform duration-700 group-hover:scale-110" />
+            <div className="pointer-events-none absolute -bottom-24 left-1/2 h-[280px] w-[280px] -translate-x-1/2 rounded-full bg-brand-accent/20 blur-3xl transition-transform duration-700 group-hover:scale-110" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.18),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(225,29,109,0.25),transparent_35%)]" />
 
             <style>{`
                 @keyframes ctaFloat {
@@ -37,7 +37,7 @@ const CtaSection: React.FC<NewsletterSectionProps> = ({
             `}</style>
             <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
                 <div>
-                    <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-200">
+                    <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-brand-tint">
                         Your next favorite find
                     </span>
                     <h2 className="mt-5 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
@@ -67,8 +67,8 @@ const CtaSection: React.FC<NewsletterSectionProps> = ({
             </div>
             <div className="pointer-events-none absolute inset-0 opacity-35">
                 <div className="absolute left-[16%] top-[24%] h-2 w-2 animate-[ctaFloat_5s_ease-in-out_infinite] rounded-full bg-white/80" />
-                <div className="absolute left-[34%] top-[76%] h-1.5 w-1.5 animate-[ctaFloat_6.5s_ease-in-out_infinite] rounded-full bg-indigo-200/80" />
-                <div className="absolute right-[20%] top-[30%] h-2 w-2 animate-[ctaFloat_7s_ease-in-out_infinite] rounded-full bg-fuchsia-200/80" />
+                <div className="absolute left-[34%] top-[76%] h-1.5 w-1.5 animate-[ctaFloat_6.5s_ease-in-out_infinite] rounded-full bg-brand-tint/80" />
+                <div className="absolute right-[20%] top-[30%] h-2 w-2 animate-[ctaFloat_7s_ease-in-out_infinite] rounded-full bg-brand-accent/80" />
             </div>
         </section>
     );

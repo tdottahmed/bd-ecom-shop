@@ -328,7 +328,7 @@ function DefaultContent() {
                         our{" "}
                         <Link
                             href="/privacy-policy"
-                            className="text-violet-600 underline underline-offset-2 hover:text-violet-800 transition-colors"
+                            className="text-brand-primary underline underline-offset-2 hover:text-brand-primary/80 transition-colors"
                         >
                             Privacy Policy
                         </Link>
@@ -400,7 +400,7 @@ function DefaultContent() {
                             <strong>Email:</strong>{" "}
                             <a
                                 href="mailto:support@truebymalaysia.com"
-                                className="text-violet-600 underline underline-offset-2 hover:text-violet-800 transition-colors"
+                                className="text-brand-primary underline underline-offset-2 hover:text-brand-primary/80 transition-colors"
                             >
                                 support@truebymalaysia.com
                             </a>
@@ -421,7 +421,7 @@ function DefaultContent() {
                         Alternatively, you may use our{" "}
                         <Link
                             href="/contact-us"
-                            className="text-violet-600 underline underline-offset-2 hover:text-violet-800 transition-colors"
+                            className="text-brand-primary underline underline-offset-2 hover:text-brand-primary/80 transition-colors"
                         >
                             contact form
                         </Link>{" "}
@@ -504,7 +504,7 @@ export default function TermsConditions({ page }: { page?: Page | null }) {
                     width: 5px;
                     height: 5px;
                     border-radius: 50%;
-                    background: #7c3aed;
+                    background: var(--brand-primary);
                     opacity: 0.6;
                 }
                 .prose-body strong {
@@ -512,21 +512,21 @@ export default function TermsConditions({ page }: { page?: Page | null }) {
                     font-weight: 600;
                 }
                 .prose-body a {
-                    color: #7c3aed;
+                    color: var(--brand-primary);
                 }
             `}</style>
 
-            <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
+            <div className="relative min-h-screen bg-gradient-to-b from-brand-ivory via-white to-slate-50">
                 {/* Background accent */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[40rem] rounded-full bg-gradient-to-r from-violet-400 via-indigo-300 to-sky-300 opacity-20 blur-3xl" />
+                    <div className="h-72 w-[40rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-success opacity-15 blur-3xl" />
                 </div>
-                <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-violet-100/40 blur-3xl" />
+                <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-brand-primary/10 blur-3xl" />
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
                     {/* Page Header */}
                     <div className="mb-10">
-                        <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-100 text-violet-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
+                        <div className="inline-flex items-center gap-2 bg-brand-bg border border-brand-bg text-brand-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-5 tracking-wide uppercase">
                             <FileText size={12} /> Legal
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
@@ -558,8 +558,8 @@ export default function TermsConditions({ page }: { page?: Page | null }) {
 
                     {/* Key Highlights summary — only shown for default content */}
                     {!hasContent && (
-                        <div className="bg-violet-50 border border-violet-100 rounded-2xl p-6 sm:p-8 mb-12">
-                            <p className="text-xs font-semibold text-violet-500 uppercase tracking-widest mb-4">
+                        <div className="bg-brand-bg border border-brand-bg rounded-2xl p-6 sm:p-8 mb-12">
+                            <p className="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-4">
                                 Key Highlights
                             </p>
                             <div className="grid sm:grid-cols-2 gap-3">
@@ -568,7 +568,7 @@ export default function TermsConditions({ page }: { page?: Page | null }) {
                                         key={i}
                                         className="flex items-start gap-3"
                                     >
-                                        <span className="mt-1 w-4 h-4 rounded-full bg-violet-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                                        <span className="mt-1 w-4 h-4 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                                             {i + 1}
                                         </span>
                                         <p className="text-sm text-slate-600 leading-relaxed">
@@ -601,12 +601,12 @@ export default function TermsConditions({ page }: { page?: Page | null }) {
                                                 }
                                                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all ${
                                                     activeSection === s.id
-                                                        ? "bg-violet-50 text-violet-700 font-semibold"
+                                                        ? "bg-brand-bg text-brand-primary font-semibold"
                                                         : "text-slate-400 hover:text-slate-700 hover:bg-slate-50"
                                                 }`}
                                             >
                                                 <span
-                                                    className={`tabular-nums font-mono text-[10px] shrink-0 ${activeSection === s.id ? "text-violet-400" : "text-slate-300"}`}
+                                                    className={`tabular-nums font-mono text-[10px] shrink-0 ${activeSection === s.id ? "text-brand-primary" : "text-slate-300"}`}
                                                 >
                                                     {s.num}
                                                 </span>

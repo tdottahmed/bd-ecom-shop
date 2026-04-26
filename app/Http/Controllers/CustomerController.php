@@ -85,7 +85,7 @@ class CustomerController extends Controller
 
     public function index(Request $request)
     {
-        $websiteSettings = \App\Models\WebsiteSetting::first();
+        $websiteSettings = \Illuminate\Support\Facades\Cache::remember('website_settings', 600, fn () => \App\Models\WebsiteSetting::first());
         $categories = Category::select(['id', 'title', 'slug', 'image'])->where('is_featured', 1)->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
         $bannerSettings = $this->getBannerSettings();
@@ -158,7 +158,7 @@ class CustomerController extends Controller
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
 
-        $products = $this->filterProducts($request, null, 16);
+        $products = $this->filterProducts($request, null, 30);
 
         return Inertia::render('Customer/ProductList', [
             'categories' => $categories,
@@ -178,10 +178,10 @@ class CustomerController extends Controller
         ]);
     }
 
-    private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 12)
+    private function filterProducts(Request $request, ?int $categoryId = null, int $perPage = 30)
     {
         $query = Product::with(['category', 'product_variations', 'product_variations.product_attribute'])
-            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
+            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'product_type', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price');
 
         // Filter by category if provided
         if ($categoryId) {
@@ -208,17 +208,30 @@ class CustomerController extends Controller
             $query->where('sale_price', '<=', $maxPrice);
         }
 
+        // Effective stock: for variant products use sum of variation stocks, for single use products.stock
+        $effectiveStock = "CASE WHEN product_type = 'variant'
+            THEN COALESCE((SELECT SUM(pv.stock) FROM product_variations pv WHERE pv.product_id = products.id), 0)
+            ELSE stock
+        END";
+
         // Stock status
         if ($request->input('in_stock') === 'true') {
-            $query->where('stock', '>', 0);
+            $query->whereRaw("($effectiveStock) > 0");
         }
         if ($request->input('stock_out') === 'true') {
-            $query->where('stock', '<=', 0)->orderBy('updated_at', 'desc');
+            $query->whereRaw("($effectiveStock) <= 0")->where('is_preorder', false);
         }
 
         // Preorder status
         if ($request->input('is_preorder') === 'true') {
             $query->where('is_preorder', true);
+        }
+
+        // Always rank in-stock first (by qty desc), then preorder, then out-of-stock
+        $explicitStockFilter = $request->input('in_stock') || $request->input('stock_out');
+        if (!$explicitStockFilter) {
+            $query->orderByRaw("CASE WHEN ($effectiveStock) > 0 THEN 0 WHEN is_preorder = 1 THEN 1 ELSE 2 END")
+                  ->orderByRaw("($effectiveStock) DESC");
         }
 
         // Sorting

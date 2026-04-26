@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "@inertiajs/react";
 import CategoriesMegaMenu from "./CategoriesMegaMenu";
 import BrandsDropdown from "./BrandsDropdown";
+import { resolvePageHref } from "@/Utils/pageLink";
 
 interface Category {
     id: number;
@@ -25,9 +26,12 @@ interface Props {
     featuredBrands: Brand[];
     openDropdown: "categories" | "brands" | null;
     setOpenDropdown: (val: "categories" | "brands" | null | ((prev: "categories" | "brands" | null) => "categories" | "brands" | null)) => void;
-    isMdRow?: boolean;
     blogEnabled?: boolean;
+    headerPages?: { title: string; slug: string }[];
 }
+
+const navLinkClass =
+    "px-3 py-1.5 rounded-full text-sm font-medium text-brand-dark hover:text-brand-primary hover:bg-brand-bg transition-colors whitespace-nowrap";
 
 const DesktopNav: React.FC<Props> = ({
     categories,
@@ -36,14 +40,9 @@ const DesktopNav: React.FC<Props> = ({
     featuredBrands,
     openDropdown,
     setOpenDropdown,
-    isMdRow = false,
     blogEnabled = true,
+    headerPages = [],
 }) => {
-    // Nav link base classes based on context
-    const navLinkClass = isMdRow
-        ? "px-3 py-2 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap"
-        : "px-2 py-2 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap";
-
     return (
         <>
             <Link href={route("home")} className={navLinkClass}>
@@ -63,7 +62,11 @@ const DesktopNav: React.FC<Props> = ({
                     )
                 }
                 onMouseEnter={() => setOpenDropdown("categories")}
-                onClose={() => setOpenDropdown((prev) => prev === "categories" ? null : prev)}
+                onClose={() =>
+                    setOpenDropdown((prev) =>
+                        prev === "categories" ? null : prev
+                    )
+                }
             />
 
             <BrandsDropdown
@@ -76,22 +79,23 @@ const DesktopNav: React.FC<Props> = ({
                     )
                 }
                 onMouseEnter={() => setOpenDropdown("brands")}
-                onClose={() => setOpenDropdown((prev) => prev === "brands" ? null : prev)}
+                onClose={() =>
+                    setOpenDropdown((prev) =>
+                        prev === "brands" ? null : prev
+                    )
+                }
             />
 
-            {isMdRow && <div className="flex-1" />}
-
-            <Link href={route("pages.about")} className={navLinkClass}>
-                About Us
-            </Link>
             {blogEnabled && (
                 <Link href={route("blog.index")} className={navLinkClass}>
                     Blog
                 </Link>
             )}
-            <Link href={route("pages.contact")} className={navLinkClass}>
-                Contact Us
-            </Link>
+            {headerPages.map((page) => (
+                <Link key={page.slug} href={resolvePageHref(page)} className={navLinkClass}>
+                    {page.title}
+                </Link>
+            ))}
         </>
     );
 };

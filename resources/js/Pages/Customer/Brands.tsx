@@ -56,9 +56,9 @@ export default function Brands({ brands }: Props) {
             <div className="relative min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100">
                 {/* Background blobs */}
                 <div className="pointer-events-none absolute inset-x-0 -top-40 flex justify-center">
-                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300 opacity-30 blur-3xl" />
+                    <div className="h-72 w-[36rem] rounded-full bg-gradient-to-r from-brand-primary via-brand-tint to-brand-accent opacity-20 blur-3xl" />
                 </div>
-                <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-indigo-100/40 blur-3xl" />
+                <div className="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-brand-primary/10 blur-3xl" />
 
                 <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
                     {/* Header */}
@@ -75,7 +75,7 @@ export default function Brands({ brands }: Props) {
                         </div>
                         <Link
                             href={route("products.index")}
-                            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-lg self-start sm:self-auto"
+                            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all hover:-translate-y-0.5 shadow-lg shadow-brand-primary/30 self-start sm:self-auto"
                         >
                             View all products
                             <ArrowRight size={14} />
@@ -93,7 +93,7 @@ export default function Brands({ brands }: Props) {
                             placeholder="Search brands…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full bg-white border border-slate-200 text-slate-800 placeholder-slate-300 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all shadow-sm"
+                            className="w-full bg-white border border-slate-200 text-slate-800 placeholder-slate-300 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-bg transition-all shadow-sm"
                         />
                         {search && (
                             <button
@@ -123,7 +123,7 @@ export default function Brands({ brands }: Props) {
                                     <Link
                                         key={brand.id}
                                         href={route("brands.show", brand.slug)}
-                                        className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1.5 transition-all duration-200 overflow-hidden flex flex-col"
+                                        className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-brand-bg hover:-translate-y-1.5 transition-all duration-200 overflow-hidden flex flex-col"
                                     >
                                         {/* Logo */}
                                         <div className="relative w-full aspect-square bg-slate-50 overflow-hidden">
@@ -144,7 +144,7 @@ export default function Brands({ brands }: Props) {
 
                                         {/* Name + count */}
                                         <div className="px-4 py-3 border-t border-slate-100">
-                                            <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
+                                            <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-brand-primary transition-colors">
                                                 {brand.title}
                                             </p>
                                             {brand.products_count != null && (
@@ -173,7 +173,7 @@ export default function Brands({ brands }: Props) {
                             </p>
                             <button
                                 onClick={() => setSearch("")}
-                                className="mt-3 text-sm text-indigo-500 hover:text-indigo-700 font-medium transition-colors"
+                                className="mt-3 text-sm text-brand-primary/70 hover:text-brand-primary font-medium transition-colors"
                             >
                                 Clear search
                             </button>

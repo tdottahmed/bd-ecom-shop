@@ -120,7 +120,7 @@ const Home: React.FC<HomeProps> = ({
     return (
         <CustomerLayout>
             <Head title={category ? category.title : "Home"} />
-            <div className="relative min-h-screen bg-luxury-page text-slate-900">
+            <div className="relative min-h-screen bg-gradient-to-r from-brand-bg via-white to-brand-bg text-slate-900">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-[min(60vh,520px)] bg-gradient-to-b from-white/40 to-transparent" />
 
                 <FilterSidebar

@@ -1,6 +1,7 @@
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { AxiosInstance } from 'axios';
 import { route as ziggyRoute } from 'ziggy-js';
+import type { ThemeColors } from '@/Utils/themeColors';
 import { PageProps as AppPageProps } from './';
 
 declare global {
@@ -13,5 +14,8 @@ declare global {
 }
 
 declare module '@inertiajs/core' {
-    interface PageProps extends InertiaPageProps, AppPageProps {}
+    interface PageProps extends InertiaPageProps, AppPageProps {
+        /** Populated globally from `HandleInertiaRequests`; optional for narrow page generics. */
+        themeColors?: ThemeColors;
+    }
 }

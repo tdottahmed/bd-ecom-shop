@@ -29,7 +29,7 @@ export default function Addresses({ address }: { address: string | null }) {
                 />
                 <button
                     type="submit"
-                    className="rounded-lg bg-gray-900 text-white px-4 py-2"
+                    className="rounded-lg bg-brand-primary text-white px-4 py-2"
                 >
                     Save Address
                 </button>

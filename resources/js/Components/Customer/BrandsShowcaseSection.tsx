@@ -69,14 +69,14 @@ export default function BrandsShowcaseSection({
 
     return (
         <section className="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.14)]">
-            <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-indigo-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-emerald-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(99,102,241,0.10),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(16,185,129,0.10),transparent_45%)]" />
+            <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand-primary/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-brand-success/15 blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(225,29,109,0.08),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(22,181,125,0.08),transparent_45%)]" />
 
             <div className="relative p-6 sm:p-10">
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-brand-bg bg-brand-bg px-3 py-1 text-xs font-semibold text-brand-primary">
                             <Sparkles size={14} />
                             Trusted brands
                         </div>

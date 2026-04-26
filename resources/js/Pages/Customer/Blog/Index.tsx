@@ -16,24 +16,24 @@ export default function BlogIndex({ posts, featured }: Props) {
         <CustomerLayout>
             <Head title="Journal & Insights" />
 
-            <div className="relative min-h-screen bg-[#fafcff] text-slate-900 overflow-hidden font-sans selection:bg-[#2DE3A7] selection:text-white pb-20">
+            <div className="relative min-h-screen bg-brand-ivory text-slate-900 overflow-hidden font-sans selection:bg-brand-primary selection:text-white pb-20">
                 {/* Stunning Ambient Background */}
                 <div className="pointer-events-none absolute inset-0 overflow-hidden flex justify-center">
-                    <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-gradient-to-br from-indigo-300 via-sky-200 to-transparent opacity-40 blur-[80px] mix-blend-multiply" />
-                    <div className="absolute top-[10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-gradient-to-bl from-emerald-200 via-teal-100 to-transparent opacity-40 blur-[100px] mix-blend-multiply" />
-                    <div className="absolute bottom-[-10%] left-[20%] h-[700px] w-[700px] rounded-full bg-gradient-to-tr from-blue-100 via-indigo-50 to-transparent opacity-50 blur-[120px] mix-blend-multiply" />
+                    <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-gradient-to-br from-brand-primary/20 via-brand-tint/10 to-transparent opacity-40 blur-[80px] mix-blend-multiply" />
+                    <div className="absolute top-[10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-gradient-to-bl from-brand-success/15 via-teal-100 to-transparent opacity-40 blur-[100px] mix-blend-multiply" />
+                    <div className="absolute bottom-[-10%] left-[20%] h-[700px] w-[700px] rounded-full bg-gradient-to-tr from-brand-bg/50 via-brand-tint/10 to-transparent opacity-50 blur-[120px] mix-blend-multiply" />
                 </div>
 
                 <div className="relative z-10 mx-auto max-w-7xl px-4 pt-24 pb-16 sm:px-6 lg:px-8">
                     {/* Hero Header */}
                     <div className="mb-20 text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/60 border border-white/80 shadow-sm backdrop-blur-md mb-8 transition-transform hover:scale-105">
-                            <Flame size={18} className="text-emerald-500" />
+                            <Flame size={18} className="text-brand-primary" />
                             <span className="text-xs font-bold tracking-widest text-slate-800 uppercase">Journal & Insights</span>
                         </div>
                         <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-7xl mb-6 drop-shadow-sm leading-tight">
                             Stories that <br className="hidden sm:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-indigo-600">inspire and educate.</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-tint">inspire and educate.</span>
                         </h1>
                         <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
                             Discover our latest thoughts, styling insights, product guides, and behind-the-scenes stories from the team.
@@ -69,7 +69,7 @@ export default function BlogIndex({ posts, featured }: Props) {
                                                     ? formatDate(post.published_at)
                                                     : "Draft"}
                                             </p>
-                                            <h2 className={`font-bold text-white leading-tight mb-3 transition-colors group-hover:text-emerald-300 ${idx === 0 ? "text-3xl sm:text-5xl" : "text-2xl sm:text-3xl line-clamp-3"}`}>
+                                            <h2 className={`font-bold text-white leading-tight mb-3 transition-colors group-hover:text-brand-tint ${idx === 0 ? "text-3xl sm:text-5xl" : "text-2xl sm:text-3xl line-clamp-3"}`}>
                                                 {post.title}
                                             </h2>
                                             {post.excerpt && (
@@ -77,7 +77,7 @@ export default function BlogIndex({ posts, featured }: Props) {
                                                     {post.excerpt}
                                                 </p>
                                             )}
-                                            <div className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-white text-slate-900 transition-all duration-500 group-hover:bg-emerald-400 group-hover:text-white group-hover:-rotate-45 shadow-lg">
+                                            <div className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-white text-slate-900 transition-all duration-500 group-hover:bg-brand-primary group-hover:text-white group-hover:-rotate-45 shadow-lg">
                                                 <ChevronRight size={22} />
                                             </div>
                                         </div>
@@ -101,7 +101,7 @@ export default function BlogIndex({ posts, featured }: Props) {
                             ) : (
                                 posts.data.map((post) => (
                                     <article key={post.id} className="group flex max-w-xl flex-col items-start justify-between">
-                                        <Link href={route("blog.show", post.slug)} className="w-full relative block overflow-hidden rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                        <Link href={route("blog.show", post.slug)} className="w-full relative block overflow-hidden rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:ring-offset-2">
                                             <div className="aspect-[16/10] w-full overflow-hidden sm:aspect-[2/1] lg:aspect-[3/2] bg-slate-50 border-b border-slate-100">
                                                 <img
                                                     src={getAssetUrl(post.cover_image ?? null)}
@@ -114,12 +114,12 @@ export default function BlogIndex({ posts, featured }: Props) {
                                         <div className="max-w-xl pr-4 mt-8 w-full px-2">
                                             <div className="flex items-center gap-x-4 text-xs">
                                                 <time dateTime={post.published_at ?? ""} className="text-slate-500 font-semibold inline-flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-full">
-                                                    <CalendarDays size={14} className="text-emerald-500" />
+                                                    <CalendarDays size={14} className="text-brand-primary" />
                                                     {post.published_at ? formatDate(post.published_at) : "Draft"}
                                                 </time>
                                             </div>
                                             <div className="group relative mt-5">
-                                                <h3 className="text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-emerald-600">
+                                                <h3 className="text-xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-brand-primary">
                                                     <Link href={route("blog.show", post.slug)} className="focus:outline-none">
                                                         <span className="absolute inset-0" />
                                                         {post.title}
@@ -132,7 +132,7 @@ export default function BlogIndex({ posts, featured }: Props) {
                                             <div className="mt-6 flex items-center">
                                                 <Link
                                                     href={route("blog.show", post.slug)}
-                                                    className="inline-flex items-center gap-1 text-sm font-bold text-slate-900 transition-colors hover:text-emerald-500 focus:outline-none"
+                                                    className="inline-flex items-center gap-1 text-sm font-bold text-slate-900 transition-colors hover:text-brand-primary focus:outline-none"
                                                 >
                                                     Read article
                                                     <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
@@ -146,7 +146,7 @@ export default function BlogIndex({ posts, featured }: Props) {
 
                         {posts.data.length > 0 && (
                             <div className="mt-20 flex justify-center border-t border-slate-200/80 pt-12">
-                                <div className="rounded-2xl bg-white focus-within:ring-2 focus-within:ring-emerald-500 shadow-sm border border-slate-100 px-6 py-2 transition-shadow hover:shadow-md">
+                                <div className="rounded-2xl bg-white focus-within:ring-2 focus-within:ring-brand-primary/40 shadow-sm border border-slate-100 px-6 py-2 transition-shadow hover:shadow-md">
                                     <Pagination data={posts} />
                                 </div>
                             </div>

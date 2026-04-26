@@ -19,11 +19,11 @@ const TONES: Record<
     string,
     { bgColor: string; iconColor: string }
 > = {
-    indigo: { bgColor: "bg-indigo-50", iconColor: "text-indigo-600" },
-    emerald: { bgColor: "bg-emerald-50", iconColor: "text-emerald-600" },
-    amber: { bgColor: "bg-amber-50", iconColor: "text-amber-600" },
-    rose: { bgColor: "bg-rose-50", iconColor: "text-rose-600" },
-    slate: { bgColor: "bg-slate-50", iconColor: "text-slate-600" },
+    indigo:   { bgColor: "bg-brand-bg",       iconColor: "text-brand-primary" },
+    emerald:  { bgColor: "bg-brand-success/10", iconColor: "text-brand-success" },
+    amber:    { bgColor: "bg-brand-accent/10", iconColor: "text-brand-accent" },
+    rose:     { bgColor: "bg-brand-bg",        iconColor: "text-brand-primary" },
+    slate:    { bgColor: "bg-slate-50",        iconColor: "text-slate-600" },
 };
 
 const DEFAULT_ITEMS: FeatureItem[] = [

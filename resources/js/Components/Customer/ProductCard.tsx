@@ -1,6 +1,6 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
-import { ShoppingCart, Trash2, Check } from "lucide-react";
+import { Link, router } from "@inertiajs/react";
+import { Trash2, Check, Bell } from "lucide-react";
 import { getAssetUrl, isNewProduct, formatPrice } from "@/Utils/helpers";
 import { Product } from "@/types";
 import Image from "../Ui/Image";
@@ -8,6 +8,7 @@ import { useCartStore } from "@/Stores/useCartStore";
 import { useDebounce } from "@/Hooks/useDebounce";
 import QuantitySelector from "../Ui/QuantitySelector";
 import ProductVariationModal from "./ProductVariationModal";
+import ProductRequestModal from "./ProductRequestModal";
 import ScrollReveal from "../Ui/ScrollReveal";
 
 interface ProductCardProps {
@@ -16,37 +17,47 @@ interface ProductCardProps {
     variant?: "default" | "luxury";
 }
 
-function getPrimaryPriceLabel(product: Product): string {
-    const hasDiscount =
-        product.discounted_sale_price != null &&
-        Number(product.discounted_sale_price) < Number(product.sale_price);
+function getVariantSaleBadge(product: Product): string | null {
     if (product.product_variations && product.product_variations.length > 0) {
-        const prices = product.product_variations
-            .map((v) => (v.price ? parseFloat(String(v.price)) : 0))
-            .filter((p) => p > 0);
-        if (prices.length > 0) {
-            const minPrice = Math.min(...prices);
-            const maxPrice = Math.max(...prices);
-            return minPrice !== maxPrice
-                ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}`
-                : formatPrice(minPrice);
-        }
+        const pctDiscounts = product.product_variations
+            .filter((v) => v.discount_type === "percentage" && v.discount_value != null)
+            .map((v) => Number(v.discount_value));
+        if (pctDiscounts.length > 0) return `Up to ${Math.max(...pctDiscounts)}% off`;
+        if (product.product_variations.some((v) => v.discount_type && v.discounted_price != null))
+            return "Sale";
+        return null;
     }
-    const effectivePrice = hasDiscount
-        ? Number(product.discounted_sale_price)
-        : product.sale_price;
-    return formatPrice(effectivePrice);
+    if (product.has_discount && product.discount_type === "percentage" && product.discount_value)
+        return `${product.discount_value}% off`;
+    if (product.has_discount && product.discounted_sale_price != null) return "Sale";
+    return null;
 }
+
 
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
     index,
     variant = "default",
 }) => {
-    const { cart, addToCart, removeFromCart, updateQuantity } = useCartStore();
+    const { cart, addToCart, removeFromCart, updateQuantity, setIsOpen } = useCartStore();
 
     const hasVariations =
         product.product_variations && product.product_variations.length > 0;
+
+    // For variant products, determine availability from variation-level stock.
+    // Fallback to product.stock when a variation doesn't carry its own stock.
+    const hasInStockVariation =
+        hasVariations &&
+        (product.product_variations ?? []).some((variation) => {
+            const stock = variation.stock ?? product.stock;
+            return Number(stock) > 0;
+        });
+
+    const isOutOfStock = !product.is_preorder
+        ? hasVariations
+            ? !hasInStockVariation
+            : Number(product.stock) <= 0
+        : false;
 
     // For simple products, we use product.id as the key.
     // For variable products, keys are complex so we don't show inline controls here.
@@ -58,6 +69,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const [quantity, setQuantity] = React.useState(cartItem?.quantity || 0);
     const [showVariationModal, setShowVariationModal] = React.useState(false);
+    const [showRequestModal, setShowRequestModal] = React.useState(false);
+    const [requestVariationLabel, setRequestVariationLabel] = React.useState<string | undefined>(undefined);
     const debouncedQuantity = useDebounce(quantity, 300);
 
     React.useEffect(() => {
@@ -90,6 +103,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
         addToCart(product, quantity, variations);
     };
 
+    const handleVariationBuyNow = () => {
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
+    };
+
     const handleUpdateQuantity = (newQuantity: number) => {
         if (newQuantity < 1) return;
         setQuantity(newQuantity);
@@ -103,6 +121,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
     };
 
+    const saleBadge = getVariantSaleBadge(product);
     const staggerDelays = ['delay-0', 'delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-500'];
     const delayClass = typeof index === 'number' ? staggerDelays[index % 6] : 'delay-0';
 
@@ -110,27 +129,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <ScrollReveal animation="fade-up" duration="duration-700" delay={delayClass} className="h-full">
             <div className="group bg-white rounded-xl border border-gray-300 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full relative">
                 {/* Badges */}
-                <div className="absolute top-3 left-3 z-10 flex gap-2">
-                {product.stock > 0 ? (
-                    <span className="bg-green-300 text-green-900 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
-                        <Check size={10} strokeWidth={4} />
-                        In Stock
-                    </span>
-                ) : product.is_preorder ? (
-                    <span className="bg-orange-100 text-orange-800 text-[10px] font-bold px-2 py-1 rounded-md">
-                        Pre Order
-                    </span>
-                ) : (
-                    <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-1 rounded-md">
-                        Out of Stock
-                    </span>
-                )}
-            </div>
+                <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5">
+                    {(!hasVariations && Number(product.stock) > 0) ||
+                    (hasVariations && hasInStockVariation) ? (
+                        <span className="bg-brand-success/15 text-brand-success text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                            <Check size={10} strokeWidth={4} />
+                            In Stock
+                        </span>
+                    ) : product.is_preorder ? (
+                        <span className="bg-brand-accent/15 text-brand-accent text-[10px] font-bold px-2 py-1 rounded-md">
+                            Pre Order
+                        </span>
+                    ) : (
+                        <span className="bg-brand-primary/10 text-brand-primary text-[10px] font-bold px-2 py-1 rounded-md">
+                            Out of Stock
+                        </span>
+                    )}
+                    {saleBadge && (
+                        <span className="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-1 rounded-md shadow-sm">
+                            {saleBadge}
+                        </span>
+                    )}
+                </div>
 
             {/* NEW Badge - Show if created within last 30 days */}
             {isNewProduct(product.created_at) && (
                 <div className="absolute top-3 right-3 z-10">
-                    <span className="bg-cyan-300 text-cyan-900 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                    <span className="bg-brand-accent/25 text-brand-dark border border-brand-accent/35 text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
                         <svg
                             width="10"
                             height="10"
@@ -166,60 +191,79 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     href={route("products.show", product.slug)}
                     className="block mb-1"
                 >
-                    <h3 className="text-sm font-medium text-gray-900 px-2 line-clamp-2 min-h-[40px]">
+                    <h3 className="text-sm font-medium text-brand-dark px-2 line-clamp-2 min-h-[40px]">
                         {product.name}
                     </h3>
                 </Link>
                 <div className="mb-2 md:mb-4 px-2">
                     <div className="flex flex-wrap items-baseline gap-2">
                         {(() => {
-                            const hasDiscount =
-                                product.discounted_sale_price != null &&
-                                Number(product.discounted_sale_price) < Number(product.sale_price);
-                            if (
-                                product.product_variations &&
-                                product.product_variations.length > 0
-                            ) {
-                                const prices = product.product_variations
+                            if (product.product_variations && product.product_variations.length > 0) {
+                                const effectivePrices = product.product_variations
                                     .map((v) =>
-                                        v.price
-                                            ? parseFloat(String(v.price))
-                                            : 0,
+                                        v.discounted_price != null
+                                            ? Number(v.discounted_price)
+                                            : v.price ? parseFloat(String(v.price)) : 0,
                                     )
                                     .filter((p) => p > 0);
+                                const originalPrices = product.product_variations
+                                    .map((v) => (v.price ? parseFloat(String(v.price)) : 0))
+                                    .filter((p) => p > 0);
+                                const hasAnyVarDiscount = product.product_variations.some(
+                                    (v) => v.discounted_price != null && v.discount_type,
+                                );
 
-                                if (prices.length > 0) {
-                                    const minPrice = Math.min(...prices);
-                                    const maxPrice = Math.max(...prices);
-                                    const rangeStr =
-                                        minPrice !== maxPrice
-                                            ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`
-                                            : formatPrice(minPrice);
+                                if (effectivePrices.length > 0) {
+                                    const minE = Math.min(...effectivePrices);
+                                    const maxE = Math.max(...effectivePrices);
+                                    const effectiveStr =
+                                        minE !== maxE
+                                            ? `${formatPrice(minE)} – ${formatPrice(maxE)}`
+                                            : formatPrice(minE);
+
+                                    if (hasAnyVarDiscount && originalPrices.length > 0) {
+                                        const minO = Math.min(...originalPrices);
+                                        const maxO = Math.max(...originalPrices);
+                                        const originalStr =
+                                            minO !== maxO
+                                                ? `${formatPrice(minO)} – ${formatPrice(maxO)}`
+                                                : formatPrice(minO);
+                                        return (
+                                            <>
+                                                <span className="text-xs text-gray-400 line-through">
+                                                    {originalStr}
+                                                </span>
+                                                <span className="text-l font-bold text-brand-dark">
+                                                    {effectiveStr}
+                                                </span>
+                                            </>
+                                        );
+                                    }
+
                                     return (
-                                        <span className="text-l font-bold text-gray-900">
-                                            {rangeStr}
+                                        <span className="text-l font-bold text-brand-dark">
+                                            {effectiveStr}
                                         </span>
                                     );
                                 }
                             }
+
+                            const hasDiscount =
+                                product.discounted_sale_price != null &&
+                                Number(product.discounted_sale_price) < Number(product.sale_price);
                             const effectivePrice = hasDiscount
                                 ? Number(product.discounted_sale_price)
                                 : product.sale_price;
                             return (
                                 <>
                                     {hasDiscount && (
-                                        <span className="text-sm text-gray-500 line-through">
+                                        <span className="text-xs text-gray-400 line-through">
                                             {formatPrice(product.sale_price)}
                                         </span>
                                     )}
-                                    <span className="text-l font-bold text-gray-900">
+                                    <span className="text-l font-bold text-brand-dark">
                                         {formatPrice(effectivePrice)}
                                     </span>
-                                    {hasDiscount && (
-                                        <span className="text-xs font-semibold text-green-600">
-                                            Sale
-                                        </span>
-                                    )}
                                 </>
                             );
                         })()}
@@ -228,10 +272,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
                 <div className="mt-auto">
                     {isInCart ? (
-                        <div className="flex items-center justify-between border-solid border-rose-200 rounded-3xl border-2 p-2 bg-slate-100/30 text-rose-600">
+                        <div className="flex items-center justify-between border-solid border-brand-bg rounded-3xl border-2 p-2 bg-brand-bg/30 text-brand-primary">
                             <button
                                 onClick={handleRemoveFromCart}
-                                className="w-8 h-8 flex items-center justify-center rounded-full border border-rose-800 text-rose-800 hover:bg-rose-50 transition-colors"
+                                className="w-8 h-8 flex items-center justify-center rounded-full border border-brand-primary text-brand-primary hover:bg-brand-bg transition-colors"
                             >
                                 <Trash2 size={16} />
                             </button>
@@ -253,17 +297,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 size="sm"
                             />
                         </div>
+                    ) : isOutOfStock ? (
+                        <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowRequestModal(true); }}
+                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-brand-bg text-brand-primary border border-brand-primary/25 hover:bg-brand-primary/10 transition-all duration-200"
+                        >
+                            <Bell size={14} />
+                            Request Product
+                        </button>
                     ) : (
                         <button
                             onClick={handleAddToCart}
-                            disabled={
-                                !product.is_preorder && product.stock <= 0
-                            }
-                            className={`w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold transition-all duration-300 ${
-                                product.stock > 0 || product.is_preorder
-                                    ? "bg-[#1A1B2E] text-white hover:bg-[#2D2E45] shadow-lg hover:shadow-xl"
-                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            }`}
+                            className="w-full py-3 rounded-3xl flex items-center justify-center gap-2 text-sm font-bold bg-brand-dark text-white hover:bg-brand-dark/85 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             {product.is_preorder && product.stock <= 0
                                 ? "Pre Order"
@@ -282,8 +327,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     onClose={() => setShowVariationModal(false)}
                     product={product}
                     onAddToCart={handleVariationAddToCart}
+                    onBuyNow={handleVariationBuyNow}
+                    onRequestVariation={(label) => {
+                        setRequestVariationLabel(label);
+                        setShowVariationModal(false);
+                        setShowRequestModal(true);
+                    }}
                 />
             )}
+
+            {/* Request Modal */}
+            <ProductRequestModal
+                isOpen={showRequestModal}
+                onClose={() => { setShowRequestModal(false); setRequestVariationLabel(undefined); }}
+                product={product}
+                variationLabel={requestVariationLabel}
+            />
             </div>
         </ScrollReveal>
     );

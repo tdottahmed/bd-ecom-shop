@@ -16,6 +16,8 @@ type Page = {
     slug: string;
     content?: string | null;
     is_published: boolean;
+    show_in_header?: boolean;
+    show_in_footer?: boolean;
 };
 
 interface Props {
@@ -30,6 +32,8 @@ export default function PageForm({ page }: Props) {
         slug: page?.slug ?? "",
         content: page?.content ?? "",
         is_published: page?.is_published ?? true,
+        show_in_header: page?.show_in_header ?? false,
+        show_in_footer: page?.show_in_footer ?? false,
     });
 
     useEffect(() => {
@@ -146,17 +150,37 @@ export default function PageForm({ page }: Props) {
                             />
                         </div>
 
-                        <div className="mt-4 flex items-center gap-3">
-                            <Checkbox
-                                name="is_published"
-                                checked={!!data.is_published}
-                                onChange={(e) =>
-                                    setData("is_published", e.target.checked)
-                                }
-                            />
-                            <div className="text-sm text-gray-300">
-                                Published (visible to customers)
-                            </div>
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <label className="flex items-center gap-3 text-sm text-gray-300">
+                                <Checkbox
+                                    name="is_published"
+                                    checked={!!data.is_published}
+                                    onChange={(e) =>
+                                        setData("is_published", e.target.checked)
+                                    }
+                                />
+                                Published
+                            </label>
+                            <label className="flex items-center gap-3 text-sm text-gray-300">
+                                <Checkbox
+                                    name="show_in_header"
+                                    checked={!!data.show_in_header}
+                                    onChange={(e) =>
+                                        setData("show_in_header", e.target.checked)
+                                    }
+                                />
+                                Show in header menu
+                            </label>
+                            <label className="flex items-center gap-3 text-sm text-gray-300">
+                                <Checkbox
+                                    name="show_in_footer"
+                                    checked={!!data.show_in_footer}
+                                    onChange={(e) =>
+                                        setData("show_in_footer", e.target.checked)
+                                    }
+                                />
+                                Show in footer links
+                            </label>
                         </div>
                     </Card>
 
