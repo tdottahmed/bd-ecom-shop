@@ -166,7 +166,8 @@ export default function ProductShow({
         if (!isInCart) {
             addToCart(product, quantity);
         }
-        router.visit(route("checkout"));
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
     };
 
     const handleVariationAddToCart = (variations: any[], quantity: number) => {
@@ -174,7 +175,8 @@ export default function ProductShow({
     };
 
     const handleVariationBuyNow = () => {
-        router.visit(route("checkout"));
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
     };
 
     const displayProducts =

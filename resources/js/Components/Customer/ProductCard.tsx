@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Trash2, Check, Bell } from "lucide-react";
 import { getAssetUrl, isNewProduct, formatPrice } from "@/Utils/helpers";
 import { Product } from "@/types";
@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     index,
     variant = "default",
 }) => {
-    const { cart, addToCart, removeFromCart, updateQuantity } = useCartStore();
+    const { cart, addToCart, removeFromCart, updateQuantity, setIsOpen } = useCartStore();
 
     const hasVariations =
         product.product_variations && product.product_variations.length > 0;
@@ -106,6 +106,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const handleVariationAddToCart = (variations: any[], quantity: number) => {
         addToCart(product, quantity, variations);
+    };
+
+    const handleVariationBuyNow = () => {
+        setIsOpen(false);
+        router.visit(route("checkout.index"));
     };
 
     const handleUpdateQuantity = (newQuantity: number) => {
@@ -302,6 +307,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     onClose={() => setShowVariationModal(false)}
                     product={product}
                     onAddToCart={handleVariationAddToCart}
+                    onBuyNow={handleVariationBuyNow}
                     onRequestVariation={(label) => {
                         setRequestVariationLabel(label);
                         setShowVariationModal(false);

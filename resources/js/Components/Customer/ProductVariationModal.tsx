@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Product, ProductVariation } from "@/types";
-import { X, Check, Bell } from "lucide-react";
+import { X, Check, Bell, Zap, ShoppingCart } from "lucide-react";
 import { formatPrice, getAssetUrl } from "@/Utils/helpers";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ interface ProductVariationModalProps {
     onClose: () => void;
     product: Product;
     onAddToCart: (variations: ProductVariation[], quantity: number) => void;
+    onBuyNow?: () => void;
     onRequestVariation?: (label: string) => void;
 }
 
@@ -18,6 +19,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
     onClose,
     product,
     onAddToCart,
+    onBuyNow,
     onRequestVariation,
 }) => {
     const scrollContentRef = useRef<HTMLDivElement | null>(null);
@@ -231,6 +233,16 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         });
         toast.success(`Added ${cartBatch.length} items to cart`);
         onClose();
+    };
+
+    const handleBuyNow = () => {
+        if (cartBatch.length === 0) return;
+
+        cartBatch.forEach((item) => {
+            onAddToCart(item.variations, item.quantity);
+        });
+        onClose();
+        onBuyNow?.();
     };
 
     const batchTotalQuantity = cartBatch.reduce(
@@ -729,17 +741,31 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                         <>
                                             <button
                                                 type="button"
-                                                className={`w-full inline-flex justify-center rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
+                                                className={`w-full inline-flex justify-center items-center gap-2 rounded-lg border border-transparent px-4 py-3.5 text-sm font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-2 transition-all transform active:scale-[0.98] ${
                                                     cartBatch.length > 0
-                                                        ? "bg-brand-primary hover:bg-brand-primary/90 hover:shadow-lg"
+                                                        ? "bg-brand-primary hover:bg-brand-primary/90 hover:shadow-lg shadow-brand-primary/30"
                                                         : "bg-gray-300 cursor-not-allowed"
+                                                }`}
+                                                onClick={handleBuyNow}
+                                                disabled={cartBatch.length === 0}
+                                            >
+                                                <Zap size={16} strokeWidth={2.5} />
+                                                {cartBatch.length > 0
+                                                    ? `Buy Now (${batchTotalQuantity} items)`
+                                                    : "Select Options to Start"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`w-full inline-flex justify-center items-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all transform active:scale-[0.98] ${
+                                                    cartBatch.length > 0
+                                                        ? "bg-white border-2 border-slate-200 hover:border-brand-dark/40 text-brand-dark hover:bg-slate-50"
+                                                        : "bg-gray-100 border-2 border-gray-200 text-gray-400 cursor-not-allowed"
                                                 }`}
                                                 onClick={handleAddToCart}
                                                 disabled={cartBatch.length === 0}
                                             >
-                                                {cartBatch.length > 0
-                                                    ? `Add ${batchTotalQuantity} Items to Cart`
-                                                    : "Select Options to Start"}
+                                                <ShoppingCart size={16} strokeWidth={2.5} />
+                                                Add to Cart
                                             </button>
                                             <button
                                                 onClick={onClose}
