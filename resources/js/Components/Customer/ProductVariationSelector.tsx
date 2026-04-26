@@ -216,10 +216,13 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
     );
     const batchTotalPrice = cartBatch.reduce((acc, item) => {
         const prices = item.variations
-            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+            .map((v) =>
+                v.discounted_price != null
+                    ? Number(v.discounted_price)
+                    : v.price ? parseFloat(String(v.price)) : null,
+            )
             .filter((p) => p !== null) as number[];
-        const price =
-            prices.length > 0 ? Math.max(...prices) : product.sale_price;
+        const price = prices.length > 0 ? Math.max(...prices) : product.sale_price;
         return acc + price * item.quantity;
     }, 0);
 
@@ -255,14 +258,11 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                 <div className="flex flex-wrap gap-2">
                                     {group.variations.map((variation) => {
                                         const isSelected =
-                                            selectedVariations[Number(attrId)]
-                                                ?.id === variation.id;
-                                        const showPriceHint =
-                                            variation.price &&
-                                            parseFloat(
-                                                String(variation.price),
-                                            ) !== product.sale_price;
-
+                                            selectedVariations[Number(attrId)]?.id === variation.id;
+                                        const vPrice = variation.price != null ? parseFloat(String(variation.price)) : null;
+                                        const vDiscounted = variation.discounted_price != null ? Number(variation.discounted_price) : null;
+                                        const hasVarDiscount = vDiscounted !== null && vPrice !== null && vDiscounted < vPrice;
+                                        const showPriceHint = vPrice !== null && vPrice > 0 && vPrice !== product.sale_price;
                                         const isOutOfStock =
                                             !product.is_preorder &&
                                             variation.stock !== null &&
@@ -270,7 +270,6 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                             variation.stock <= 0;
 
                                         if (isOutOfStock) {
-                                            // Requestable variation button
                                             return (
                                                 <button
                                                     key={variation.id}
@@ -279,9 +278,7 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                             toast.error("This option is out of stock.");
                                                             return;
                                                         }
-                                                        const attrName = group.name;
-                                                        const label = `${attrName}: ${variation.value}`;
-                                                        onRequestVariation(label);
+                                                        onRequestVariation(`${group.name}: ${variation.value}`);
                                                     }}
                                                     className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
                                                         variation.image ? "pl-2" : "pl-4"
@@ -302,9 +299,9 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                             Request
                                                         </span>
                                                     </span>
-                                                    {showPriceHint && (
+                                                    {showPriceHint && vPrice && (
                                                         <span className="text-xs font-normal ml-0.5 relative z-10 opacity-60">
-                                                            ({formatPrice(variation.price!)})
+                                                            ({formatPrice(vPrice)})
                                                         </span>
                                                     )}
                                                 </button>
@@ -314,45 +311,48 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                         return (
                                             <button
                                                 key={variation.id}
-                                                onClick={() =>
-                                                    handleVariationSelect(
-                                                        Number(attrId),
-                                                        variation,
-                                                    )
-                                                }
-                                                className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
-                                                    variation.image
-                                                        ? "pl-2"
-                                                        : "pl-4"
+                                                onClick={() => handleVariationSelect(Number(attrId), variation)}
+                                                className={`relative py-2 pr-3 text-sm border transition-all flex flex-col items-start font-medium ${
+                                                    variation.image ? "pl-2" : "pl-3"
                                                 } ${
                                                     isSelected
                                                         ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
-                                                        : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                        : hasVarDiscount
+                                                          ? "border-amber-200 bg-amber-50/50 hover:border-amber-300 text-gray-700"
+                                                          : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
                                                 } rounded-lg group`}
                                             >
-                                                {variation.image && (
-                                                    <img
-                                                        src={getAssetUrl(
-                                                            variation.image,
-                                                        )}
-                                                        alt={variation.value}
-                                                        className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10"
-                                                    />
-                                                )}
                                                 <span className="relative z-10 flex items-center gap-1.5">
+                                                    {variation.image && (
+                                                        <img
+                                                            src={getAssetUrl(variation.image)}
+                                                            alt={variation.value}
+                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                        />
+                                                    )}
                                                     {variation.value}
+                                                    {isSelected && (
+                                                        <Check size={13} strokeWidth={3} className="text-brand-primary" />
+                                                    )}
                                                 </span>
-                                                {showPriceHint && (
-                                                    <span className="text-xs font-normal ml-0.5 relative z-10 opacity-70">
-                                                        ({formatPrice(variation.price!)})
+                                                {showPriceHint && vPrice && (
+                                                    <span className="relative z-10 flex items-center gap-1 mt-0.5">
+                                                        {hasVarDiscount && vDiscounted !== null ? (
+                                                            <>
+                                                                <span className="text-amber-600 font-bold text-xs">{formatPrice(vDiscounted)}</span>
+                                                                <span className="text-gray-400 line-through text-[10px]">{formatPrice(vPrice)}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-500 text-xs">{formatPrice(vPrice)}</span>
+                                                        )}
                                                     </span>
                                                 )}
-                                                {isSelected && (
-                                                    <Check
-                                                        size={14}
-                                                        strokeWidth={3}
-                                                        className="relative z-10"
-                                                    />
+                                                {hasVarDiscount && variation.discount_type && (
+                                                    <span className="absolute -top-2 -right-2 text-[9px] font-extrabold text-white bg-amber-500 px-1.5 py-0.5 rounded-full shadow-sm z-20">
+                                                        {variation.discount_type === "percentage"
+                                                            ? `-${variation.discount_value}%`
+                                                            : `-৳${variation.discount_value}`}
+                                                    </span>
                                                 )}
                                             </button>
                                         );
@@ -415,25 +415,27 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                         ) : (
                             <div className="space-y-3">
                                 {cartBatch.map((item, index) => {
-                                    const prices = item.variations
+                                    const effectivePrices = item.variations
                                         .map((v) =>
-                                            v.price
-                                                ? parseFloat(String(v.price))
-                                                : null,
+                                            v.discounted_price != null
+                                                ? Number(v.discounted_price)
+                                                : v.price ? parseFloat(String(v.price)) : null,
                                         )
                                         .filter((p) => p !== null) as number[];
+                                    const originalPrices = item.variations
+                                        .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+                                        .filter((p) => p !== null) as number[];
                                     const itemPrice =
-                                        prices.length > 0
-                                            ? Math.max(...prices)
-                                            : product.sale_price;
+                                        effectivePrices.length > 0 ? Math.max(...effectivePrices) : product.sale_price;
+                                    const itemOriginalPrice =
+                                        originalPrices.length > 0 ? Math.max(...originalPrices) : null;
+                                    const hasItemDiscount =
+                                        itemOriginalPrice !== null && itemPrice < itemOriginalPrice;
 
                                     const isCurrent =
                                         isAllSelected &&
-                                        Object.values(selectedVariations).every(
-                                            (v) =>
-                                                item.variations.some(
-                                                    (iv) => iv.id === v.id,
-                                                ),
+                                        Object.values(selectedVariations).every((v) =>
+                                            item.variations.some((iv) => iv.id === v.id),
                                         );
 
                                     return (
@@ -450,22 +452,23 @@ const ProductVariationSelector: React.FC<ProductVariationSelectorProps> = ({
                                                     {item.variations
                                                         .map((v) => {
                                                             const attrName =
-                                                                v
-                                                                    .product_attribute
-                                                                    ?.name ||
-                                                                v.attribute
-                                                                    ?.name ||
+                                                                v.product_attribute?.name ||
+                                                                v.attribute?.name ||
                                                                 "Option";
                                                             return `${attrName}: ${v.value}`;
                                                         })
                                                         .join(", ")}
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-0.5 font-medium">
-                                                    {formatPrice(itemPrice)} ×{" "}
-                                                    {item.quantity} ={" "}
-                                                    {formatPrice(
-                                                        itemPrice *
-                                                            item.quantity,
+                                                <div className="text-xs text-gray-500 mt-0.5 font-medium flex items-center gap-1 flex-wrap">
+                                                    {hasItemDiscount ? (
+                                                        <>
+                                                            <span className="text-brand-primary font-bold">{formatPrice(itemPrice)}</span>
+                                                            <span className="line-through opacity-60">{formatPrice(itemOriginalPrice!)}</span>
+                                                            <span>× {item.quantity} =</span>
+                                                            <span className="text-brand-primary font-bold">{formatPrice(itemPrice * item.quantity)}</span>
+                                                        </>
+                                                    ) : (
+                                                        <span>{formatPrice(itemPrice)} × {item.quantity} = {formatPrice(itemPrice * item.quantity)}</span>
                                                     )}
                                                 </div>
                                             </div>

@@ -51,6 +51,38 @@ export interface Brand {
     updated_at?: string;
 }
 
+// ProductAttribute type
+export interface ProductAttribute {
+    id: number;
+    name: string;
+}
+
+// QtyPrice type
+export interface QtyPrice {
+    qty: number;
+    price: number;
+}
+
+// ProductVariation type
+export interface ProductVariation {
+    id: number;
+    product_id: number;
+    product_attribute_id?: number;
+    attribute_id?: number;
+    name?: string | null;
+    value: string;
+    price?: number | null;
+    stock?: number | null;
+    image?: string | null;
+    discount_type?: "flat" | "percentage" | null;
+    discount_value?: number | null;
+    discounted_price?: number | null;
+    product_attribute?: ProductAttribute;
+    attribute?: ProductAttribute;
+    created_at?: string;
+    updated_at?: string;
+}
+
 // Supplier type
 export interface Supplier {
     id: number;

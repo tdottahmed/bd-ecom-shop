@@ -66,13 +66,20 @@ export default function CheckoutItem({
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start mb-1">
                     <div className="flex justify-start flex-col flex-1 min-w-0">
-                        <h3
-                            className={`text-sm font-semibold line-clamp-2 ${
-                                isUnavailable ? "text-gray-400" : "text-gray-900"
-                            }`}
-                        >
-                            {item.name}
-                        </h3>
+                        <div className="flex items-start gap-2">
+                            <h3
+                                className={`text-sm font-semibold line-clamp-2 flex-1 ${
+                                    isUnavailable ? "text-gray-400" : "text-gray-900"
+                                }`}
+                            >
+                                {item.name}
+                            </h3>
+                            {(item.original_price ?? 0) > (item.price ?? 0) && (
+                                <span className="shrink-0 bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                                    SALE
+                                </span>
+                            )}
+                        </div>
                         {item.variations && item.variations.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                                 {item.variations.map((v, idx) => (
@@ -152,7 +159,10 @@ export default function CheckoutItem({
                             {formatPrice(item.price * item.quantity)}
                         </div>
                         {item.quantity > 1 && (
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                                {(item.original_price ?? 0) > (item.price ?? 0) && (
+                                    <span className="line-through text-gray-400">{formatPrice(item.original_price ?? 0)}</span>
+                                )}
                                 {formatPrice(item.price)} / unit
                             </div>
                         )}

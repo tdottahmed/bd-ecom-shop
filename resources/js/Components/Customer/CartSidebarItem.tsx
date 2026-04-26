@@ -75,13 +75,20 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
             <div className="flex-1 flex flex-col justify-between min-w-0">
                 <div>
                     <div className="flex justify-between items-start gap-2">
-                        <h4
-                            className={`font-medium text-sm line-clamp-2 leading-tight ${
-                                isUnavailable ? "text-gray-400" : "text-gray-900"
-                            }`}
-                        >
-                            {item?.name ?? "Product"}
-                        </h4>
+                        <div className="flex-1 min-w-0">
+                            <h4
+                                className={`font-medium text-sm line-clamp-2 leading-tight ${
+                                    isUnavailable ? "text-gray-400" : "text-gray-900"
+                                }`}
+                            >
+                                {item?.name ?? "Product"}
+                            </h4>
+                            {(item?.original_price ?? 0) > (Number(item?.price) ?? 0) && (
+                                <span className="inline-block mt-1 bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                                    SALE
+                                </span>
+                            )}
+                        </div>
                         <div className="text-right shrink-0">
                             {(item?.original_price ?? 0) > (Number(item?.price) ?? 0) && (
                                 <div className="text-[10px] text-gray-400 line-through mb-0.5">
@@ -145,6 +152,11 @@ const CartSidebarItem: React.FC<CartSidebarItemProps> = ({ item }) => {
                 <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-2">
                         <div className="text-xs text-gray-500 font-medium">
+                            {(item?.original_price ?? 0) > (Number(item?.price) ?? 0) && (
+                                <span className="text-gray-400 line-through mr-1">
+                                    {formatPrice(item.original_price ?? 0)}
+                                </span>
+                            )}
                             {formatPrice(item?.price ?? 0)}{" "}
                             <span className="text-gray-400"> × </span>{" "}
                             {quantity}

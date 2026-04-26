@@ -110,9 +110,8 @@ export default function ProductShow({
     const [selectedImage, setSelectedImage] = useState(
         product.images?.[0] || null,
     );
-    const [selectedVariationPrice, setSelectedVariationPrice] = useState<
-        number | null
-    >(null);
+    const [selectedVariationPrice, setSelectedVariationPrice] = useState<number | null>(null);
+    const [selectedVariationDiscountedPrice, setSelectedVariationDiscountedPrice] = useState<number | null>(null);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [requestVariationLabel, setRequestVariationLabel] = useState<string | undefined>(undefined);
     const debouncedQuantity = useDebounce(quantity, 300);
@@ -311,103 +310,103 @@ export default function ProductShow({
 
                                         <div className="flex flex-wrap items-baseline gap-4 mt-6">
                                             {useMemo(() => {
-                                                if (
-                                                    selectedVariationPrice !==
-                                                        null &&
-                                                    selectedVariationPrice > 0
-                                                ) {
+                                                // ── Variation selected ──────────────────────────
+                                                if (selectedVariationPrice !== null && selectedVariationPrice > 0) {
+                                                    const hasVarDiscount =
+                                                        selectedVariationDiscountedPrice !== null &&
+                                                        selectedVariationDiscountedPrice < selectedVariationPrice;
+                                                    if (hasVarDiscount) {
+                                                        return (
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                <span className="text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                    ৳{selectedVariationDiscountedPrice}
+                                                                </span>
+                                                                <span className="text-2xl text-slate-400 line-through decoration-slate-300 font-medium">
+                                                                    ৳{selectedVariationPrice}
+                                                                </span>
+                                                                <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                                    Sale
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
                                                     return (
                                                         <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
-                                                            ৳
-                                                            {
-                                                                selectedVariationPrice
-                                                            }
+                                                            ৳{selectedVariationPrice}
                                                         </span>
                                                     );
                                                 }
 
-                                                // Check if base price is effectively 0 and we have variations with prices
+                                                // ── Variant product (no selection yet) ─────────
                                                 if (
-                                                    (!product.sale_price ||
-                                                        Number(
-                                                            product.sale_price,
-                                                        ) === 0) &&
+                                                    (!product.sale_price || Number(product.sale_price) === 0) &&
                                                     hasVariations &&
                                                     product.product_variations
                                                 ) {
-                                                    const validPrices =
-                                                        product.product_variations
-                                                            .map((v) =>
-                                                                v.price != null
-                                                                    ? parseFloat(
-                                                                          String(
-                                                                              v.price,
-                                                                          ),
-                                                                      )
-                                                                    : 0,
-                                                            )
-                                                            .filter(
-                                                                (p) => p > 0,
-                                                            );
+                                                    const effectivePrices = product.product_variations
+                                                        .map((v) =>
+                                                            v.discounted_price != null
+                                                                ? Number(v.discounted_price)
+                                                                : v.price != null
+                                                                  ? parseFloat(String(v.price))
+                                                                  : 0,
+                                                        )
+                                                        .filter((p) => p > 0);
+                                                    const originalPrices = product.product_variations
+                                                        .map((v) => (v.price != null ? parseFloat(String(v.price)) : 0))
+                                                        .filter((p) => p > 0);
+                                                    const hasAnyVarDiscount = product.product_variations.some(
+                                                        (v) => v.discounted_price != null && v.discount_type,
+                                                    );
 
-                                                    if (
-                                                        validPrices.length > 0
-                                                    ) {
-                                                        const minPrice =
-                                                            Math.min(
-                                                                ...validPrices,
-                                                            );
-                                                        const maxPrice =
-                                                            Math.max(
-                                                                ...validPrices,
-                                                            );
+                                                    if (effectivePrices.length > 0) {
+                                                        const minE = Math.min(...effectivePrices);
+                                                        const maxE = Math.max(...effectivePrices);
+                                                        const effectiveStr =
+                                                            minE === maxE ? `৳${minE}` : `৳${minE} – ৳${maxE}`;
 
-                                                        if (
-                                                            minPrice ===
-                                                            maxPrice
-                                                        ) {
+                                                        if (hasAnyVarDiscount && originalPrices.length > 0) {
+                                                            const minO = Math.min(...originalPrices);
+                                                            const maxO = Math.max(...originalPrices);
+                                                            const originalStr =
+                                                                minO === maxO ? `৳${minO}` : `৳${minO} – ৳${maxO}`;
                                                             return (
-                                                                <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
-                                                                    ৳{minPrice}
-                                                                </span>
+                                                                <div className="flex flex-wrap items-center gap-3">
+                                                                    <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
+                                                                        {effectiveStr}
+                                                                    </span>
+                                                                    <span className="text-xl text-slate-400 line-through decoration-slate-300 font-medium">
+                                                                        {originalStr}
+                                                                    </span>
+                                                                    <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                                        Sale
+                                                                    </span>
+                                                                </div>
                                                             );
                                                         }
 
                                                         return (
                                                             <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
-                                                                ৳{minPrice} - ৳
-                                                                {maxPrice}
+                                                                {effectiveStr}
                                                             </span>
                                                         );
                                                     }
                                                 }
 
-                                                // Standard logic
+                                                // ── Single product ──────────────────────────────
                                                 if (
-                                                    product.discounted_sale_price !=
-                                                        null &&
-                                                    Number(
-                                                        product.discounted_sale_price,
-                                                    ) <
-                                                        Number(
-                                                            product.sale_price,
-                                                        )
+                                                    product.discounted_sale_price != null &&
+                                                    Number(product.discounted_sale_price) < Number(product.sale_price)
                                                 ) {
                                                     return (
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex flex-wrap items-center gap-3">
                                                             <span className="text-4xl font-extrabold text-brand-primary drop-shadow-sm">
-                                                                ৳
-                                                                {
-                                                                    product.discounted_sale_price
-                                                                }
+                                                                ৳{product.discounted_sale_price}
                                                             </span>
                                                             <span className="text-2xl text-slate-400 line-through decoration-slate-300 font-medium">
-                                                                ৳
-                                                                {
-                                                                    product.sale_price
-                                                                }
+                                                                ৳{product.sale_price}
                                                             </span>
-                                                            <span className="text-sm font-bold text-brand-primary bg-brand-bg px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                                            <span className="text-sm font-bold text-white bg-amber-500 px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                                                                 Sale
                                                             </span>
                                                         </div>
@@ -416,16 +415,10 @@ export default function ProductShow({
 
                                                 return (
                                                     <span className="text-3xl md:text-4xl font-extrabold text-brand-primary drop-shadow-sm">
-                                                        ৳
-                                                        {product.sale_price ||
-                                                            0}
+                                                        ৳{product.sale_price || 0}
                                                     </span>
                                                 );
-                                            }, [
-                                                product,
-                                                selectedVariationPrice,
-                                                hasVariations,
-                                            ])}
+                                            }, [product, selectedVariationPrice, selectedVariationDiscountedPrice, hasVariations])}
                                         </div>
                                     </div>
 
@@ -449,54 +442,37 @@ export default function ProductShow({
                                                     onBuyNow={handleVariationBuyNow}
                                                     onRequestVariation={handleRequestVariation}
                                                     onVariationSelect={(
-                                                        variation,
+                                                        _variation,
                                                         allSelected,
                                                     ) => {
                                                         const imageVariation =
-                                                            Object.values(
-                                                                allSelected,
-                                                            ).find(
-                                                                (v) => v.image,
-                                                            );
+                                                            Object.values(allSelected).find((v) => v.image);
                                                         setSelectedImage(
                                                             imageVariation?.image ||
-                                                                product
-                                                                    .images?.[0] ||
+                                                                product.images?.[0] ||
                                                                 null,
                                                         );
 
-                                                        // Find if they selected a price-overriding variation
                                                         const priceVariation =
-                                                            Object.values(
-                                                                allSelected,
-                                                            ).find(
+                                                            Object.values(allSelected).find(
                                                                 (v) =>
-                                                                    v.price !==
-                                                                        null &&
-                                                                    v.price !==
-                                                                        undefined &&
-                                                                    parseFloat(
-                                                                        String(
-                                                                            v.price,
-                                                                        ),
-                                                                    ) > 0,
+                                                                    v.price !== null &&
+                                                                    v.price !== undefined &&
+                                                                    parseFloat(String(v.price)) > 0,
                                                             );
 
-                                                        if (
-                                                            priceVariation &&
-                                                            priceVariation.price
-                                                        ) {
+                                                        if (priceVariation && priceVariation.price) {
                                                             setSelectedVariationPrice(
-                                                                parseFloat(
-                                                                    String(
-                                                                        priceVariation.price,
-                                                                    ),
-                                                                ),
+                                                                parseFloat(String(priceVariation.price)),
+                                                            );
+                                                            setSelectedVariationDiscountedPrice(
+                                                                priceVariation.discounted_price != null
+                                                                    ? Number(priceVariation.discounted_price)
+                                                                    : null,
                                                             );
                                                         } else {
-                                                            setSelectedVariationPrice(
-                                                                null,
-                                                            );
+                                                            setSelectedVariationPrice(null);
+                                                            setSelectedVariationDiscountedPrice(null);
                                                         }
                                                     }}
                                                 />

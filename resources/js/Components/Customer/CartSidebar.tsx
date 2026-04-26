@@ -185,12 +185,12 @@ const CartSidebar = () => {
                                         <span>{formatPrice(cartTotal)}</span>
                                     </div>
                                     {productSavings > 0 && (
-                                        <div className="flex items-center justify-between text-sm text-brand-success font-medium bg-brand-success/10 rounded-lg px-3 py-2">
+                                        <div className="flex items-center justify-between text-sm text-amber-700 font-medium bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                                             <span className="flex items-center gap-1.5">
                                                 <Sparkles size={14} />
-                                                Product discount
+                                                Discount savings
                                             </span>
-                                            <span>-{formatPrice(productSavings)}</span>
+                                            <span className="font-bold">-{formatPrice(productSavings)}</span>
                                         </div>
                                     )}
                                     {discountAmount > 0 && (

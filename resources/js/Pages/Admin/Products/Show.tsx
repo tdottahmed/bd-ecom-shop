@@ -23,9 +23,15 @@ function variantTotalStock(variations: ProductVariation[]): number {
 }
 
 function variantPriceRange(variations: ProductVariation[]): { min: number; max: number } | null {
-    const prices = variations.map((v) => Number(v.price) || 0).filter((p) => p > 0);
+    const prices = variations
+        .map((v) => Number(v.discounted_price ?? v.price) || 0)
+        .filter((p) => p > 0);
     if (!prices.length) return null;
     return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
+function hasAnyVariationDiscount(variations: ProductVariation[]): boolean {
+    return variations.some((v) => v.discount_type && v.discounted_price != null);
 }
 
 // ── component ─────────────────────────────────────────────────────────────────
@@ -315,12 +321,25 @@ export default function Show({ product }: ShowPageProps) {
                                                     <th className="px-5 py-3">Value</th>
                                                     <th className="px-5 py-3">Stock</th>
                                                     <th className="px-5 py-3">Price</th>
+                                                    {hasAnyVariationDiscount(variations) && (
+                                                        <th className="px-5 py-3">Discount</th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-[#1E2826]">
                                                 {variations.map((variation) => {
                                                     const vStock = Number(variation.stock) || 0;
                                                     const vPrice = Number(variation.price) || 0;
+                                                    const vDiscounted = variation.discounted_price != null ? Number(variation.discounted_price) : null;
+                                                    const hasDiscount = !!(variation.discount_type && vDiscounted != null);
+                                                    const showDiscountCol = hasAnyVariationDiscount(variations);
+
+                                                    const discountLabel = hasDiscount
+                                                        ? variation.discount_type === "percentage"
+                                                            ? `${variation.discount_value}% off`
+                                                            : `৳${variation.discount_value} off`
+                                                        : null;
+
                                                     return (
                                                         <tr key={variation.id} className="hover:bg-[#0C1311] transition-colors">
                                                             <td className="px-5 py-3">
@@ -358,13 +377,38 @@ export default function Show({ product }: ShowPageProps) {
                                                             </td>
                                                             <td className="px-5 py-3">
                                                                 {vPrice > 0 ? (
-                                                                    <span className="font-semibold text-[#2DE3A7]">
-                                                                        {formatPrice(vPrice)}
-                                                                    </span>
+                                                                    <div className="flex flex-col gap-0.5">
+                                                                        {hasDiscount ? (
+                                                                            <>
+                                                                                <span className="text-xs text-gray-500 line-through">
+                                                                                    {formatPrice(vPrice)}
+                                                                                </span>
+                                                                                <span className="font-semibold text-amber-400">
+                                                                                    {formatPrice(vDiscounted!)}
+                                                                                </span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <span className="font-semibold text-[#2DE3A7]">
+                                                                                {formatPrice(vPrice)}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
                                                                 ) : (
                                                                     <span className="text-gray-600 italic text-xs">Not set</span>
                                                                 )}
                                                             </td>
+                                                            {showDiscountCol && (
+                                                                <td className="px-5 py-3">
+                                                                    {hasDiscount && discountLabel ? (
+                                                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                                            <TagIcon size={10} />
+                                                                            {discountLabel}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-gray-700 text-xs">—</span>
+                                                                    )}
+                                                                </td>
+                                                            )}
                                                         </tr>
                                                     );
                                                 })}

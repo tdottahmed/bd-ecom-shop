@@ -133,21 +133,19 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         return Math.min(...variationStocks);
     }, [selectedVariations, isAllSelected, product.stock]);
 
-    // Calculate current price based on selection (for pill hint)
+    // Calculate current effective price based on selection (for pill hint)
     const currentPriceForPill = useMemo(() => {
         if (!isAllSelected || Object.keys(selectedVariations).length === 0) {
             return product.sale_price;
         }
-
         const prices = Object.values(selectedVariations)
-            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+            .map((v) =>
+                v.discounted_price != null
+                    ? Number(v.discounted_price)
+                    : v.price ? parseFloat(String(v.price)) : null,
+            )
             .filter((p) => p !== null) as number[];
-
-        if (prices.length > 0) {
-            return Math.max(...prices);
-        }
-
-        return product.sale_price;
+        return prices.length > 0 ? Math.max(...prices) : product.sale_price;
     }, [selectedVariations, isAllSelected, product.sale_price]);
 
     // Detect completion and auto-add to batch
@@ -250,12 +248,14 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
         0,
     );
     const batchTotalPrice = cartBatch.reduce((acc, item) => {
-        // Calculate price for this item
         const prices = item.variations
-            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+            .map((v) =>
+                v.discounted_price != null
+                    ? Number(v.discounted_price)
+                    : v.price ? parseFloat(String(v.price)) : null,
+            )
             .filter((p) => p !== null) as number[];
-        const price =
-            prices.length > 0 ? Math.max(...prices) : product.sale_price;
+        const price = prices.length > 0 ? Math.max(...prices) : product.sale_price;
         return acc + price * item.quantity;
     }, 0);
 
@@ -414,9 +414,10 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                     {group.variations.map((variation) => {
                                                         const isSelected =
                                                             selectedVariations[Number(attrId)]?.id === variation.id;
-                                                        const showPriceHint =
-                                                            variation.price &&
-                                                            parseFloat(String(variation.price)) !== product.sale_price;
+                                                        const vPrice = variation.price != null ? parseFloat(String(variation.price)) : null;
+                                                        const vDiscounted = variation.discounted_price != null ? Number(variation.discounted_price) : null;
+                                                        const hasVarDiscount = vDiscounted !== null && vPrice !== null && vDiscounted < vPrice;
+                                                        const showPriceHint = vPrice !== null && vPrice > 0 && vPrice !== product.sale_price;
                                                         const isOutOfStock =
                                                             !product.is_preorder &&
                                                             variation.stock !== null &&
@@ -429,8 +430,7 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                     key={variation.id}
                                                                     onClick={() => {
                                                                         if (onRequestVariation) {
-                                                                            const attrName = group.name;
-                                                                            onRequestVariation(`${attrName}: ${variation.value}`);
+                                                                            onRequestVariation(`${group.name}: ${variation.value}`);
                                                                         } else {
                                                                             toast.error("This option is out of stock.");
                                                                         }
@@ -454,9 +454,9 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                             Request
                                                                         </span>
                                                                     </span>
-                                                                    {showPriceHint && (
+                                                                    {showPriceHint && vPrice && (
                                                                         <span className="text-xs font-normal ml-0.5 relative z-10 opacity-60">
-                                                                            ({formatPrice(variation.price!)})
+                                                                            ({formatPrice(vPrice)})
                                                                         </span>
                                                                     )}
                                                                 </button>
@@ -467,31 +467,47 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                             <button
                                                                 key={variation.id}
                                                                 onClick={() => handleVariationSelect(Number(attrId), variation)}
-                                                                className={`relative py-2.5 pr-4 text-sm border transition-all flex items-center gap-2 font-medium ${
-                                                                    variation.image ? "pl-2" : "pl-4"
+                                                                className={`relative py-2 pr-3 text-sm border transition-all flex flex-col items-start font-medium ${
+                                                                    variation.image ? "pl-2" : "pl-3"
                                                                 } ${
                                                                     isSelected
                                                                         ? "border-brand-primary bg-brand-bg text-brand-primary shadow-sm ring-1 ring-brand-primary"
-                                                                        : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                                        : hasVarDiscount
+                                                                          ? "border-amber-200 bg-amber-50/50 hover:border-amber-300 text-gray-700"
+                                                                          : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
                                                                 } rounded-lg`}
                                                             >
-                                                                {variation.image && (
-                                                                    <img
-                                                                        src={getAssetUrl(variation.image)}
-                                                                        alt={variation.value}
-                                                                        className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0 relative z-10"
-                                                                    />
-                                                                )}
                                                                 <span className="relative z-10 flex items-center gap-1.5">
+                                                                    {variation.image && (
+                                                                        <img
+                                                                            src={getAssetUrl(variation.image)}
+                                                                            alt={variation.value}
+                                                                            className="w-6 h-6 rounded object-cover bg-white pointer-events-none shrink-0"
+                                                                        />
+                                                                    )}
                                                                     {variation.value}
+                                                                    {isSelected && (
+                                                                        <Check size={13} strokeWidth={3} className="text-brand-primary" />
+                                                                    )}
                                                                 </span>
-                                                                {showPriceHint && (
-                                                                    <span className="text-xs font-normal ml-0.5 relative z-10 opacity-70">
-                                                                        ({formatPrice(variation.price!)})
+                                                                {showPriceHint && vPrice && (
+                                                                    <span className="relative z-10 flex items-center gap-1 mt-0.5">
+                                                                        {hasVarDiscount && vDiscounted !== null ? (
+                                                                            <>
+                                                                                <span className="text-amber-600 font-bold text-xs">{formatPrice(vDiscounted)}</span>
+                                                                                <span className="text-gray-400 line-through text-[10px]">{formatPrice(vPrice)}</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <span className="text-gray-500 text-xs">{formatPrice(vPrice)}</span>
+                                                                        )}
                                                                     </span>
                                                                 )}
-                                                                {isSelected && (
-                                                                    <Check size={14} strokeWidth={3} className="relative z-10" />
+                                                                {hasVarDiscount && variation.discount_type && (
+                                                                    <span className="absolute -top-2 -right-2 text-[9px] font-extrabold text-white bg-amber-500 px-1.5 py-0.5 rounded-full shadow-sm z-20">
+                                                                        {variation.discount_type === "percentage"
+                                                                            ? `-${variation.discount_value}%`
+                                                                            : `-৳${variation.discount_value}`}
+                                                                    </span>
                                                                 )}
                                                             </button>
                                                         );
@@ -548,29 +564,24 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                             <div className="space-y-3 px-1">
                                                 {cartBatch.map(
                                                     (item, index) => {
-                                                        // Calculate price for this specific row
-                                                        const prices =
-                                                            item.variations
-                                                                .map((v) =>
-                                                                    v.price
-                                                                        ? parseFloat(
-                                                                              String(
-                                                                                  v.price,
-                                                                              ),
-                                                                          )
-                                                                        : null,
-                                                                )
-                                                                .filter(
-                                                                    (p) =>
-                                                                        p !==
-                                                                        null,
-                                                                ) as number[];
+                                                        const effectivePrices = item.variations
+                                                            .map((v) =>
+                                                                v.discounted_price != null
+                                                                    ? Number(v.discounted_price)
+                                                                    : v.price ? parseFloat(String(v.price)) : null,
+                                                            )
+                                                            .filter((p) => p !== null) as number[];
+                                                        const originalPrices = item.variations
+                                                            .map((v) => (v.price ? parseFloat(String(v.price)) : null))
+                                                            .filter((p) => p !== null) as number[];
                                                         const itemPrice =
-                                                            prices.length > 0
-                                                                ? Math.max(
-                                                                      ...prices,
-                                                                  )
+                                                            effectivePrices.length > 0
+                                                                ? Math.max(...effectivePrices)
                                                                 : product.sale_price;
+                                                        const itemOriginalPrice =
+                                                            originalPrices.length > 0 ? Math.max(...originalPrices) : null;
+                                                        const hasItemDiscount =
+                                                            itemOriginalPrice !== null && itemPrice < itemOriginalPrice;
 
                                                         // Highlight if matches current selection?
                                                         const isCurrent =
@@ -616,18 +627,16 @@ const ProductVariationModal: React.FC<ProductVariationModalProps> = ({
                                                                                 ", ",
                                                                             )}
                                                                     </div>
-                                                                    <div className="text-xs text-gray-500 mt-0.5 font-medium">
-                                                                        {formatPrice(
-                                                                            itemPrice,
-                                                                        )}{" "}
-                                                                        ×{" "}
-                                                                        {
-                                                                            item.quantity
-                                                                        }{" "}
-                                                                        ={" "}
-                                                                        {formatPrice(
-                                                                            itemPrice *
-                                                                                item.quantity,
+                                                                    <div className="text-xs text-gray-500 mt-0.5 font-medium flex items-center gap-1 flex-wrap">
+                                                                        {hasItemDiscount ? (
+                                                                            <>
+                                                                                <span className="text-brand-primary font-bold">{formatPrice(itemPrice)}</span>
+                                                                                <span className="line-through opacity-60">{formatPrice(itemOriginalPrice!)}</span>
+                                                                                <span>× {item.quantity} =</span>
+                                                                                <span className="text-brand-primary font-bold">{formatPrice(itemPrice * item.quantity)}</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <span>{formatPrice(itemPrice)} × {item.quantity} = {formatPrice(itemPrice * item.quantity)}</span>
                                                                         )}
                                                                     </div>
                                                                 </div>

@@ -43,6 +43,9 @@ class ProductRequest extends FormRequest
             'variations.*.price' => 'nullable|numeric|min:0',
             'variations.*.image' => 'nullable', // Removed 'image' rule here as it fails on existing path strings; Controller handles file check
             'variations.*.deleted_image' => 'nullable|boolean',
+            'variations.*.discount_type' => 'nullable|in:flat,percentage',
+            'variations.*.discount_value' => 'nullable|numeric|min:0',
+            'variations.*.discounted_price' => 'nullable|numeric|min:0',
             'is_preorder' => 'boolean',
             'has_discount' => 'nullable|boolean',
             'discount_type' => 'nullable|in:flat,percentage',

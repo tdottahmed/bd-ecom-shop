@@ -222,6 +222,9 @@ class ProductController extends Controller
                         'image' => $variationImagePath,
                         'stock' => $variationData['stock'] ?? null,
                         'price' => $variationData['price'] ?? null,
+                        'discount_type' => $variationData['discount_type'] ?: null,
+                        'discount_value' => isset($variationData['discount_value']) && $variationData['discount_value'] !== '' ? (float) $variationData['discount_value'] : null,
+                        'discounted_price' => isset($variationData['discounted_price']) && $variationData['discounted_price'] !== '' ? (float) $variationData['discounted_price'] : null,
                     ]);
                 }
             }
@@ -376,6 +379,9 @@ class ProductController extends Controller
                             'image' => $nextImage,
                             'stock' => $variationData['stock'] ?? null,
                             'price' => $variationData['price'] ?? null,
+                            'discount_type' => $variationData['discount_type'] ?: null,
+                            'discount_value' => isset($variationData['discount_value']) && $variationData['discount_value'] !== '' ? (float) $variationData['discount_value'] : null,
+                            'discounted_price' => isset($variationData['discounted_price']) && $variationData['discounted_price'] !== '' ? (float) $variationData['discounted_price'] : null,
                         ]);
                     } else {
                         $uploadedImage = isset($variationData['image']) && $variationData['image'] instanceof \Illuminate\Http\UploadedFile 
@@ -397,6 +403,9 @@ class ProductController extends Controller
                             'image' => $variationImagePath,
                             'stock' => $variationData['stock'] ?? null,
                             'price' => $variationData['price'] ?? null,
+                            'discount_type' => $variationData['discount_type'] ?: null,
+                            'discount_value' => isset($variationData['discount_value']) && $variationData['discount_value'] !== '' ? (float) $variationData['discount_value'] : null,
+                            'discounted_price' => isset($variationData['discounted_price']) && $variationData['discounted_price'] !== '' ? (float) $variationData['discounted_price'] : null,
                         ]);
                     }
                 }
