@@ -49,8 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const hasInStockVariation =
         hasVariations &&
         (product.product_variations ?? []).some((variation) => {
-            const stock = variation.stock ?? product.stock;
-            return Number(stock) > 0;
+            return Number(variation.stock ?? 0) > 0;
         });
 
     const isOutOfStock = !product.is_preorder
