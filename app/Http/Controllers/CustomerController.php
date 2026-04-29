@@ -85,7 +85,7 @@ class CustomerController extends Controller
 
     public function index(Request $request)
     {
-        $websiteSettings = \Illuminate\Support\Facades\Cache::remember('website_settings', 600, fn () => \App\Models\WebsiteSetting::first());
+        $websiteSettings = \Illuminate\Support\Facades\Cache::remember('website_settings', 600, fn() => \App\Models\WebsiteSetting::first());
         $categories = Category::select(['id', 'title', 'slug', 'image'])->where('is_featured', 1)->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
         $bannerSettings = $this->getBannerSettings();
@@ -131,7 +131,7 @@ class CustomerController extends Controller
         $categoryModel = Category::where('slug', $category)->firstOrFail();
         $categories = Category::select(['id', 'title', 'slug', 'image'])->get();
         $brands = Brand::select(['id', 'title', 'slug', 'image'])->orderBy('title')->get();
-        
+
         $products = $this->filterProducts($request, $categoryModel->id, 16);
 
         return Inertia::render('Customer/ProductList', [
@@ -231,7 +231,7 @@ class CustomerController extends Controller
         $explicitStockFilter = $request->input('in_stock') || $request->input('stock_out');
         if (!$explicitStockFilter) {
             $query->orderByRaw("CASE WHEN ($effectiveStock) > 0 THEN 0 WHEN is_preorder = 1 THEN 1 ELSE 2 END")
-                  ->orderByRaw("($effectiveStock) DESC");
+                ->orderByRaw("($effectiveStock) DESC");
         }
 
         // Sorting
@@ -257,9 +257,16 @@ class CustomerController extends Controller
     public function show(Product $product)
     {
         $product->load(['category', 'product_variations.product_attribute']);
+        $displayProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->select('id', 'name', 'slug', 'sale_price', 'stock', 'is_preorder', 'product_type', 'category_id', 'images', 'has_discount', 'discount_type', 'discount_value', 'discounted_sale_price')
+            ->inRandomOrder()
+            ->limit(8)
+            ->get();
 
         return Inertia::render('Customer/ProductShow', [
             'product' => $product,
+            'related_products' => $displayProducts,
         ]);
     }
 
